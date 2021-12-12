@@ -133,7 +133,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#x67;&#x69;&#116;&#x40;&#x31;&#57;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#x2e;&#x31;&#x31;&#57;">&#x67;&#x69;&#116;&#x40;&#x31;&#57;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#x2e;&#x31;&#x31;&#57;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#x67;&#x69;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#46;&#x31;&#49;&#x39;">&#x67;&#x69;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#46;&#x31;&#49;&#x39;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
