@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>日常生活</title>
+    <url>/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/</url>
+    <content><![CDATA[<h2 id="日常生活"><a href="#日常生活" class="headerlink" title="日常生活"></a>日常生活</h2><p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211212232610.jpg" alt="IMG_20211122_080309"></p>
+]]></content>
+      <categories>
+        <category>生活</category>
+      </categories>
+      <tags>
+        <tag>生活，摄影</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>读书笔记</title>
     <url>/2021/12/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h1 id="读书笔记：MySQL实战45讲-极客时间"><a href="#读书笔记：MySQL实战45讲-极客时间" class="headerlink" title="读书笔记：MySQL实战45讲 - 极客时间"></a>读书笔记：MySQL实战45讲 - 极客时间</h1><span id="more"></span>
@@ -90,18 +102,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>日常生活</title>
-    <url>/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/</url>
-    <content><![CDATA[<h2 id="日常生活"><a href="#日常生活" class="headerlink" title="日常生活"></a>日常生活</h2><p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211212232610.jpg" alt="IMG_20211122_080309"></p>
-]]></content>
-      <categories>
-        <category>生活</category>
-      </categories>
-      <tags>
-        <tag>生活，摄影</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>go基础</title>
     <url>/2021/12/11/go%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<blockquote>
@@ -133,7 +133,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#x67;&#105;&#116;&#x40;&#49;&#x39;&#x32;&#x2e;&#x31;&#54;&#56;&#x2e;&#x31;&#46;&#x31;&#x31;&#x39;">&#x67;&#105;&#116;&#x40;&#49;&#x39;&#x32;&#x2e;&#x31;&#54;&#56;&#x2e;&#x31;&#46;&#x31;&#x31;&#x39;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#x67;&#x69;&#116;&#x40;&#x31;&#57;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#x2e;&#x31;&#x31;&#57;">&#x67;&#x69;&#116;&#x40;&#x31;&#57;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#x2e;&#x31;&#x31;&#57;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
