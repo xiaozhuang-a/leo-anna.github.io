@@ -21,33 +21,32 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"www.leoyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
-<meta name="description" content="读书笔记：MySQL实战45讲 - 极客时间">
+<meta name="description" content="mysql 日记 2021.12.24 mysql sql执行流程     redo log和binlog  二者的理解可以通过记账老板记账过程中使用的粉板和记账本 二者日志都先是写到磁盘中，然后根据参数配置持久化磁盘中的（redolog 对应innodb_flush_log_at_trx_commit， binlog对应sync_binlog）   redolog重做日志  内存更新后写入，提交">
 <meta property="og:type" content="article">
-<meta property="og:title" content="读书笔记">
-<meta property="og:url" content="http://www.leoyun.top/2021/12/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:title" content="mysql 日记 2021.12.24">
+<meta property="og:url" content="http://www.leoyun.top/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/index.html">
 <meta property="og:site_name" content="勇往直前">
-<meta property="og:description" content="读书笔记：MySQL实战45讲 - 极客时间">
+<meta property="og:description" content="mysql 日记 2021.12.24 mysql sql执行流程     redo log和binlog  二者的理解可以通过记账老板记账过程中使用的粉板和记账本 二者日志都先是写到磁盘中，然后根据参数配置持久化磁盘中的（redolog 对应innodb_flush_log_at_trx_commit， binlog对应sync_binlog）   redolog重做日志  内存更新后写入，提交">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/16/a7/16a7950217b3f0f4ed02db5db59562a7.png">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/2e/be/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png">
-<meta property="article:published_time" content="2021-12-10T14:55:38.000Z">
-<meta property="article:modified_time" content="2021-12-13T02:17:55.155Z">
+<meta property="article:published_time" content="2021-12-24T14:49:35.000Z">
+<meta property="article:modified_time" content="2021-12-24T15:43:14.350Z">
 <meta property="article:author" content="小庄">
 <meta property="article:tag" content="mysql">
-<meta property="article:tag" content="运维">
+<meta property="article:tag" content="日记">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png">
 
 
-<link rel="canonical" href="http://www.leoyun.top/2021/12/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+<link rel="canonical" href="http://www.leoyun.top/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/","path":"2021/12/10/读书笔记/","title":"读书笔记"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/","path":"2021/12/24/mysql-日记-2021.12.24/","title":"mysql 日记 2021.12.24"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>读书笔记 | 勇往直前</title>
+<title>mysql 日记 2021.12.24 | 勇往直前</title>
   
 
 
@@ -154,7 +153,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AMySQL%E5%AE%9E%E6%88%9845%E8%AE%B2-%E6%9E%81%E5%AE%A2%E6%97%B6%E9%97%B4"><span class="nav-number">1.</span> <span class="nav-text">读书笔记：MySQL实战45讲 - 极客时间</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">01 基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%97%A5%E5%BF%97"><span class="nav-number">1.2.</span> <span class="nav-text">02 日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB"><span class="nav-number">1.3.</span> <span class="nav-text">03 事务隔离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%B4%A2%E5%BC%95%E4%B8%8A"><span class="nav-number">1.4.</span> <span class="nav-text">04 索引上</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql-%E6%97%A5%E8%AE%B0-2021-12-24"><span class="nav-number">1.</span> <span class="nav-text">mysql 日记 2021.12.24</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -219,7 +218,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/20211210231228.png">
@@ -232,7 +231,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          读书笔记
+          mysql 日记 2021.12.24
         </h1>
 
         <div class="post-meta-container">
@@ -242,15 +241,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
+      
 
-      <time title="创建时间：2021-12-10 22:55:38" itemprop="dateCreated datePublished" datetime="2021-12-10T22:55:38+08:00">2021-12-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2021-12-13 10:17:55" itemprop="dateModified" datetime="2021-12-13T10:17:55+08:00">2021-12-13</time>
+      <time title="创建时间：2021-12-24 22:49:35 / 修改时间：23:43:14" itemprop="dateCreated datePublished" datetime="2021-12-24T22:49:35+08:00">2021-12-24</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -276,14 +269,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3k</span>
+      <span>1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>3 分钟</span>
+      <span>1 分钟</span>
     </span>
 </div>
 
@@ -294,90 +287,67 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="读书笔记：MySQL实战45讲-极客时间"><a href="#读书笔记：MySQL实战45讲-极客时间" class="headerlink" title="读书笔记：MySQL实战45讲 - 极客时间"></a>读书笔记：MySQL实战45讲 - 极客时间</h1><span id="more"></span>
-
-
-<h2 id="01-基础"><a href="#01-基础" class="headerlink" title="01 基础"></a>01 基础</h2><img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" alt="img" style="zoom: 33%;" />
-
-<h2 id="02-日志"><a href="#02-日志" class="headerlink" title="02 日志"></a>02 日志</h2><p><strong>Redo log crash-safe能力</strong></p>
-<p>与此类似，InnoDB 的 redo log 是固定大小的，比如可以配置为一组 4 个文件，每个文件的大小是 1GB，那么这块“粉板”总共就可以记录 4GB 的操作。从头开始写，写到末尾就又回到开头循环写，如下面这个图所示。</p>
-<img src="https://static001.geekbang.org/resource/image/16/a7/16a7950217b3f0f4ed02db5db59562a7.png" alt="img" style="zoom:50%;" />
-
-<p>write pos 是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。checkpoint 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。</p>
-<p><strong>binlog</strong></p>
-<p>MySQL 整体来看，其实就有两块：一块是 Server 层，它主要做的是 MySQL 功能层面的事情；还有一块是引擎层，负责存储相关的具体事宜。上面我们聊到的粉板 redo log 是 InnoDB 引擎特有的日志，而 Server 层也有自己的日志，称为 binlog（归档日志）。</p>
-<p><strong>binlog和redolog</strong> </p>
-<ul>
-<li>但是 MyISAM 没有 crash-safe 的能力，binlog 日志只能用于归档。</li>
-<li>InnoDB 是另一个公司以插件形式引入 MySQL 的，既然只依靠 binlog 是没有 crash-safe 能力的，所以 InnoDB 使用另外一套日志系统——也就是 redo log 来实现 crash-safe 能力</li>
-<li>这两种日志有以下三点不同。<ul>
-<li>redo log 是 InnoDB 引擎特有的；binlog 是 MySQL 的 Server 层实现的，所有引擎都可以使用。</li>
-<li>redo log 是物理日志，记录的是“在某个数据页上做了什么修改”；binlog 是逻辑日志，记录的是这个语句的原始逻辑，比如“给 ID=2 这一行的 c 字段加 1 ”。</li>
-<li>redo log 是循环写的，空间固定会用完；binlog 是可以追加写入的。“追加写”是指 binlog 文件写到一定大小后会切换到下一个，并不会覆盖以前的日志</li>
-</ul>
-</li>
-</ul>
-<p>update<strong>执行过程</strong></p>
-<p>InnoDB 引擎在执行这个简单的 update 语句时的内部流程。</p>
-<ol>
-<li>执行器先找引擎取 ID=2 这一行。ID 是主键，引擎直接用树搜索找到这一行。如果 ID=2 这一行所在的数据页本来就在内存中，就直接返回给执行器；否则，需要先从磁盘读入内存，然后再返回。</li>
-<li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口写入这行新数据。</li>
-<li>引擎将这行新数据更新到内存中，同时将这个更新操作记录到 redo log 里面，此时 redo log 处于 prepare 状态。然后告知执行器执行完成了，随时可以提交事务。</li>
-<li>执行器生成这个操作的 binlog，并把 binlog 写入磁盘。执行器调用引擎的提交事务接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，更新完成。</li>
+        <h2 id="mysql-日记-2021-12-24"><a href="#mysql-日记-2021-12-24" class="headerlink" title="mysql 日记 2021.12.24"></a>mysql 日记 2021.12.24</h2><ol>
+<li>mysql sql执行流程</li>
 </ol>
+<img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" alt="img" style="zoom: 33%;" />
+
+<ol start="2">
+<li>redo log和binlog</li>
+</ol>
+<p>二者的理解可以通过记账老板记账过程中使用的粉板和记账本</p>
+<p>二者日志都先是写到磁盘中，然后根据参数配置持久化磁盘中的（redolog 对应innodb_flush_log_at_trx_commit， binlog对应sync_binlog）</p>
 <img src="https://static001.geekbang.org/resource/image/2e/be/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png" alt="img" style="zoom:33%;" />
 
-<h2 id="03-事务隔离"><a href="#03-事务隔离" class="headerlink" title="03 事务隔离"></a>03 事务隔离</h2><p><strong>隔离级别</strong></p>
+<p>redolog重做日志</p>
 <ul>
-<li>读未提交是指，一个事务还没提交时，它做的变更就能被别的事务看到。</li>
-<li>读提交是指，一个事务提交之后，它做的变更才会被其他事务看到。</li>
-<li>可重复读是指，一个事务执行过程中看到的数据，总是跟这个事务在启动时看到的数据是一致的。当然在可重复读隔离级别下，未提交变更对其他事务也是不可见的。</li>
-<li>串行化，顾名思义是对于同一行记录，“写”会加“写锁”，“读”会加“读锁”。当出现读写锁冲突的时候，后访问的事务必须等前一个事务执行完成，才能继续执行</li>
+<li>内存更新后写入，提交时候时写入</li>
+<li>定期刷脏页，推进pos点，刷脏页的情况有redolog满了、正常关机、内存满了、空闲刷</li>
+<li>和binlog一起使用，两阶段提交，不能单独写完一个再去写另一个，原因是为了保证二者状态的逻辑一致性（一条sql在两个日志上的状态保持一致）<ul>
+<li>反证法解析<ul>
+<li>写完binlog，再去写redo log，写完第一个后crash，在binlog这边就意味着比redolog多了一个事务，redolog还没写，意味着还没落盘，如果存在主从同步，会产生数据不一致</li>
+<li>写完redo log，再去写binlog，写完redo log crash ，重启恢复数据根据redo log，成功恢复数据为最新的，但是binlog中没有这个事务，存在主从同步的话，也会存在产生数据不一致</li>
 </ul>
-<p><strong>总结</strong></p>
-<ol>
-<li>事务的特性：原子性、一致性、隔离性、持久性</li>
-<li>多事务同时执行的时候，可能会出现的问题：脏读、不可重复读、幻读</li>
-<li>事务隔离级别：读未提交、读提交、可重复读、串行化</li>
-<li>不同事务隔离级别的区别：<br>读未提交：一个事务还未提交，它所做的变更就可以被别的事务看到<br>RC读提交：一个事务提交之后，它所做的变更才可以被别的事务看到<br>RR可重复读：一个事务执行过程中看到的数据是一致的。未提交的更改对其他事务是不可见的,数据库默认使用，会出现幻读的情况（使用mvcc版本控制解决）<br>串行化：对应一个记录会加读写锁，出现冲突的时候，后访问的事务必须等前一个事务执行完成才能继续执行</li>
-<li>配置方法：启动参数transaction-isolation</li>
-<li>事务隔离的实现：每条记录在更新的时候都会同时记录一条回滚操作。同一条记录在系统中可以存在多个版本，这就是数据库的多版本并发控制（MVCC）。</li>
-<li>回滚日志什么时候删除？系统会判断当没有事务需要用到这些回滚日志的时候，回滚日志会被删除。</li>
-<li>什么时候不需要了？当系统里么有比这个回滚日志更早的read-view的时候。</li>
-<li>为什么尽量不要使用长事务。长事务意味着系统里面会存在很老的事务视图，在这个事务提交之前，回滚记录都要保留，这会导致大量占用存储空间。除此之外，长事务还占用锁资源，可能会拖垮库。</li>
-<li>事务启动方式：一、显式启动事务语句，begin或者start transaction,提交commit，回滚rollback；二、set autocommit=0，该命令会把这个线程的自动提交关掉。这样只要执行一个select语句，事务就启动，并不会自动提交，直到主动执行commit或rollback或断开连接。</li>
-<li>建议使用方法一，如果考虑多一次交互问题，可以使用commit work and chain语法。在autocommit=1的情况下用begin显式启动事务，如果执行commit则提交事务。如果执行commit work and chain则提交事务并自动启动下一个事务。</li>
-<li>事务参数：<ol>
-<li>SET MAX_EXECUTION_TIME</li>
-<li>set autocommit=0。</li>
-</ol>
 </li>
+</ul>
+</li>
+<li>innodb存储层实现</li>
+<li>循环写、顺序写，不能替代binlog</li>
+<li>实现了carsh-safe的能力</li>
+<li>物理日志，记录数据页上的实际变更操作</li>
+</ul>
+<p>binlog归档日志</p>
+<ul>
+<li>server层实现</li>
+<li>有三种格式statment 、rows、mixed，一般为rows</li>
+<li>逻辑日志，记录变更原始逻辑</li>
+</ul>
+<ol start="3">
+<li>唯一索引和普通索引</li>
 </ol>
-<p>思考题：</p>
-<p>在开发过程中，尽可能的减小事务范围，少用长事务，如果无法避免，保证逻辑日志空间足够用，并且支持动态日志空间增长。监控Innodb_trx表，发现长事务报警。</p>
-<h2 id="04-索引上"><a href="#04-索引上" class="headerlink" title="04 索引上"></a>04 索引上</h2><p><strong>总结</strong></p>
-<p>总结：</p>
-<ol>
-<li>索引的作用：提高数据查询效率</li>
-<li>常见索引模型：哈希表、有序数组、搜索树</li>
-<li>哈希表：键 - 值(key - value)。</li>
-<li>哈希思路：把值放在数组里，用一个哈希函数把key换算成一个确定的位置，然后把value放在数组的这个位置</li>
-<li>哈希冲突的处理办法：链表</li>
-<li>哈希表适用场景：只有等值查询的场景</li>
-<li>有序数组：按顺序存储。查询用二分法就可以快速查询，时间复杂度是：O(log(N))</li>
-<li>有序数组查询效率高，更新效率低</li>
-<li>有序数组的适用场景：静态存储引擎。</li>
-<li>二叉搜索树：每个节点的左儿子小于父节点，父节点又小于右儿子</li>
-<li>二叉搜索树：查询时间复杂度O(log(N))，更新时间复杂度O(log(N))</li>
-<li>数据库存储大多不适用二叉树，因为树高过高，读取数据块变多，会使用N叉树，可以通过控制page的大小间接控制N</li>
-<li>InnoDB中的索引模型：B+Tree</li>
-<li>索引类型：主键索引、非主键索引<br>主键索引的叶子节点存的是整行的数据(聚簇索引)，非主键索引的叶子节点内容是主键的值(二级索引)</li>
-<li>主键索引和普通索引的区别：主键索引只要搜索ID这个B+Tree即可拿到数据。普通索引先搜索索引拿到主键值，再到主键索引树搜索一次(回表)</li>
-<li>一个数据页满了，按照B+Tree算法，新增加一个数据页，叫做页分裂，会导致性能下降。空间利用率降低大概50%。当相邻的两个数据页利用率很低的时候会做数据页合并，合并的过程是分裂过程的逆过程。</li>
-<li>从性能和存储空间方面考量，自增主键往往是更合理的选择。</li>
-<li>叶子结点存储页，每个页里面有很多行</li>
-</ol>
-<p>思考题：<br>如果删除，新建主键索引，会同时去修改普通索引对应的主键索引，性能消耗比较大。<br>删除重建普通索引貌似影响不大，不过要注意在业务低谷期操作，避免影响业务。</p>
+<ul>
+<li><p>唯一索引的查询效率是<strong>略高于</strong>普通索引的</p>
+</li>
+<li><p>从磁盘中读数据到内存中是按照数据页page来读取的</p>
+</li>
+</ul>
+<p>change buffer</p>
+<ul>
+<li>普通索引会使用到change buffer 来优化更新语句，提高很高的性能，但是不适合写多读少的情况，尤其是写完数据再去读这条数据，会增加change buffer的维护成本</li>
+<li>唯一索引由于需要判断唯一性所以不能用change buffer，所以一般情况下建议使用普通索引，尤其是表量大的情况</li>
+<li>change buffer 是可以持久化的</li>
+<li>包括insert、update、delete操作</li>
+<li>更新后的select<ul>
+<li>如果是在内存中更新，则直接返回</li>
+<li>merge操作，如果是change buffer 中缓存，则从磁盘中读出数据，导入change buffer中的操作日志，生成一个数据版本，返回</li>
+</ul>
+</li>
+</ul>
+<p>change buffer和redolog</p>
+<ul>
+<li>change buffer 节省的是随机读磁盘的io</li>
+<li>redlog 节省的是随机写磁盘的io，转换成顺序写</li>
+</ul>
 
     </div>
 
@@ -395,7 +365,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="http://www.leoyun.top/2021/12/10/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" title="读书笔记">http://www.leoyun.top/2021/12/10/读书笔记/</a>
+      <a href="http://www.leoyun.top/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/" title="mysql 日记 2021.12.24">http://www.leoyun.top/2021/12/24/mysql-日记-2021.12.24/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -405,18 +375,18 @@
 
           <div class="post-tags">
               <a href="/tags/mysql/" rel="tag"># mysql</a>
-              <a href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag"># 运维</a>
+              <a href="/tags/%E6%97%A5%E8%AE%B0/" rel="tag"># 日记</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
+                <a href="/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/" rel="prev" title="日常生活">
+                  <i class="fa fa-chevron-left"></i> 日常生活
+                </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2021/12/11/go%E5%9F%BA%E7%A1%80/" rel="next" title="go基础">
-                  go基础 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
@@ -449,14 +419,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">18k</span>
+    <span title="站点总字数">16k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">17 分钟</span>
+    <span title="站点阅读时长">15 分钟</span>
   </span>
 </div>
 <div class="busuanzi-count">
