@@ -4,11 +4,11 @@
     <title>mysql 日记 2021.12.24</title>
     <url>/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/</url>
     <content><![CDATA[<h2 id="mysql-日记-2021-12-24"><a href="#mysql-日记-2021-12-24" class="headerlink" title="mysql 日记 2021.12.24"></a>mysql 日记 2021.12.24</h2><ol>
-<li>mysql sql执行流程</li>
+<li>mysql sql执行流程<span id="more"></span></li>
 </ol>
 <img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" alt="img" style="zoom: 33%;" />
 
-<ol start="2">
+<ol>
 <li>redo log和binlog</li>
 </ol>
 <p>二者的理解可以通过记账老板记账过程中使用的粉板和记账本</p>
@@ -116,7 +116,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#103;&#x69;&#116;&#x40;&#49;&#57;&#50;&#46;&#x31;&#54;&#56;&#46;&#x31;&#46;&#49;&#x31;&#57;">&#103;&#x69;&#116;&#x40;&#49;&#57;&#50;&#46;&#x31;&#54;&#56;&#46;&#x31;&#46;&#49;&#x31;&#57;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#103;&#x69;&#x74;&#x40;&#49;&#x39;&#x32;&#x2e;&#49;&#x36;&#x38;&#x2e;&#x31;&#x2e;&#x31;&#49;&#x39;">&#103;&#x69;&#x74;&#x40;&#49;&#x39;&#x32;&#x2e;&#49;&#x36;&#x38;&#x2e;&#x31;&#x2e;&#x31;&#49;&#x39;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
