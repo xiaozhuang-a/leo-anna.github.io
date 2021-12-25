@@ -14,20 +14,15 @@
   <entry>
     <title>mysql 日记 2021.12.24</title>
     <url>/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/</url>
-    <content><![CDATA[<h2 id="mysql-日记-2021-12-24"><a href="#mysql-日记-2021-12-24" class="headerlink" title="mysql 日记 2021.12.24"></a>mysql 日记 2021.12.24</h2><ol>
-<li>mysql sql执行流程<span id="more"></span></li>
-</ol>
+    <content><![CDATA[<h2 id="mysql-日记-2021-12-24"><a href="#mysql-日记-2021-12-24" class="headerlink" title="mysql 日记 2021.12.24"></a>mysql 日记 2021.12.24</h2><h3 id="mysql-sql执行流程"><a href="#mysql-sql执行流程" class="headerlink" title="mysql sql执行流程"></a>mysql sql执行流程</h3><span id="more"></span>
+
 <img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" alt="img" style="zoom: 33%;" />
 
-<ol>
-<li>redo log和binlog</li>
-</ol>
-<p>二者的理解可以通过记账老板记账过程中使用的粉板和记账本</p>
+<h3 id="redo-log和binlog"><a href="#redo-log和binlog" class="headerlink" title="redo log和binlog"></a>redo log和binlog</h3><p>二者的理解可以通过记账老板记账过程中使用的粉板和记账本</p>
 <p>二者日志都先是写到磁盘中，然后根据参数配置持久化磁盘中的（redolog 对应innodb_flush_log_at_trx_commit， binlog对应sync_binlog）</p>
 <img src="https://static001.geekbang.org/resource/image/2e/be/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png" alt="img" style="zoom:33%;" />
 
-<p>redolog重做日志</p>
-<ul>
+<h4 id="redolog重做日志"><a href="#redolog重做日志" class="headerlink" title="redolog重做日志"></a>redolog重做日志</h4><ul>
 <li>内存更新后写入，提交时候时写入</li>
 <li>定期刷脏页，推进pos点，刷脏页的情况有redolog满了、正常关机、内存满了、空闲刷</li>
 <li>和binlog一起使用，两阶段提交，不能单独写完一个再去写另一个，原因是为了保证二者状态的逻辑一致性（一条sql在两个日志上的状态保持一致）<ul>
@@ -43,23 +38,18 @@
 <li>实现了carsh-safe的能力</li>
 <li>物理日志，记录数据页上的实际变更操作</li>
 </ul>
-<p>binlog归档日志</p>
-<ul>
+<h4 id="binlog归档日志"><a href="#binlog归档日志" class="headerlink" title="binlog归档日志"></a>binlog归档日志</h4><ul>
 <li>server层实现</li>
 <li>有三种格式statment 、rows、mixed，一般为rows</li>
 <li>逻辑日志，记录变更原始逻辑</li>
 </ul>
-<ol start="3">
-<li>唯一索引和普通索引</li>
-</ol>
-<ul>
+<h3 id="唯一索引和普通索引"><a href="#唯一索引和普通索引" class="headerlink" title="唯一索引和普通索引"></a>唯一索引和普通索引</h3><ul>
 <li><p>唯一索引的查询效率是<strong>略高于</strong>普通索引的</p>
 </li>
 <li><p>从磁盘中读数据到内存中是按照数据页page来读取的</p>
 </li>
 </ul>
-<p>change buffer</p>
-<ul>
+<h4 id="change-buffer"><a href="#change-buffer" class="headerlink" title="change buffer"></a>change buffer</h4><ul>
 <li>普通索引会使用到change buffer 来优化更新语句，提高很高的性能，但是不适合写多读少的情况，尤其是写完数据再去读这条数据，会增加change buffer的维护成本</li>
 <li>唯一索引由于需要判断唯一性所以不能用change buffer，所以一般情况下建议使用普通索引，尤其是表量大的情况</li>
 <li>change buffer 是可以持久化的</li>
@@ -70,8 +60,7 @@
 </ul>
 </li>
 </ul>
-<p>change buffer和redolog</p>
-<ul>
+<h4 id="change-buffer和redolog"><a href="#change-buffer和redolog" class="headerlink" title="change buffer和redolog"></a>change buffer和redolog</h4><ul>
 <li>change buffer 节省的是随机读磁盘的io</li>
 <li>redlog 节省的是随机写磁盘的io，转换成顺序写</li>
 </ul>
@@ -116,7 +105,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#x67;&#105;&#116;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#54;&#56;&#x2e;&#x31;&#x2e;&#x31;&#x31;&#x39;">&#x67;&#105;&#116;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#54;&#56;&#x2e;&#x31;&#x2e;&#x31;&#x31;&#x39;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#x67;&#x69;&#116;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#x31;&#x2e;&#49;&#49;&#x39;">&#x67;&#x69;&#116;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#x31;&#x2e;&#49;&#49;&#x39;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
