@@ -21,28 +21,28 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"www.leoyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
-<meta name="description" content="日常生活">
+<meta name="description" content="二叉树的三种遍历方式">
 <meta property="og:type" content="article">
-<meta property="og:title" content="日常生活">
-<meta property="og:url" content="http://www.leoyun.top/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/index.html">
+<meta property="og:title" content="二叉树">
+<meta property="og:url" content="http://www.leoyun.top/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/index.html">
 <meta property="og:site_name" content="勇往直前">
-<meta property="og:description" content="日常生活">
+<meta property="og:description" content="二叉树的三种遍历方式">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-12-12T15:28:56.000Z">
-<meta property="article:modified_time" content="2021-12-24T14:46:35.959Z">
+<meta property="article:published_time" content="2021-12-26T14:49:35.000Z">
+<meta property="article:modified_time" content="2021-12-26T07:55:13.496Z">
 <meta property="article:author" content="小庄">
-<meta property="article:tag" content="摄影">
+<meta property="article:tag" content="二叉树">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="http://www.leoyun.top/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/">
+<link rel="canonical" href="http://www.leoyun.top/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/","path":"2021/12/12/日常生活/","title":"日常生活"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/","path":"2021/12/26/二叉树/","title":"二叉树"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>日常生活 | 勇往直前</title>
+<title>二叉树 | 勇往直前</title>
   
 
 
@@ -136,7 +136,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -149,7 +149,6 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB"><span class="nav-number">1.</span> <span class="nav-text">日常生活</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -164,18 +163,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -214,7 +213,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/">
+    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/20211210231228.png">
@@ -227,7 +226,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          日常生活
+          二叉树
         </h1>
 
         <div class="post-meta-container">
@@ -237,15 +236,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
+      
 
-      <time title="创建时间：2021-12-12 23:28:56" itemprop="dateCreated datePublished" datetime="2021-12-12T23:28:56+08:00">2021-12-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2021-12-24 22:46:35" itemprop="dateModified" datetime="2021-12-24T22:46:35+08:00">2021-12-24</time>
+      <time title="创建时间：2021-12-26 22:49:35 / 修改时间：15:55:13" itemprop="dateCreated datePublished" datetime="2021-12-26T22:49:35+08:00">2021-12-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -253,7 +246,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%94%9F%E6%B4%BB/" itemprop="url" rel="index"><span itemprop="name">生活</span></a>
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
         </span>
     </span>
 
@@ -271,7 +264,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4</span>
+      <span>1.2k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -289,7 +282,12 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="日常生活"><a href="#日常生活" class="headerlink" title="日常生活"></a>日常生活</h2>
+        <p>二叉树的三种遍历方式</p>
+<span id="more"></span>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
     </div>
 
     
@@ -306,7 +304,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="http://www.leoyun.top/2021/12/12/%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB/" title="日常生活">http://www.leoyun.top/2021/12/12/日常生活/</a>
+      <a href="http://www.leoyun.top/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/" title="二叉树">http://www.leoyun.top/2021/12/26/二叉树/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -315,20 +313,20 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/%E6%91%84%E5%BD%B1/" rel="tag"># 摄影</a>
+              <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag"># 二叉树</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2021/12/11/go%E5%9F%BA%E7%A1%80/" rel="prev" title="go基础">
-                  <i class="fa fa-chevron-left"></i> go基础
+                <a href="/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/" rel="prev" title="mysql 日记 2021.12.24">
+                  <i class="fa fa-chevron-left"></i> mysql 日记 2021.12.24
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/" rel="next" title="mysql 日记 2021.12.24">
-                  mysql 日记 2021.12.24 <i class="fa fa-chevron-right"></i>
+                <a href="/2021/12/26/%E9%93%BE%E8%A1%A8/" rel="next" title="链表">
+                  链表 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
@@ -362,14 +360,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">16k</span>
+    <span title="站点总字数">19k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">15 分钟</span>
+    <span title="站点阅读时长">18 分钟</span>
   </span>
 </div>
 <div class="busuanzi-count">
