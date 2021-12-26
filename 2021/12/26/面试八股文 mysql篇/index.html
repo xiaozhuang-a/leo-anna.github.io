@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.leoyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+<meta name="description" content="连接器的最大连接数以及调优">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试八股文 mysql篇">
+<meta property="og:url" content="http://www.leoyun.top/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/index.html">
+<meta property="og:site_name" content="勇往直前">
+<meta property="og:description" content="连接器的最大连接数以及调优">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/69a8346941af33b8ceded3fcafe0ce03.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/eb4e297a05891f2cdcfd9990f89e483a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/b7ac1234b2d44d81bf17dee1c95d4d37.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/6d4384f30d148e586ee353b97e1f0fef.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/875a4a8184a2eccf33ca1176799d540a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/682ebc9c026cc8b81bc74ca0115f79df.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/9b9820761e6fc6d9b2644f70fea0c878.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/b83959086f28bb82d5dd174a12af8bdc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/d52351ca45402fd46125dc2e59be0a76.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/bd6876ff641aba17165df1c7ef249df5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/fae385cd4a137a82e28b52c9eb9737a5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e7172b78774dcb6d1679d262491d3a32.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png">
+<meta property="article:published_time" content="2021-12-26T14:49:35.000Z">
+<meta property="article:modified_time" content="2021-12-26T14:56:16.647Z">
+<meta property="article:author" content="小庄">
+<meta property="article:tag" content="面试">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png">
+
+
+<link rel="canonical" href="http://www.leoyun.top/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/","path":"2021/12/26/面试八股文 mysql篇/","title":"面试八股文 mysql篇"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>面试八股文 mysql篇 | 勇往直前</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">勇往直前</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">庄</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%9A%84%E6%9C%80%E5%A4%A7%E8%BF%9E%E6%8E%A5%E6%95%B0%E4%BB%A5%E5%8F%8A%E8%B0%83%E4%BC%98"><span class="nav-number">1.</span> <span class="nav-text">连接器的最大连接数以及调优</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog%E5%92%8Cbinlog%E5%8C%BA%E5%88%AB"><span class="nav-number">2.</span> <span class="nav-text">redolog和binlog区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undolog"><span class="nav-number">3.</span> <span class="nav-text">undolog</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">sql执行流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mvcc"><span class="nav-number">5.</span> <span class="nav-text">mvcc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mha"><span class="nav-number">6.</span> <span class="nav-text">mha</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E4%B8%80%E8%AF%B4%E4%B8%89%E5%A4%A7%E8%8C%83%E5%BC%8F"><span class="nav-number">7.</span> <span class="nav-text">说一说三大范式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MyISAM-%E4%B8%8E-InnoDB-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">8.</span> <span class="nav-text">MyISAM 与 InnoDB 的区别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8%E8%87%AA%E5%A2%9E-id-%E4%BD%9C%E4%B8%BA%E4%B8%BB%E9%94%AE%EF%BC%9F"><span class="nav-number">9.</span> <span class="nav-text">为什么推荐使用自增 id 作为主键？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">10.</span> <span class="nav-text">一条查询语句是怎么执行的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Innodb-%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E4%B8%80%E6%9D%A1%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">11.</span> <span class="nav-text">使用 Innodb 的情况下，一条更新语句是怎么执行的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Innodb-%E4%BA%8B%E5%8A%A1%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4"><span class="nav-number">12.</span> <span class="nav-text">Innodb 事务为什么要两阶段提交?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%B4%A2%E5%BC%95"><span class="nav-number">13.</span> <span class="nav-text">什么是索引?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E5%9C%BA%E6%99%AF%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="nav-number">14.</span> <span class="nav-text">索引失效的场景有哪些?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%87%87%E7%94%A8-B-%E6%A0%91-%E8%80%8C%E4%B8%8D%E6%98%AF-B-%E6%A0%91"><span class="nav-number">15.</span> <span class="nav-text">为什么采用 B+ 树,而不是 B-树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WAl-%E6%98%AF%E4%BB%80%E4%B9%88-%E6%9C%89%E4%BB%80%E4%B9%88%E5%A5%BD%E5%A4%84"><span class="nav-number">16.</span> <span class="nav-text">WAl 是什么?有什么好处?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%9B%9E%E8%A1%A8"><span class="nav-number">17.</span> <span class="nav-text">什么是回表?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%B4%A2%E5%BC%95%E4%B8%8B%E6%8E%A8"><span class="nav-number">18.</span> <span class="nav-text">什么是索引下推?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95"><span class="nav-number">19.</span> <span class="nav-text">什么是覆盖索引?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8E%9F%E5%88%99"><span class="nav-number">20.</span> <span class="nav-text">什么是最左前缀原则?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E7%B4%A2%E5%BC%95%E5%92%8C%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E8%AF%A5%E6%80%8E%E4%B9%88%E9%80%89%E6%8B%A9"><span class="nav-number">21.</span> <span class="nav-text">普通索引和唯一索引该怎么选择?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1-%E5%85%B6%E7%89%B9%E6%80%A7%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">22.</span> <span class="nav-text">什么是事务?其特性是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">23.</span> <span class="nav-text">事务的隔离级别?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#binlog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">24.</span> <span class="nav-text">binlog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undolog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">25.</span> <span class="nav-text">undolog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#relaylog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">26.</span> <span class="nav-text">relaylog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">27.</span> <span class="nav-text">redolog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E6%98%AF%E6%80%8E%E4%B9%88%E8%AE%B0%E5%BD%95%E6%97%A5%E5%BF%97%E7%9A%84"><span class="nav-number">28.</span> <span class="nav-text">redolog 是怎么记录日志的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E5%92%8C-binlog-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">29.</span> <span class="nav-text">redolog 和 binlog 的区别是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E4%B8%80%E8%AF%B4-mvcc-%E5%90%A7%EF%BC%8C%E6%9C%89%E4%BB%80%E4%B9%88%E4%BD%9C%E7%94%A8"><span class="nav-number">30.</span> <span class="nav-text">说一说 mvcc 吧，有什么作用?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1-Sql-%E8%AF%AD%E5%8F%A5%E6%9F%A5%E8%AF%A2%E4%B8%80%E7%9B%B4%E6%85%A2%E4%BC%9A%E6%98%AF%E4%BB%80%E4%B9%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">31.</span> <span class="nav-text">一条 Sql 语句查询一直慢会是什么原因?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1-Sql-%E8%AF%AD%E5%8F%A5%E6%9F%A5%E8%AF%A2%E5%81%B6%E5%B0%94%E6%85%A2%E4%BC%9A%E6%98%AF%E4%BB%80%E4%B9%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">32.</span> <span class="nav-text">一条 Sql 语句查询偶尔慢会是什么原因?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-%E4%B8%BB%E4%BB%8E%E4%B9%8B%E9%97%B4%E6%98%AF%E6%80%8E%E4%B9%88%E5%90%8C%E6%AD%A5%E6%95%B0%E6%8D%AE%E7%9A%84"><span class="nav-number">33.</span> <span class="nav-text">Mysql 主从之间是怎么同步数据的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E5%BB%B6%E8%BF%9F%E8%A6%81%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3"><span class="nav-number">34.</span> <span class="nav-text">主从延迟要怎么解决?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#29-%E5%88%A0%E9%99%A4%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%90%8E%E8%A1%A8%E7%9A%84%E5%A4%A7%E5%B0%8F%E5%8D%B4%E6%B2%A1%E6%9C%89%E5%8F%98%E5%8A%A8-%E8%BF%99%E6%98%AF%E4%B8%BA%E4%BB%80%E4%B9%88"><span class="nav-number"></span> <span class="nav-text">29.删除表数据后表的大小却没有变动,这是为什么?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#30-%E4%B8%BA%E4%BB%80%E4%B9%88-VarChar-%E5%BB%BA%E8%AE%AE%E4%B8%8D%E8%A6%81%E8%B6%85%E8%BF%87255"><span class="nav-number"></span> <span class="nav-text">30.为什么 VarChar 建议不要超过255?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-%E5%88%86%E5%B8%83%E5%BC%8F%E5%BC%8F%E4%BA%8B%E5%8A%A1%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0"><span class="nav-number"></span> <span class="nav-text">31.分布式式事务怎么实现?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#32-Mysql-%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E9%94%81"><span class="nav-number"></span> <span class="nav-text">32.Mysql 中有哪些锁?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#33-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%A6%81%E4%BD%BF%E7%94%A8%E9%95%BF%E4%BA%8B%E5%8A%A1"><span class="nav-number"></span> <span class="nav-text">33.为什么不要使用长事务?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#34-buffer-pool-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number"></span> <span class="nav-text">34.buffer pool 是做什么的?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#35-%E8%AF%B4%E8%AF%B4%E4%BD%A0%E7%9A%84-Sql-%E8%B0%83%E4%BC%98%E6%80%9D%E8%B7%AF%E5%90%A7"><span class="nav-number"></span> <span class="nav-text">35.说说你的 Sql 调优思路吧</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="小庄"
+      src="/images/20211210231228.png">
+  <p class="site-author-name" itemprop="name">小庄</p>
+  <div class="site-description" itemprop="description">小庄的生活、学习和工作</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/20211210231228.png">
+      <meta itemprop="name" content="小庄">
+      <meta itemprop="description" content="小庄的生活、学习和工作">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="勇往直前">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          面试八股文 mysql篇
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-12-26 22:49:35 / 修改时间：22:56:16" itemprop="dateCreated datePublished" datetime="2021-12-26T22:49:35+08:00">2021-12-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%85%AB%E8%82%A1%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">八股文</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="连接器的最大连接数以及调优"><a href="#连接器的最大连接数以及调优" class="headerlink" title="连接器的最大连接数以及调优"></a>连接器的最大连接数以及调优</h3><span id="more"></span>
+
+
+<h3 id="redolog和binlog区别"><a href="#redolog和binlog区别" class="headerlink" title="redolog和binlog区别"></a>redolog和binlog区别</h3><h3 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h3><h3 id="sql执行流程"><a href="#sql执行流程" class="headerlink" title="sql执行流程"></a>sql执行流程</h3><h3 id="mvcc"><a href="#mvcc" class="headerlink" title="mvcc"></a>mvcc</h3><h3 id="mha"><a href="#mha" class="headerlink" title="mha"></a>mha</h3><h3 id="说一说三大范式"><a href="#说一说三大范式" class="headerlink" title="说一说三大范式"></a>说一说三大范式</h3><ul>
+<li><strong>「第一范式」</strong>：数据库中的字段具有<strong>「原子性」</strong>，不可再分，并且是单一职责</li>
+<li><strong>「第二范式」</strong>：<strong>「建立在第一范式的基础上」</strong>，第二范式要求数据库表中的每个实例或行必须<strong>「可以被惟一地区分」</strong>。为实现区分通常需要为表加上一个列，以存储各个实例的惟一标识。这个惟一属性列被称为主键</li>
+<li><strong>「第三范式」</strong>：<strong>「建立在第一，第二范式的基础上」</strong>，确保每列都和主键列直接相关，而不是间接相关不存在其他表的非主键信息</li>
+</ul>
+<p>但是在我们的日常开发当中，<strong>「并不是所有的表一定要满足三大范式」</strong>，有时候冗余几个字段可以少关联几张表，带来的查询效率的提升有可能是质变的</p>
+<h3 id="MyISAM-与-InnoDB-的区别是什么？"><a href="#MyISAM-与-InnoDB-的区别是什么？" class="headerlink" title="MyISAM 与 InnoDB 的区别是什么？"></a>MyISAM 与 InnoDB 的区别是什么？</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png" alt="e42a8e4a50675fbe6540fb3558986add.png"></p>
+<ul>
+<li><p><strong>「InnoDB支持事务，MyISAM不支持」</strong>。</p>
+</li>
+<li><p><strong>「InnoDB 支持外键，而 MyISAM 不支持」</strong>。</p>
+</li>
+<li><p><strong>「InnoDB是聚集索引」</strong>，使用B+Tree作为索引结构，数据文件是和索引绑在一起的，必须要有主键。<strong>「MyISAM是非聚集索引」</strong>，也是使用B+Tree作为索引结构，索引和数据文件是分离的，索引保存的是数据文件的指针。主键索引和辅助索引是独立的。</p>
+</li>
+<li><p><strong>「InnoDB 不保存表的具体行数」</strong>。<strong>「MyISAM 用一个变量保存了整个表的行数」</strong>。</p>
+</li>
+<li><p>Innodb 有 <strong>「redolog」</strong> 日志文件，MyISAM 没有</p>
+</li>
+<li><p><strong>「Innodb存储文件有frm、ibd，而Myisam是frm、MYD、MYI」</strong></p>
+</li>
+</ul>
+<ul>
+<li>Innodb：frm是表定义文件，ibd是数据文件</li>
+<li>Myisam：frm是表定义文件，myd是数据文件，myi是索引文件</li>
+<li><strong>「InnoDB 支持表、行锁，而 MyISAM 支持表级锁」</strong></li>
+<li><em>「InnoDB 必须有唯一索引(主键)」</em><em>,如果没有指定的话 InnoDB 会自己生成一个隐藏列Row_id来充当默认主键，*<em>「MyISAM 可以没有」</em></em></li>
+</ul>
+<h3 id="为什么推荐使用自增-id-作为主键？"><a href="#为什么推荐使用自增-id-作为主键？" class="headerlink" title="为什么推荐使用自增 id 作为主键？"></a>为什么推荐使用自增 id 作为主键？</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/69a8346941af33b8ceded3fcafe0ce03.png" alt="69a8346941af33b8ceded3fcafe0ce03.png"></p>
+<ul>
+<li>１.普通索引的 B+ 树上存放的是主键索引的值，如果该值较大，会<strong>「导致普通索引的存储空间较大」</strong></li>
+<li>２.使用自增 id 做主键索引新插入数据只要放在该页的最尾端就可以，直接<strong>「按照顺序插入」</strong>，不用刻意维护</li>
+<li>3.页分裂容易维护，当插入数据的当前页快满时，会发生页分裂的现象，如果主键索引不为自增 id，那么数据就可能从页的中间插入，页的数据会频繁的变动，<strong>「导致页分裂维护成本较高」</strong></li>
+</ul>
+<h3 id="一条查询语句是怎么执行的"><a href="#一条查询语句是怎么执行的" class="headerlink" title="一条查询语句是怎么执行的?"></a>一条查询语句是怎么执行的?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/eb4e297a05891f2cdcfd9990f89e483a.png" alt="eb4e297a05891f2cdcfd9990f89e483a.png"></p>
+<ul>
+<li>通过连接器跟客户端<strong>「建立连接」</strong></li>
+<li>通过查询<strong>「缓存查询」</strong>之前是否有查询过该 sql<ul>
+<li>有则直接返回结果</li>
+<li>没有则执行第三步</li>
+</ul>
+</li>
+<li>通过分析器<strong>「分析该 sql 的语义」</strong>是否正确，包括格式，表等等</li>
+<li>通过优化器<strong>「优化该语句」</strong>，比如选择索引，join 表的连接顺序</li>
+<li><strong>「验证权限」</strong>，验证是否有该表的查询权限<ul>
+<li>没有则返回无权限的错误</li>
+<li>有则执行第六步</li>
+</ul>
+</li>
+<li>通过执行器调用存储引擎执行该 sql，然后返回<strong>「执行结果」</strong></li>
+</ul>
+<h3 id="使用-Innodb-的情况下，一条更新语句是怎么执行的"><a href="#使用-Innodb-的情况下，一条更新语句是怎么执行的" class="headerlink" title="使用 Innodb 的情况下，一条更新语句是怎么执行的?"></a>使用 Innodb 的情况下，一条更新语句是怎么执行的?</h3><p>用以下语句来举例，c 字段无索引，id 为主键索引（无其他索引，有普通索引和唯一索引情况会发生变化，有了change buffer/insert buffer的优化）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update T set c=c+<span class="number">1</span> where id=<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行器先找引擎取 id=2 这一行。id 是主键，引擎直接用树搜索找到这一行<ul>
+<li>如果 id=2 这一行所在的数据页本来就<strong>「在内存中」</strong>，就<strong>「直接返回」</strong>给执行器</li>
+<li><strong>「不在内存」</strong>中，需要先从磁盘<strong>「读入内存」</strong>，然后再<strong>「返回」</strong></li>
+</ul>
+</li>
+<li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口<strong>「写入这行新数据」</strong></li>
+<li>擎将这行新数据更新到内存中，同时将这个更新操作<strong>「记录到 redo log 里面」</strong>，此时 redo log 处于 <strong>「prepare」</strong> 状态。然后告知执行器执行完成了，随时可以提交事务</li>
+<li>执行器<strong>「生成这个操作的 binlog」</strong>，并把 binlog <strong>「写入磁盘」</strong></li>
+<li>执行器调用引擎的<strong>「提交事务」</strong>接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，<strong>「更新完成」</strong></li>
+</ul>
+<h3 id="Innodb-事务为什么要两阶段提交"><a href="#Innodb-事务为什么要两阶段提交" class="headerlink" title="Innodb 事务为什么要两阶段提交?"></a>Innodb 事务为什么要两阶段提交?</h3><p>目的：保持redolog和binlog的状态一致性，进而保证了主从一致性</p>
+<ul>
+<li>先写 redolog 后写binlog。假设在 redolog 写完，binlog 还没有写完的时候，MySQL 进程异常重启，这时候 binlog 里面就没有记录这个语句。然后你会发现，如果需要用这个 binlog 来恢复临时库的话，由于这个语句的 <strong>「binlog 丢失」</strong>，这个临时库就会少了这一次更新，恢复出来的这一行 c 的值就是 0，与原库的值不同。</li>
+<li>先写 binlog 后写 redolog。如果在 binlog 写完之后 crash，由于 redolog 还没写，崩溃恢复以后这个事务无效，所以这一行c的值是0。但是 binlog 里面已经记录了“把c从0改成1”这个日志。所以，在之后用 binlog 来恢复的时候就<strong>「多了一个事务出来」</strong>，恢复出来的这一行 c 的值就是 1，与原库的值不同。</li>
+</ul>
+<p>可以看到，<strong>「如果不使用“两阶段提交”，那么数据库的状态就有可能和用它的日志恢复出来的库的状态不一致」</strong>。</p>
+<h3 id="什么是索引"><a href="#什么是索引" class="headerlink" title="什么是索引?"></a>什么是索引?</h3><p>相信大家小时候学习汉字的时候都会查字典，想想你查字典的步骤，我们是通过汉字的首字母 a～z 一个一个在字典目录中查找，最终找到该字的页数。想想，如果没有目录会怎么样，最差的结果是你有可能翻到字典的最后一页才找到你想要找的字。</p>
+<p>索引就<strong>「相当于我们字典中的目录」</strong>，可以极大的提高我们在数据库的查询效率。</p>
+<h3 id="索引失效的场景有哪些"><a href="#索引失效的场景有哪些" class="headerlink" title="索引失效的场景有哪些?"></a>索引失效的场景有哪些?</h3><p>以下随便列举几个，不同版本的 mysql 场景不一</p>
+<ul>
+<li>最左前缀法则（带头索引不能死，中间索引不能断)</li>
+<li>不要在索引上做任何操作（计算、函数、自动/手动类型转换），不然会导致索引失效而转向全表扫描</li>
+<li>不能继续使用索引中范围条件（bettween、&lt;、&gt;、in等）右边的列，如：</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a from user where c &gt; <span class="number">5</span> and b = <span class="number">4</span>；</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>索引字段上使用（！= 或者 &lt; &gt;）判断时，会导致索引失效而转向全表扫描</li>
+<li>索引字段上使用 is null / is not null 判断时，会导致索引失效而转向全表扫描。</li>
+<li>索引字段使用like以通配符开头（‘%字符串’）时，会导致索引失效而转向全表扫描，也是最左前缀原则。</li>
+<li>索引字段是字符串，但查询时不加单引号，会导致索引失效而转向全表扫描</li>
+<li>索引字段使用 or 时，会导致索引失效而转向全表扫描</li>
+</ul>
+<h3 id="为什么采用-B-树-而不是-B-树"><a href="#为什么采用-B-树-而不是-B-树" class="headerlink" title="为什么采用 B+ 树,而不是 B-树"></a>为什么采用 B+ 树,而不是 B-树</h3><p>B+ 树只在叶子结点储存数据，非叶子结点不存具体数据，只存 key，查询更稳定，增大了广度，而一个节点就是磁盘一个内存页，内存页大小固定，那么相比 B 树，B- 树这些<strong>「可以存更多的索引结点」</strong>，宽度更大，树高矮，节点小，拉取一次数据的磁盘 IO 次数少，并且 B+ 树只需要去遍历叶子节点就可以实现整棵树的遍历。而且在数据库中基于范围的查询是非常频繁的，效率更高。</p>
+<h3 id="WAl-是什么-有什么好处"><a href="#WAl-是什么-有什么好处" class="headerlink" title="WAl 是什么?有什么好处?"></a>WAl 是什么?有什么好处?</h3><p>先写日志，在写磁盘</p>
+<p>WAL 就是 Write-Ahead Logging，其实就是<strong>「所有的修改都先被写入到日志中，然后再写磁盘」</strong>，用于保证数据操作的原子性和持久性。</p>
+<p>好处:</p>
+<ul>
+<li><strong>「读和写可以完全地并发执行」</strong>，不会互相阻塞</li>
+<li>先写入 log 中，磁盘写入从<strong>「随机写变为顺序写」</strong>，降低了 client 端的延迟就。并且，由于顺序写入大概率是在一个磁盘块内，这样产生的 io 次数也大大降低</li>
+<li>写入日志当数据库崩溃的时候<strong>「可以使用日志来恢复磁盘数据」</strong></li>
+</ul>
+<h3 id="什么是回表"><a href="#什么是回表" class="headerlink" title="什么是回表?"></a>什么是回表?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/b7ac1234b2d44d81bf17dee1c95d4d37.png" alt="b7ac1234b2d44d81bf17dee1c95d4d37.png"></p>
+<p>回表就是先通过数据库索引扫描出该索引树中数据所在的行，取到主键 id，再通过主键 id 取出主键索引数中的数据，即基于非主键索引的查询需要多扫描一棵索引树.</p>
+<h3 id="什么是索引下推"><a href="#什么是索引下推" class="headerlink" title="什么是索引下推?"></a>什么是索引下推?</h3><p>如果存在某些被索引的列的判断条件时，MySQL 将这一部分判断条件传递给存储引擎，然后由存储引擎通过判断索引是否符合 MySQL 服务器传递的条件，<strong>「只有当索引符合条件时才会将数据检索出来返回给 MySQL 服务器」</strong> 。</p>
+<p>就是<strong>一般情况</strong>下，索引列中存在的字段，并且存在where 判断，都可以被利用到，无论是否满足索引使用规则</p>
+<h3 id="什么是覆盖索引"><a href="#什么是覆盖索引" class="headerlink" title="什么是覆盖索引?"></a>什么是覆盖索引?</h3><p>覆盖索引（covering index）指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取，可以减少回表的次数。比如:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id from t where age = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>id 为主键索引，age 为普通索引，age 这个索引树存储的就是逐渐信息，可以直接返回</p>
+<h3 id="什么是最左前缀原则"><a href="#什么是最左前缀原则" class="headerlink" title="什么是最左前缀原则?"></a>什么是最左前缀原则?</h3><p>最左前缀其实说的是，在 where 条件中出现的字段，<strong>「如果只有组合索引中的部分列，则这部分列的触发索引顺序」</strong>，是按照定义索引的时候的顺序从前到后触发，最左面一个列触发不了，之后的所有列索引都无法触发。</p>
+<p>比如<strong>「有一个 (a,b,c) 的组合索引」</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where a = <span class="number">1</span> and b = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时 a,b 会命中该组合索引</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where a = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时 a 会命中该组合索引, c 不会</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where b = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时不会命中该组合索引</p>
+<h3 id="普通索引和唯一索引该怎么选择"><a href="#普通索引和唯一索引该怎么选择" class="headerlink" title="普通索引和唯一索引该怎么选择?"></a>普通索引和唯一索引该怎么选择?</h3><ul>
+<li>查询<ul>
+<li>当普通索引为条件时查询到数据会一直扫描,直到扫到不同的值</li>
+<li>当唯一索引为查询条件时,查到该数据会直接返回,不会继续扫表</li>
+</ul>
+</li>
+<li>更新<ul>
+<li>普通索引会直接将操作更新到 change buffer 中,然后结束</li>
+<li>唯一索引需要判断数据是否冲突，不能使用change buffer</li>
+</ul>
+</li>
+</ul>
+<p>适合场景：</p>
+<ul>
+<li>普通索引适合<strong>读多写少</strong>的情况，尤其是在写完，立马就读的场景是不能使用的（原因是会增加changebuffer 的维护成本）</li>
+<li>一般不建议使用唯一索引</li>
+</ul>
+<h3 id="什么是事务-其特性是什么"><a href="#什么是事务-其特性是什么" class="headerlink" title="什么是事务?其特性是什么?"></a>什么是事务?其特性是什么?</h3><p>事务是指是程序中一系列操作必须全部成功完成，有一个失败则全部失败。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6d4384f30d148e586ee353b97e1f0fef.png" alt="6d4384f30d148e586ee353b97e1f0fef.png"></p>
+<p>特性</p>
+<ul>
+<li><strong>「1.原子性（Atomicity）」</strong>：要么全部执行成功，要么全部不执行。</li>
+<li><strong>「2.一致性（Consistency）」</strong>：事务前后数据的完整性必须保持一致。</li>
+<li><strong>「3.隔离性（Isolation）」</strong>：隔离性是当多个事务同事触发时，不能被其他事务的操作所干扰，多个并发事务之间要相互隔离。</li>
+<li><strong>「4.持久性（Durability）」</strong>：事务完成之后的改变是永久的。</li>
+</ul>
+<h3 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别?"></a>事务的隔离级别?</h3><ul>
+<li>1.<strong>「读提交」</strong>:即能够<strong>「读取到那些已经提交」</strong>的数据</li>
+<li>2.<strong>「读未提交」</strong>:即能够<strong>「读取到没有被提交」</strong>的数据</li>
+<li>3.<strong>「可重复读」</strong>:可重复读指的是在一个事务内，最开始读到的数据和事务结束前的<strong>「任意时刻读到的同一批数据都是一致的」</strong></li>
+<li>4.<strong>「可串行化」</strong>:最高事务隔离级别，不管多少事务，都是<strong>「依次按序一个一个执行」</strong></li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/875a4a8184a2eccf33ca1176799d540a.png" alt="875a4a8184a2eccf33ca1176799d540a.png"></p>
+<ul>
+<li><strong>「脏读」</strong><ul>
+<li>脏读指的是<strong>「读到了其他事务未提交的数据」</strong>，未提交意味着这些数据可能会回滚，也就是可能最终不会存到数据库中，也就是不存在的数据。读到了并一定最终存在的数据，这就是脏读</li>
+</ul>
+</li>
+<li><strong>「不可重复读」</strong><ul>
+<li>对比可重复读，不可重复读指的是在同一事务内，<strong>「不同的时刻读到的同一批数据可能是不一样的」</strong>。</li>
+</ul>
+</li>
+<li><strong>「幻读」</strong><ul>
+<li>幻读是针对数据插入（INSERT）操作来说的。假设事务A对某些行的内容作了更改，但是还未提交，此时事务B插入了与事务A更改前的记录相同的记录行，并且在事务A提交之前先提交了，而这时，在事务A中查询，会发现<strong>「好像刚刚的更改对于某些数据未起作用」</strong>，但其实是事务B刚插入进来的这就叫幻读</li>
+</ul>
+</li>
+</ul>
+<h3 id="binlog-是做什么的"><a href="#binlog-是做什么的" class="headerlink" title="binlog 是做什么的?"></a>binlog 是做什么的?</h3><p>binlog 是归档日志，属于 Server 层的日志，是一个二进制格式的文件，用于<strong>「记录用户对数据库更新的SQL语句信息」</strong>。</p>
+<p>主要作用</p>
+<ul>
+<li>主从复制</li>
+<li>数据恢复</li>
+</ul>
+<h3 id="undolog-是做什么的"><a href="#undolog-是做什么的" class="headerlink" title="undolog 是做什么的?"></a>undolog 是做什么的?</h3><p>undolog 是 InnoDB 存储引擎的日志，用于保证数据的原子性，<strong>「保存了事务发生之前的数据的一个版本，也就是说记录的是数据是修改之前的数据，可以用于回滚」</strong>，同时可以提供多版本并发控制下的读（MVCC）。</p>
+<p>主要作用</p>
+<ul>
+<li>事务回滚</li>
+<li>实现多版本控制(MVCC)</li>
+</ul>
+<h3 id="relaylog-是做什么的"><a href="#relaylog-是做什么的" class="headerlink" title="relaylog 是做什么的?"></a>relaylog 是做什么的?</h3><p>relaylog 是中继日志，<strong>「在主从同步的时候使用到」</strong>，它是一个中介临时的日志文件，用于存储从master节点同步过来的binlog日志内容。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/682ebc9c026cc8b81bc74ca0115f79df.png" alt="682ebc9c026cc8b81bc74ca0115f79df.png"></p>
+<p>master 主节点的 binlog 传到 slave 从节点后，被写入 relay log 里，从节点的 slave sql 线程从 relaylog 里读取日志然后应用到 slave 从节点本地。从服务器 I/O 线程将主服务器的二进制日志读取过来记录到从服务器本地文件，然后 SQL 线程会读取 relay-log 日志的内容并应用到从服务器，从而<strong>「使从服务器和主服务器的数据保持一致」</strong>。</p>
+<h3 id="redolog-是做什么的"><a href="#redolog-是做什么的" class="headerlink" title="redolog 是做什么的?"></a>redolog 是做什么的?</h3><p>redolog 是 <strong>「InnoDB 存储引擎所特有的一种日志」</strong>，用于记录事务操作的变化，记录的是数据修改之后的值，不管事务是否提交都会记录下来。</p>
+<p>可以做<strong>「数据恢复并且提供 crash-safe 能力」</strong></p>
+<p>当有增删改相关的操作时，会先记录到 Innodb 中，并修改缓存页中的数据，<strong>「等到 mysql 闲下来的时候才会真正的将 redolog 中的数据写入到磁盘当中」</strong>。</p>
+<h3 id="redolog-是怎么记录日志的"><a href="#redolog-是怎么记录日志的" class="headerlink" title="redolog 是怎么记录日志的?"></a>redolog 是怎么记录日志的?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/9b9820761e6fc6d9b2644f70fea0c878.png" alt="9b9820761e6fc6d9b2644f70fea0c878.png"></p>
+<p>InnoDB 的 redo log 是固定大小的，比如可以配置为一组4个文件，每个文件的大小是1GB，那么总共就可以记录4GB的操作。<strong>「从头开始写，写到末尾就又回到开头循环写」</strong>。</p>
+<p>所以，如果数据写满了但是还没有来得及将数据真正的刷入磁盘当中，那么就会发生<strong>「内存抖动」</strong>现象，从肉眼的角度来观察会发现 mysql 会宕机一会儿，此时就是正在刷盘了。</p>
+<h3 id="redolog-和-binlog-的区别是什么"><a href="#redolog-和-binlog-的区别是什么" class="headerlink" title="redolog 和 binlog 的区别是什么?"></a>redolog 和 binlog 的区别是什么?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/b83959086f28bb82d5dd174a12af8bdc.png" alt="b83959086f28bb82d5dd174a12af8bdc.png"></p>
+<ul>
+<li><strong>「redolog」</strong> 是 <strong>「Innodb」</strong> 独有的日志，而 <strong>「binlog」</strong> 是 <strong>「server」</strong> 层的，所有的存储引擎都有使用到</li>
+<li><strong>「redolog」</strong> 记录了<strong>「具体的数值」</strong>，对某个页做了什么修改，<strong>「binlog」</strong> 记录的<strong>「操作内容」</strong></li>
+<li><strong>「binlog」</strong> 大小达到上限或者 flush log <strong>「会生成一个新的文件」</strong>，而 <strong>「redolog」</strong> 有固定大小<strong>「只能循环利用」</strong></li>
+<li><strong>「binlog 日志没有 crash-safe 的能力」</strong>，只能用于归档。而 redo log 有 crash-safe 能力。</li>
+<li>binlog 是server 层，redolog 是存储层</li>
+</ul>
+<h3 id="说一说-mvcc-吧，有什么作用"><a href="#说一说-mvcc-吧，有什么作用" class="headerlink" title="说一说 mvcc 吧，有什么作用?"></a>说一说 mvcc 吧，有什么作用?</h3><p>MVCC:多版本并发控制，是现代数据库(包括 MySQL、Oracle、PostgreSQL 等)引擎实现中常用的处理读写冲突的手段，目的在于<strong>「提高数据库高并发场景下的吞吐性能」</strong>。</p>
+<p>在 MVCC 协议下，每个读操作会看到一个一致性的快照，<strong>「这个快照是基于整个库的」</strong>，并且可以实现非阻塞的读，用于<strong>「支持读提交和可重复读隔离级别的实现」</strong>。</p>
+<p>MVCC 允许数据具有多个版本，这个版本可以是时间戳或者是全局递增的事务 ID，在同一个时间点，不同的事务看到的数据是不同的，这个修改的数据是<strong>「记录在 undolog 中」</strong>的。</p>
+<h3 id="一条-Sql-语句查询一直慢会是什么原因"><a href="#一条-Sql-语句查询一直慢会是什么原因" class="headerlink" title="一条 Sql 语句查询一直慢会是什么原因?"></a>一条 Sql 语句查询一直慢会是什么原因?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/d52351ca45402fd46125dc2e59be0a76.png" alt="d52351ca45402fd46125dc2e59be0a76.png"></p>
+<ul>
+<li><strong>「1.没有用到索引」</strong><ul>
+<li>比如函数导致的索引失效，或者本身就没有加索引</li>
+</ul>
+</li>
+<li><strong>「2.表数据量太大」</strong><ul>
+<li>考虑分库分表吧</li>
+</ul>
+</li>
+<li><strong>「3.优化器选错了索引」</strong><ul>
+<li><strong>「考虑使用」</strong> force index 强制走索引</li>
+</ul>
+</li>
+</ul>
+<h3 id="一条-Sql-语句查询偶尔慢会是什么原因"><a href="#一条-Sql-语句查询偶尔慢会是什么原因" class="headerlink" title="一条 Sql 语句查询偶尔慢会是什么原因?"></a>一条 Sql 语句查询偶尔慢会是什么原因?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/bd6876ff641aba17165df1c7ef249df5.png" alt="bd6876ff641aba17165df1c7ef249df5.png"></p>
+<ul>
+<li><strong>「1. 数据库在刷新脏页」</strong><ul>
+<li>比如 <strong>「redolog 写满了」</strong>，<strong>「内存不够用了」</strong>释放内存如果是脏页也需要刷，mysql <strong>「正常空闲状态刷脏页」</strong></li>
+</ul>
+</li>
+<li><strong>「2. 没有拿到锁」</strong></li>
+</ul>
+<h3 id="Mysql-主从之间是怎么同步数据的"><a href="#Mysql-主从之间是怎么同步数据的" class="headerlink" title="Mysql 主从之间是怎么同步数据的?"></a>Mysql 主从之间是怎么同步数据的?</h3><ul>
+<li>1.master 主库将此次更新的事件类型<strong>「写入到主库的 binlog 文件」</strong>中</li>
+<li>2.master <strong>「创建 log dump 线程通知 slave」</strong> 需要更新数据</li>
+<li>3.<strong>「slave」</strong> 向 master 节点发送请求，<strong>「将该 binlog 文件内容存到本地的 relaylog 中」</strong></li>
+<li>4.<strong>「slave 开启 sql 线程」</strong>读取 relaylog 中的内容，<strong>「将其中的内容在本地重新执行一遍」</strong>，完成主从数据同步</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/fae385cd4a137a82e28b52c9eb9737a5.png" alt="fae385cd4a137a82e28b52c9eb9737a5.png"></p>
+<p><strong>「同步策略」</strong>：</p>
+<ul>
+<li>1.<strong>「全同步复制」</strong>：主库强制同步日志到从库，等全部从库执行完才返回客户端，性能差</li>
+<li>2.<strong>「半同步复制」</strong>：主库收到至少一个从库确认就认为操作成功，从库写入日志成功返回ack确认</li>
+</ul>
+<h3 id="主从延迟要怎么解决"><a href="#主从延迟要怎么解决" class="headerlink" title="主从延迟要怎么解决?"></a>主从延迟要怎么解决?</h3><ul>
+<li>1.MySQL 5.6 版本以后，提供了一种<strong>「并行复制」</strong>的方式，通过将 SQL 线程转换为多个 work 线程来进行重放</li>
+<li>2.<strong>「提高机器配置」</strong>(王道)</li>
+<li>3.在业务初期就选择合适的分库、分表策略，<strong>「避免单表单库过大」</strong>带来额外的复制压力</li>
+<li>4.<strong>「避免长事务」</strong></li>
+<li>5.<strong>「避免让数据库进行各种大量运算」</strong></li>
+<li>6.对于一些对延迟很敏感的业务<strong>「直接使用主库读」</strong></li>
+</ul>
+<h2 id="29-删除表数据后表的大小却没有变动-这是为什么"><a href="#29-删除表数据后表的大小却没有变动-这是为什么" class="headerlink" title="29.删除表数据后表的大小却没有变动,这是为什么?"></a>29.删除表数据后表的大小却没有变动,这是为什么?</h2><p>在使用 delete 删除数据时，其实对应的数据行并不是真正的删除，是<strong>「逻辑删除」</strong>，InnoDB 仅仅是将其<strong>「标记成可复用的状态」</strong>，所以表空间不会变小</p>
+<h2 id="30-为什么-VarChar-建议不要超过255"><a href="#30-为什么-VarChar-建议不要超过255" class="headerlink" title="30.为什么 VarChar 建议不要超过255?"></a>30.为什么 VarChar 建议不要超过255?</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/e7172b78774dcb6d1679d262491d3a32.png" alt="e7172b78774dcb6d1679d262491d3a32.png"></p>
+<p>当定义varchar长度小于等于255时，长度标识位需要一个字节(utf-8编码)</p>
+<p>当大于255时，长度标识位需要两个字节，并且建立的<strong>「索引也会失效」</strong></p>
+<h2 id="31-分布式式事务怎么实现"><a href="#31-分布式式事务怎么实现" class="headerlink" title="31.分布式式事务怎么实现?"></a>31.分布式式事务怎么实现?</h2><ul>
+<li>1.<strong>「本地消息表」</strong></li>
+<li>2.<strong>「消息事务」</strong></li>
+<li>3.<strong>「二阶段提交」</strong></li>
+<li>4.<strong>「三阶段提交」</strong></li>
+<li>5.<strong>「TCC」</strong></li>
+<li>6.<strong>「最大努力通知」</strong></li>
+<li>7.<strong>「Seata 框架」</strong></li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43513205/article/details/114265756">七种分布式事务的解决方案，一次讲给你听</a></p>
+<h2 id="32-Mysql-中有哪些锁"><a href="#32-Mysql-中有哪些锁" class="headerlink" title="32.Mysql 中有哪些锁?"></a>32.Mysql 中有哪些锁?</h2><p>以下并不全，主要理解下锁的意义即可</p>
+<ul>
+<li>基于锁的属性分类：共享锁、排他锁</li>
+<li>基于锁的粒度分类：表锁、行锁、记录锁、间隙锁、临键锁</li>
+<li>基于锁的状态分类：意向共享锁、意向排它锁、死锁</li>
+</ul>
+<h2 id="33-为什么不要使用长事务"><a href="#33-为什么不要使用长事务" class="headerlink" title="33.为什么不要使用长事务?"></a>33.为什么不要使用长事务?</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png" alt="5cca8dadf562adaf140437cf95001d59.png"></p>
+<ul>
+<li>1.并发情况下，数据库<strong>「连接池容易被撑爆」</strong></li>
+<li>2.<strong>「容易造成大量的阻塞和锁超时」</strong><ul>
+<li>长事务还占用锁资源，也可能拖垮整个库，</li>
+</ul>
+</li>
+<li>3.执行时间长，容易造成<strong>「主从延迟」</strong></li>
+<li>4.<strong>「回滚所需要的时间比较长」</strong><ul>
+<li>事务越长整个时间段内的事务也就越多</li>
+</ul>
+</li>
+<li>5.<strong>「undolog 日志越来越大」</strong><ul>
+<li>长事务意味着系统里面会存在很老的事务视图。由于这些事务随时可能访问数据库里面的任何数据，所以这个事务提交之前，数据库里面它可能用到的回滚记录都必须保留，这就会导致大量占用存储空间。</li>
+</ul>
+</li>
+</ul>
+<h2 id="34-buffer-pool-是做什么的"><a href="#34-buffer-pool-是做什么的" class="headerlink" title="34.buffer pool 是做什么的?"></a>34.buffer pool 是做什么的?</h2><p>buffer pool 是一块内存区域，为了<strong>「提高数据库的性能」</strong>，当数据库操作数据的时候，把硬盘上的数据加载到 buffer pool，不直接和硬盘打交道，操作的是 buffer pool 里面的数据，数据库的增删改查都是在 buffer pool 上进行</p>
+<p>buffer pool 里面缓存的数据内容也是一个个数据页</p>
+<p>其中<strong>「有三大双向链表」</strong>:</p>
+<ul>
+<li><strong>「free 链表」</strong><ul>
+<li>用于帮助我们找到空闲的缓存页</li>
+</ul>
+</li>
+<li><strong>「flush 链表」</strong><ul>
+<li>用于找到脏缓存页，也就是需要刷盘的缓存页</li>
+</ul>
+</li>
+<li><strong>「lru 链表」</strong><ul>
+<li>用来淘汰不常被访问的缓存页，分为热数据区和冷数据区，冷数据区主要存放那些不常被用到的数据</li>
+</ul>
+</li>
+</ul>
+<p>预读机制:</p>
+<ul>
+<li>Buffer Pool 有一项特技叫预读，存储引擎的接口在被 Server 层调用时，会在响应的同时进行预判，将下次可能用到的数据和索引加载到 Buffer Pool</li>
+</ul>
+<h2 id="35-说说你的-Sql-调优思路吧"><a href="#35-说说你的-Sql-调优思路吧" class="headerlink" title="35.说说你的 Sql 调优思路吧"></a>35.说说你的 Sql 调优思路吧</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png" alt="e6d0dffc2b67df74c5ebc558dcb3e9ff.png"></p>
+<ul>
+<li>1.<strong>「表结构优化」</strong><ul>
+<li>1.1拆分字段</li>
+<li>1.2字段类型的选择</li>
+<li>1.3字段类型大小的限制</li>
+<li>1.4合理的增加冗余字段</li>
+<li>1.5新建字段一定要有默认值</li>
+</ul>
+</li>
+<li>2.<strong>「索引方面」</strong><ul>
+<li>2.1索引字段的选择</li>
+<li>2.2利用好mysql支持的索引下推，覆盖索引等功能</li>
+<li>2.3唯一索引和普通索引的选择</li>
+</ul>
+</li>
+<li>3.<strong>「查询语句方面」</strong><ul>
+<li>3.1避免索引失效</li>
+<li>3.2合理的书写where条件字段顺序</li>
+<li>3.3小表驱动大表</li>
+<li>3.4可以使用force index()防止优化器选错索引</li>
+</ul>
+</li>
+<li>4.<strong>「分库分表」</strong></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>小庄
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://www.leoyun.top/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/" title="面试八股文 mysql篇">http://www.leoyun.top/2021/12/26/面试八股文 mysql篇/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag"># 面试</a>
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20%E8%AE%A1%E7%BD%91%E7%AF%87/" rel="prev" title="面试八股文 计网篇">
+                  <i class="fa fa-chevron-left"></i> 面试八股文 计网篇
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/12/26/%E9%93%BE%E8%A1%A8/" rel="next" title="链表">
+                  链表 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">小庄</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">34k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">31 分钟</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

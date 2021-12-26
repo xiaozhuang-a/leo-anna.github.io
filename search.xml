@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>二叉树</title>
-    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
-    <content><![CDATA[<p>二叉树的三种遍历方式</p>
-<span id="more"></span>
-
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>二叉树</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>两数之和</title>
     <url>/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</url>
     <content><![CDATA[<p>两数之和</p>
@@ -35,17 +19,19 @@
       </tags>
   </entry>
   <entry>
-    <title>链表</title>
-    <url>/2021/12/26/%E9%93%BE%E8%A1%A8/</url>
-    <content><![CDATA[<p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
+    <title>二叉树</title>
+    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
+    <content><![CDATA[<p>二叉树的三种遍历方式</p>
 <span id="more"></span>
 
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
       <categories>
         <category>数据结构和算法</category>
       </categories>
       <tags>
-        <tag>链表</tag>
+        <tag>二叉树</tag>
       </tags>
   </entry>
   <entry>
@@ -111,6 +97,736 @@
       </tags>
   </entry>
   <entry>
+    <title>面试八股文 linux 篇</title>
+    <url>/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20linux%20%E7%AF%87/</url>
+    <content><![CDATA[<h1 id=""><a href="#" class="headerlink" title=""></a></h1>]]></content>
+      <categories>
+        <category>八股文</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>面试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>链表</title>
+    <url>/2021/12/26/%E9%93%BE%E8%A1%A8/</url>
+    <content><![CDATA[<p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
+<span id="more"></span>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>链表</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>面试八股文 mysql篇</title>
+    <url>/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/</url>
+    <content><![CDATA[<h3 id="连接器的最大连接数以及调优"><a href="#连接器的最大连接数以及调优" class="headerlink" title="连接器的最大连接数以及调优"></a>连接器的最大连接数以及调优</h3><span id="more"></span>
+
+
+<h3 id="redolog和binlog区别"><a href="#redolog和binlog区别" class="headerlink" title="redolog和binlog区别"></a>redolog和binlog区别</h3><h3 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h3><h3 id="sql执行流程"><a href="#sql执行流程" class="headerlink" title="sql执行流程"></a>sql执行流程</h3><h3 id="mvcc"><a href="#mvcc" class="headerlink" title="mvcc"></a>mvcc</h3><h3 id="mha"><a href="#mha" class="headerlink" title="mha"></a>mha</h3><h3 id="说一说三大范式"><a href="#说一说三大范式" class="headerlink" title="说一说三大范式"></a>说一说三大范式</h3><ul>
+<li><strong>「第一范式」</strong>：数据库中的字段具有<strong>「原子性」</strong>，不可再分，并且是单一职责</li>
+<li><strong>「第二范式」</strong>：<strong>「建立在第一范式的基础上」</strong>，第二范式要求数据库表中的每个实例或行必须<strong>「可以被惟一地区分」</strong>。为实现区分通常需要为表加上一个列，以存储各个实例的惟一标识。这个惟一属性列被称为主键</li>
+<li><strong>「第三范式」</strong>：<strong>「建立在第一，第二范式的基础上」</strong>，确保每列都和主键列直接相关，而不是间接相关不存在其他表的非主键信息</li>
+</ul>
+<p>但是在我们的日常开发当中，<strong>「并不是所有的表一定要满足三大范式」</strong>，有时候冗余几个字段可以少关联几张表，带来的查询效率的提升有可能是质变的</p>
+<h3 id="MyISAM-与-InnoDB-的区别是什么？"><a href="#MyISAM-与-InnoDB-的区别是什么？" class="headerlink" title="MyISAM 与 InnoDB 的区别是什么？"></a>MyISAM 与 InnoDB 的区别是什么？</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png" alt="e42a8e4a50675fbe6540fb3558986add.png"></p>
+<ul>
+<li><p><strong>「InnoDB支持事务，MyISAM不支持」</strong>。</p>
+</li>
+<li><p><strong>「InnoDB 支持外键，而 MyISAM 不支持」</strong>。</p>
+</li>
+<li><p><strong>「InnoDB是聚集索引」</strong>，使用B+Tree作为索引结构，数据文件是和索引绑在一起的，必须要有主键。<strong>「MyISAM是非聚集索引」</strong>，也是使用B+Tree作为索引结构，索引和数据文件是分离的，索引保存的是数据文件的指针。主键索引和辅助索引是独立的。</p>
+</li>
+<li><p><strong>「InnoDB 不保存表的具体行数」</strong>。<strong>「MyISAM 用一个变量保存了整个表的行数」</strong>。</p>
+</li>
+<li><p>Innodb 有 <strong>「redolog」</strong> 日志文件，MyISAM 没有</p>
+</li>
+<li><p><strong>「Innodb存储文件有frm、ibd，而Myisam是frm、MYD、MYI」</strong></p>
+</li>
+</ul>
+<ul>
+<li>Innodb：frm是表定义文件，ibd是数据文件</li>
+<li>Myisam：frm是表定义文件，myd是数据文件，myi是索引文件</li>
+<li><strong>「InnoDB 支持表、行锁，而 MyISAM 支持表级锁」</strong></li>
+<li><em>「InnoDB 必须有唯一索引(主键)」</em><em>,如果没有指定的话 InnoDB 会自己生成一个隐藏列Row_id来充当默认主键，*<em>「MyISAM 可以没有」</em></em></li>
+</ul>
+<h3 id="为什么推荐使用自增-id-作为主键？"><a href="#为什么推荐使用自增-id-作为主键？" class="headerlink" title="为什么推荐使用自增 id 作为主键？"></a>为什么推荐使用自增 id 作为主键？</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/69a8346941af33b8ceded3fcafe0ce03.png" alt="69a8346941af33b8ceded3fcafe0ce03.png"></p>
+<ul>
+<li>１.普通索引的 B+ 树上存放的是主键索引的值，如果该值较大，会<strong>「导致普通索引的存储空间较大」</strong></li>
+<li>２.使用自增 id 做主键索引新插入数据只要放在该页的最尾端就可以，直接<strong>「按照顺序插入」</strong>，不用刻意维护</li>
+<li>3.页分裂容易维护，当插入数据的当前页快满时，会发生页分裂的现象，如果主键索引不为自增 id，那么数据就可能从页的中间插入，页的数据会频繁的变动，<strong>「导致页分裂维护成本较高」</strong></li>
+</ul>
+<h3 id="一条查询语句是怎么执行的"><a href="#一条查询语句是怎么执行的" class="headerlink" title="一条查询语句是怎么执行的?"></a>一条查询语句是怎么执行的?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/eb4e297a05891f2cdcfd9990f89e483a.png" alt="eb4e297a05891f2cdcfd9990f89e483a.png"></p>
+<ul>
+<li>通过连接器跟客户端<strong>「建立连接」</strong></li>
+<li>通过查询<strong>「缓存查询」</strong>之前是否有查询过该 sql<ul>
+<li>有则直接返回结果</li>
+<li>没有则执行第三步</li>
+</ul>
+</li>
+<li>通过分析器<strong>「分析该 sql 的语义」</strong>是否正确，包括格式，表等等</li>
+<li>通过优化器<strong>「优化该语句」</strong>，比如选择索引，join 表的连接顺序</li>
+<li><strong>「验证权限」</strong>，验证是否有该表的查询权限<ul>
+<li>没有则返回无权限的错误</li>
+<li>有则执行第六步</li>
+</ul>
+</li>
+<li>通过执行器调用存储引擎执行该 sql，然后返回<strong>「执行结果」</strong></li>
+</ul>
+<h3 id="使用-Innodb-的情况下，一条更新语句是怎么执行的"><a href="#使用-Innodb-的情况下，一条更新语句是怎么执行的" class="headerlink" title="使用 Innodb 的情况下，一条更新语句是怎么执行的?"></a>使用 Innodb 的情况下，一条更新语句是怎么执行的?</h3><p>用以下语句来举例，c 字段无索引，id 为主键索引（无其他索引，有普通索引和唯一索引情况会发生变化，有了change buffer/insert buffer的优化）</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">update T set c=c+<span class="number">1</span> where id=<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行器先找引擎取 id=2 这一行。id 是主键，引擎直接用树搜索找到这一行<ul>
+<li>如果 id=2 这一行所在的数据页本来就<strong>「在内存中」</strong>，就<strong>「直接返回」</strong>给执行器</li>
+<li><strong>「不在内存」</strong>中，需要先从磁盘<strong>「读入内存」</strong>，然后再<strong>「返回」</strong></li>
+</ul>
+</li>
+<li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口<strong>「写入这行新数据」</strong></li>
+<li>擎将这行新数据更新到内存中，同时将这个更新操作<strong>「记录到 redo log 里面」</strong>，此时 redo log 处于 <strong>「prepare」</strong> 状态。然后告知执行器执行完成了，随时可以提交事务</li>
+<li>执行器<strong>「生成这个操作的 binlog」</strong>，并把 binlog <strong>「写入磁盘」</strong></li>
+<li>执行器调用引擎的<strong>「提交事务」</strong>接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，<strong>「更新完成」</strong></li>
+</ul>
+<h3 id="Innodb-事务为什么要两阶段提交"><a href="#Innodb-事务为什么要两阶段提交" class="headerlink" title="Innodb 事务为什么要两阶段提交?"></a>Innodb 事务为什么要两阶段提交?</h3><p>目的：保持redolog和binlog的状态一致性，进而保证了主从一致性</p>
+<ul>
+<li>先写 redolog 后写binlog。假设在 redolog 写完，binlog 还没有写完的时候，MySQL 进程异常重启，这时候 binlog 里面就没有记录这个语句。然后你会发现，如果需要用这个 binlog 来恢复临时库的话，由于这个语句的 <strong>「binlog 丢失」</strong>，这个临时库就会少了这一次更新，恢复出来的这一行 c 的值就是 0，与原库的值不同。</li>
+<li>先写 binlog 后写 redolog。如果在 binlog 写完之后 crash，由于 redolog 还没写，崩溃恢复以后这个事务无效，所以这一行c的值是0。但是 binlog 里面已经记录了“把c从0改成1”这个日志。所以，在之后用 binlog 来恢复的时候就<strong>「多了一个事务出来」</strong>，恢复出来的这一行 c 的值就是 1，与原库的值不同。</li>
+</ul>
+<p>可以看到，<strong>「如果不使用“两阶段提交”，那么数据库的状态就有可能和用它的日志恢复出来的库的状态不一致」</strong>。</p>
+<h3 id="什么是索引"><a href="#什么是索引" class="headerlink" title="什么是索引?"></a>什么是索引?</h3><p>相信大家小时候学习汉字的时候都会查字典，想想你查字典的步骤，我们是通过汉字的首字母 a～z 一个一个在字典目录中查找，最终找到该字的页数。想想，如果没有目录会怎么样，最差的结果是你有可能翻到字典的最后一页才找到你想要找的字。</p>
+<p>索引就<strong>「相当于我们字典中的目录」</strong>，可以极大的提高我们在数据库的查询效率。</p>
+<h3 id="索引失效的场景有哪些"><a href="#索引失效的场景有哪些" class="headerlink" title="索引失效的场景有哪些?"></a>索引失效的场景有哪些?</h3><p>以下随便列举几个，不同版本的 mysql 场景不一</p>
+<ul>
+<li>最左前缀法则（带头索引不能死，中间索引不能断)</li>
+<li>不要在索引上做任何操作（计算、函数、自动/手动类型转换），不然会导致索引失效而转向全表扫描</li>
+<li>不能继续使用索引中范围条件（bettween、&lt;、&gt;、in等）右边的列，如：</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a from user where c &gt; <span class="number">5</span> and b = <span class="number">4</span>；</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>索引字段上使用（！= 或者 &lt; &gt;）判断时，会导致索引失效而转向全表扫描</li>
+<li>索引字段上使用 is null / is not null 判断时，会导致索引失效而转向全表扫描。</li>
+<li>索引字段使用like以通配符开头（‘%字符串’）时，会导致索引失效而转向全表扫描，也是最左前缀原则。</li>
+<li>索引字段是字符串，但查询时不加单引号，会导致索引失效而转向全表扫描</li>
+<li>索引字段使用 or 时，会导致索引失效而转向全表扫描</li>
+</ul>
+<h3 id="为什么采用-B-树-而不是-B-树"><a href="#为什么采用-B-树-而不是-B-树" class="headerlink" title="为什么采用 B+ 树,而不是 B-树"></a>为什么采用 B+ 树,而不是 B-树</h3><p>B+ 树只在叶子结点储存数据，非叶子结点不存具体数据，只存 key，查询更稳定，增大了广度，而一个节点就是磁盘一个内存页，内存页大小固定，那么相比 B 树，B- 树这些<strong>「可以存更多的索引结点」</strong>，宽度更大，树高矮，节点小，拉取一次数据的磁盘 IO 次数少，并且 B+ 树只需要去遍历叶子节点就可以实现整棵树的遍历。而且在数据库中基于范围的查询是非常频繁的，效率更高。</p>
+<h3 id="WAl-是什么-有什么好处"><a href="#WAl-是什么-有什么好处" class="headerlink" title="WAl 是什么?有什么好处?"></a>WAl 是什么?有什么好处?</h3><p>先写日志，在写磁盘</p>
+<p>WAL 就是 Write-Ahead Logging，其实就是<strong>「所有的修改都先被写入到日志中，然后再写磁盘」</strong>，用于保证数据操作的原子性和持久性。</p>
+<p>好处:</p>
+<ul>
+<li><strong>「读和写可以完全地并发执行」</strong>，不会互相阻塞</li>
+<li>先写入 log 中，磁盘写入从<strong>「随机写变为顺序写」</strong>，降低了 client 端的延迟就。并且，由于顺序写入大概率是在一个磁盘块内，这样产生的 io 次数也大大降低</li>
+<li>写入日志当数据库崩溃的时候<strong>「可以使用日志来恢复磁盘数据」</strong></li>
+</ul>
+<h3 id="什么是回表"><a href="#什么是回表" class="headerlink" title="什么是回表?"></a>什么是回表?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/b7ac1234b2d44d81bf17dee1c95d4d37.png" alt="b7ac1234b2d44d81bf17dee1c95d4d37.png"></p>
+<p>回表就是先通过数据库索引扫描出该索引树中数据所在的行，取到主键 id，再通过主键 id 取出主键索引数中的数据，即基于非主键索引的查询需要多扫描一棵索引树.</p>
+<h3 id="什么是索引下推"><a href="#什么是索引下推" class="headerlink" title="什么是索引下推?"></a>什么是索引下推?</h3><p>如果存在某些被索引的列的判断条件时，MySQL 将这一部分判断条件传递给存储引擎，然后由存储引擎通过判断索引是否符合 MySQL 服务器传递的条件，<strong>「只有当索引符合条件时才会将数据检索出来返回给 MySQL 服务器」</strong> 。</p>
+<p>就是<strong>一般情况</strong>下，索引列中存在的字段，并且存在where 判断，都可以被利用到，无论是否满足索引使用规则</p>
+<h3 id="什么是覆盖索引"><a href="#什么是覆盖索引" class="headerlink" title="什么是覆盖索引?"></a>什么是覆盖索引?</h3><p>覆盖索引（covering index）指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取，可以减少回表的次数。比如:</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> id from t where age = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>id 为主键索引，age 为普通索引，age 这个索引树存储的就是逐渐信息，可以直接返回</p>
+<h3 id="什么是最左前缀原则"><a href="#什么是最左前缀原则" class="headerlink" title="什么是最左前缀原则?"></a>什么是最左前缀原则?</h3><p>最左前缀其实说的是，在 where 条件中出现的字段，<strong>「如果只有组合索引中的部分列，则这部分列的触发索引顺序」</strong>，是按照定义索引的时候的顺序从前到后触发，最左面一个列触发不了，之后的所有列索引都无法触发。</p>
+<p>比如<strong>「有一个 (a,b,c) 的组合索引」</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where a = <span class="number">1</span> and b = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时 a,b 会命中该组合索引</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where a = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时 a 会命中该组合索引, c 不会</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where b = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时不会命中该组合索引</p>
+<h3 id="普通索引和唯一索引该怎么选择"><a href="#普通索引和唯一索引该怎么选择" class="headerlink" title="普通索引和唯一索引该怎么选择?"></a>普通索引和唯一索引该怎么选择?</h3><ul>
+<li>查询<ul>
+<li>当普通索引为条件时查询到数据会一直扫描,直到扫到不同的值</li>
+<li>当唯一索引为查询条件时,查到该数据会直接返回,不会继续扫表</li>
+</ul>
+</li>
+<li>更新<ul>
+<li>普通索引会直接将操作更新到 change buffer 中,然后结束</li>
+<li>唯一索引需要判断数据是否冲突，不能使用change buffer</li>
+</ul>
+</li>
+</ul>
+<p>适合场景：</p>
+<ul>
+<li>普通索引适合<strong>读多写少</strong>的情况，尤其是在写完，立马就读的场景是不能使用的（原因是会增加changebuffer 的维护成本）</li>
+<li>一般不建议使用唯一索引</li>
+</ul>
+<h3 id="什么是事务-其特性是什么"><a href="#什么是事务-其特性是什么" class="headerlink" title="什么是事务?其特性是什么?"></a>什么是事务?其特性是什么?</h3><p>事务是指是程序中一系列操作必须全部成功完成，有一个失败则全部失败。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6d4384f30d148e586ee353b97e1f0fef.png" alt="6d4384f30d148e586ee353b97e1f0fef.png"></p>
+<p>特性</p>
+<ul>
+<li><strong>「1.原子性（Atomicity）」</strong>：要么全部执行成功，要么全部不执行。</li>
+<li><strong>「2.一致性（Consistency）」</strong>：事务前后数据的完整性必须保持一致。</li>
+<li><strong>「3.隔离性（Isolation）」</strong>：隔离性是当多个事务同事触发时，不能被其他事务的操作所干扰，多个并发事务之间要相互隔离。</li>
+<li><strong>「4.持久性（Durability）」</strong>：事务完成之后的改变是永久的。</li>
+</ul>
+<h3 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别?"></a>事务的隔离级别?</h3><ul>
+<li>1.<strong>「读提交」</strong>:即能够<strong>「读取到那些已经提交」</strong>的数据</li>
+<li>2.<strong>「读未提交」</strong>:即能够<strong>「读取到没有被提交」</strong>的数据</li>
+<li>3.<strong>「可重复读」</strong>:可重复读指的是在一个事务内，最开始读到的数据和事务结束前的<strong>「任意时刻读到的同一批数据都是一致的」</strong></li>
+<li>4.<strong>「可串行化」</strong>:最高事务隔离级别，不管多少事务，都是<strong>「依次按序一个一个执行」</strong></li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/875a4a8184a2eccf33ca1176799d540a.png" alt="875a4a8184a2eccf33ca1176799d540a.png"></p>
+<ul>
+<li><strong>「脏读」</strong><ul>
+<li>脏读指的是<strong>「读到了其他事务未提交的数据」</strong>，未提交意味着这些数据可能会回滚，也就是可能最终不会存到数据库中，也就是不存在的数据。读到了并一定最终存在的数据，这就是脏读</li>
+</ul>
+</li>
+<li><strong>「不可重复读」</strong><ul>
+<li>对比可重复读，不可重复读指的是在同一事务内，<strong>「不同的时刻读到的同一批数据可能是不一样的」</strong>。</li>
+</ul>
+</li>
+<li><strong>「幻读」</strong><ul>
+<li>幻读是针对数据插入（INSERT）操作来说的。假设事务A对某些行的内容作了更改，但是还未提交，此时事务B插入了与事务A更改前的记录相同的记录行，并且在事务A提交之前先提交了，而这时，在事务A中查询，会发现<strong>「好像刚刚的更改对于某些数据未起作用」</strong>，但其实是事务B刚插入进来的这就叫幻读</li>
+</ul>
+</li>
+</ul>
+<h3 id="binlog-是做什么的"><a href="#binlog-是做什么的" class="headerlink" title="binlog 是做什么的?"></a>binlog 是做什么的?</h3><p>binlog 是归档日志，属于 Server 层的日志，是一个二进制格式的文件，用于<strong>「记录用户对数据库更新的SQL语句信息」</strong>。</p>
+<p>主要作用</p>
+<ul>
+<li>主从复制</li>
+<li>数据恢复</li>
+</ul>
+<h3 id="undolog-是做什么的"><a href="#undolog-是做什么的" class="headerlink" title="undolog 是做什么的?"></a>undolog 是做什么的?</h3><p>undolog 是 InnoDB 存储引擎的日志，用于保证数据的原子性，<strong>「保存了事务发生之前的数据的一个版本，也就是说记录的是数据是修改之前的数据，可以用于回滚」</strong>，同时可以提供多版本并发控制下的读（MVCC）。</p>
+<p>主要作用</p>
+<ul>
+<li>事务回滚</li>
+<li>实现多版本控制(MVCC)</li>
+</ul>
+<h3 id="relaylog-是做什么的"><a href="#relaylog-是做什么的" class="headerlink" title="relaylog 是做什么的?"></a>relaylog 是做什么的?</h3><p>relaylog 是中继日志，<strong>「在主从同步的时候使用到」</strong>，它是一个中介临时的日志文件，用于存储从master节点同步过来的binlog日志内容。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/682ebc9c026cc8b81bc74ca0115f79df.png" alt="682ebc9c026cc8b81bc74ca0115f79df.png"></p>
+<p>master 主节点的 binlog 传到 slave 从节点后，被写入 relay log 里，从节点的 slave sql 线程从 relaylog 里读取日志然后应用到 slave 从节点本地。从服务器 I/O 线程将主服务器的二进制日志读取过来记录到从服务器本地文件，然后 SQL 线程会读取 relay-log 日志的内容并应用到从服务器，从而<strong>「使从服务器和主服务器的数据保持一致」</strong>。</p>
+<h3 id="redolog-是做什么的"><a href="#redolog-是做什么的" class="headerlink" title="redolog 是做什么的?"></a>redolog 是做什么的?</h3><p>redolog 是 <strong>「InnoDB 存储引擎所特有的一种日志」</strong>，用于记录事务操作的变化，记录的是数据修改之后的值，不管事务是否提交都会记录下来。</p>
+<p>可以做<strong>「数据恢复并且提供 crash-safe 能力」</strong></p>
+<p>当有增删改相关的操作时，会先记录到 Innodb 中，并修改缓存页中的数据，<strong>「等到 mysql 闲下来的时候才会真正的将 redolog 中的数据写入到磁盘当中」</strong>。</p>
+<h3 id="redolog-是怎么记录日志的"><a href="#redolog-是怎么记录日志的" class="headerlink" title="redolog 是怎么记录日志的?"></a>redolog 是怎么记录日志的?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/9b9820761e6fc6d9b2644f70fea0c878.png" alt="9b9820761e6fc6d9b2644f70fea0c878.png"></p>
+<p>InnoDB 的 redo log 是固定大小的，比如可以配置为一组4个文件，每个文件的大小是1GB，那么总共就可以记录4GB的操作。<strong>「从头开始写，写到末尾就又回到开头循环写」</strong>。</p>
+<p>所以，如果数据写满了但是还没有来得及将数据真正的刷入磁盘当中，那么就会发生<strong>「内存抖动」</strong>现象，从肉眼的角度来观察会发现 mysql 会宕机一会儿，此时就是正在刷盘了。</p>
+<h3 id="redolog-和-binlog-的区别是什么"><a href="#redolog-和-binlog-的区别是什么" class="headerlink" title="redolog 和 binlog 的区别是什么?"></a>redolog 和 binlog 的区别是什么?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/b83959086f28bb82d5dd174a12af8bdc.png" alt="b83959086f28bb82d5dd174a12af8bdc.png"></p>
+<ul>
+<li><strong>「redolog」</strong> 是 <strong>「Innodb」</strong> 独有的日志，而 <strong>「binlog」</strong> 是 <strong>「server」</strong> 层的，所有的存储引擎都有使用到</li>
+<li><strong>「redolog」</strong> 记录了<strong>「具体的数值」</strong>，对某个页做了什么修改，<strong>「binlog」</strong> 记录的<strong>「操作内容」</strong></li>
+<li><strong>「binlog」</strong> 大小达到上限或者 flush log <strong>「会生成一个新的文件」</strong>，而 <strong>「redolog」</strong> 有固定大小<strong>「只能循环利用」</strong></li>
+<li><strong>「binlog 日志没有 crash-safe 的能力」</strong>，只能用于归档。而 redo log 有 crash-safe 能力。</li>
+<li>binlog 是server 层，redolog 是存储层</li>
+</ul>
+<h3 id="说一说-mvcc-吧，有什么作用"><a href="#说一说-mvcc-吧，有什么作用" class="headerlink" title="说一说 mvcc 吧，有什么作用?"></a>说一说 mvcc 吧，有什么作用?</h3><p>MVCC:多版本并发控制，是现代数据库(包括 MySQL、Oracle、PostgreSQL 等)引擎实现中常用的处理读写冲突的手段，目的在于<strong>「提高数据库高并发场景下的吞吐性能」</strong>。</p>
+<p>在 MVCC 协议下，每个读操作会看到一个一致性的快照，<strong>「这个快照是基于整个库的」</strong>，并且可以实现非阻塞的读，用于<strong>「支持读提交和可重复读隔离级别的实现」</strong>。</p>
+<p>MVCC 允许数据具有多个版本，这个版本可以是时间戳或者是全局递增的事务 ID，在同一个时间点，不同的事务看到的数据是不同的，这个修改的数据是<strong>「记录在 undolog 中」</strong>的。</p>
+<h3 id="一条-Sql-语句查询一直慢会是什么原因"><a href="#一条-Sql-语句查询一直慢会是什么原因" class="headerlink" title="一条 Sql 语句查询一直慢会是什么原因?"></a>一条 Sql 语句查询一直慢会是什么原因?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/d52351ca45402fd46125dc2e59be0a76.png" alt="d52351ca45402fd46125dc2e59be0a76.png"></p>
+<ul>
+<li><strong>「1.没有用到索引」</strong><ul>
+<li>比如函数导致的索引失效，或者本身就没有加索引</li>
+</ul>
+</li>
+<li><strong>「2.表数据量太大」</strong><ul>
+<li>考虑分库分表吧</li>
+</ul>
+</li>
+<li><strong>「3.优化器选错了索引」</strong><ul>
+<li><strong>「考虑使用」</strong> force index 强制走索引</li>
+</ul>
+</li>
+</ul>
+<h3 id="一条-Sql-语句查询偶尔慢会是什么原因"><a href="#一条-Sql-语句查询偶尔慢会是什么原因" class="headerlink" title="一条 Sql 语句查询偶尔慢会是什么原因?"></a>一条 Sql 语句查询偶尔慢会是什么原因?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/bd6876ff641aba17165df1c7ef249df5.png" alt="bd6876ff641aba17165df1c7ef249df5.png"></p>
+<ul>
+<li><strong>「1. 数据库在刷新脏页」</strong><ul>
+<li>比如 <strong>「redolog 写满了」</strong>，<strong>「内存不够用了」</strong>释放内存如果是脏页也需要刷，mysql <strong>「正常空闲状态刷脏页」</strong></li>
+</ul>
+</li>
+<li><strong>「2. 没有拿到锁」</strong></li>
+</ul>
+<h3 id="Mysql-主从之间是怎么同步数据的"><a href="#Mysql-主从之间是怎么同步数据的" class="headerlink" title="Mysql 主从之间是怎么同步数据的?"></a>Mysql 主从之间是怎么同步数据的?</h3><ul>
+<li>1.master 主库将此次更新的事件类型<strong>「写入到主库的 binlog 文件」</strong>中</li>
+<li>2.master <strong>「创建 log dump 线程通知 slave」</strong> 需要更新数据</li>
+<li>3.<strong>「slave」</strong> 向 master 节点发送请求，<strong>「将该 binlog 文件内容存到本地的 relaylog 中」</strong></li>
+<li>4.<strong>「slave 开启 sql 线程」</strong>读取 relaylog 中的内容，<strong>「将其中的内容在本地重新执行一遍」</strong>，完成主从数据同步</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/fae385cd4a137a82e28b52c9eb9737a5.png" alt="fae385cd4a137a82e28b52c9eb9737a5.png"></p>
+<p><strong>「同步策略」</strong>：</p>
+<ul>
+<li>1.<strong>「全同步复制」</strong>：主库强制同步日志到从库，等全部从库执行完才返回客户端，性能差</li>
+<li>2.<strong>「半同步复制」</strong>：主库收到至少一个从库确认就认为操作成功，从库写入日志成功返回ack确认</li>
+</ul>
+<h3 id="主从延迟要怎么解决"><a href="#主从延迟要怎么解决" class="headerlink" title="主从延迟要怎么解决?"></a>主从延迟要怎么解决?</h3><ul>
+<li>1.MySQL 5.6 版本以后，提供了一种<strong>「并行复制」</strong>的方式，通过将 SQL 线程转换为多个 work 线程来进行重放</li>
+<li>2.<strong>「提高机器配置」</strong>(王道)</li>
+<li>3.在业务初期就选择合适的分库、分表策略，<strong>「避免单表单库过大」</strong>带来额外的复制压力</li>
+<li>4.<strong>「避免长事务」</strong></li>
+<li>5.<strong>「避免让数据库进行各种大量运算」</strong></li>
+<li>6.对于一些对延迟很敏感的业务<strong>「直接使用主库读」</strong></li>
+</ul>
+<h2 id="29-删除表数据后表的大小却没有变动-这是为什么"><a href="#29-删除表数据后表的大小却没有变动-这是为什么" class="headerlink" title="29.删除表数据后表的大小却没有变动,这是为什么?"></a>29.删除表数据后表的大小却没有变动,这是为什么?</h2><p>在使用 delete 删除数据时，其实对应的数据行并不是真正的删除，是<strong>「逻辑删除」</strong>，InnoDB 仅仅是将其<strong>「标记成可复用的状态」</strong>，所以表空间不会变小</p>
+<h2 id="30-为什么-VarChar-建议不要超过255"><a href="#30-为什么-VarChar-建议不要超过255" class="headerlink" title="30.为什么 VarChar 建议不要超过255?"></a>30.为什么 VarChar 建议不要超过255?</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/e7172b78774dcb6d1679d262491d3a32.png" alt="e7172b78774dcb6d1679d262491d3a32.png"></p>
+<p>当定义varchar长度小于等于255时，长度标识位需要一个字节(utf-8编码)</p>
+<p>当大于255时，长度标识位需要两个字节，并且建立的<strong>「索引也会失效」</strong></p>
+<h2 id="31-分布式式事务怎么实现"><a href="#31-分布式式事务怎么实现" class="headerlink" title="31.分布式式事务怎么实现?"></a>31.分布式式事务怎么实现?</h2><ul>
+<li>1.<strong>「本地消息表」</strong></li>
+<li>2.<strong>「消息事务」</strong></li>
+<li>3.<strong>「二阶段提交」</strong></li>
+<li>4.<strong>「三阶段提交」</strong></li>
+<li>5.<strong>「TCC」</strong></li>
+<li>6.<strong>「最大努力通知」</strong></li>
+<li>7.<strong>「Seata 框架」</strong></li>
+</ul>
+<p><a href="https://blog.csdn.net/qq_43513205/article/details/114265756">七种分布式事务的解决方案，一次讲给你听</a></p>
+<h2 id="32-Mysql-中有哪些锁"><a href="#32-Mysql-中有哪些锁" class="headerlink" title="32.Mysql 中有哪些锁?"></a>32.Mysql 中有哪些锁?</h2><p>以下并不全，主要理解下锁的意义即可</p>
+<ul>
+<li>基于锁的属性分类：共享锁、排他锁</li>
+<li>基于锁的粒度分类：表锁、行锁、记录锁、间隙锁、临键锁</li>
+<li>基于锁的状态分类：意向共享锁、意向排它锁、死锁</li>
+</ul>
+<h2 id="33-为什么不要使用长事务"><a href="#33-为什么不要使用长事务" class="headerlink" title="33.为什么不要使用长事务?"></a>33.为什么不要使用长事务?</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png" alt="5cca8dadf562adaf140437cf95001d59.png"></p>
+<ul>
+<li>1.并发情况下，数据库<strong>「连接池容易被撑爆」</strong></li>
+<li>2.<strong>「容易造成大量的阻塞和锁超时」</strong><ul>
+<li>长事务还占用锁资源，也可能拖垮整个库，</li>
+</ul>
+</li>
+<li>3.执行时间长，容易造成<strong>「主从延迟」</strong></li>
+<li>4.<strong>「回滚所需要的时间比较长」</strong><ul>
+<li>事务越长整个时间段内的事务也就越多</li>
+</ul>
+</li>
+<li>5.<strong>「undolog 日志越来越大」</strong><ul>
+<li>长事务意味着系统里面会存在很老的事务视图。由于这些事务随时可能访问数据库里面的任何数据，所以这个事务提交之前，数据库里面它可能用到的回滚记录都必须保留，这就会导致大量占用存储空间。</li>
+</ul>
+</li>
+</ul>
+<h2 id="34-buffer-pool-是做什么的"><a href="#34-buffer-pool-是做什么的" class="headerlink" title="34.buffer pool 是做什么的?"></a>34.buffer pool 是做什么的?</h2><p>buffer pool 是一块内存区域，为了<strong>「提高数据库的性能」</strong>，当数据库操作数据的时候，把硬盘上的数据加载到 buffer pool，不直接和硬盘打交道，操作的是 buffer pool 里面的数据，数据库的增删改查都是在 buffer pool 上进行</p>
+<p>buffer pool 里面缓存的数据内容也是一个个数据页</p>
+<p>其中<strong>「有三大双向链表」</strong>:</p>
+<ul>
+<li><strong>「free 链表」</strong><ul>
+<li>用于帮助我们找到空闲的缓存页</li>
+</ul>
+</li>
+<li><strong>「flush 链表」</strong><ul>
+<li>用于找到脏缓存页，也就是需要刷盘的缓存页</li>
+</ul>
+</li>
+<li><strong>「lru 链表」</strong><ul>
+<li>用来淘汰不常被访问的缓存页，分为热数据区和冷数据区，冷数据区主要存放那些不常被用到的数据</li>
+</ul>
+</li>
+</ul>
+<p>预读机制:</p>
+<ul>
+<li>Buffer Pool 有一项特技叫预读，存储引擎的接口在被 Server 层调用时，会在响应的同时进行预判，将下次可能用到的数据和索引加载到 Buffer Pool</li>
+</ul>
+<h2 id="35-说说你的-Sql-调优思路吧"><a href="#35-说说你的-Sql-调优思路吧" class="headerlink" title="35.说说你的 Sql 调优思路吧"></a>35.说说你的 Sql 调优思路吧</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png" alt="e6d0dffc2b67df74c5ebc558dcb3e9ff.png"></p>
+<ul>
+<li>1.<strong>「表结构优化」</strong><ul>
+<li>1.1拆分字段</li>
+<li>1.2字段类型的选择</li>
+<li>1.3字段类型大小的限制</li>
+<li>1.4合理的增加冗余字段</li>
+<li>1.5新建字段一定要有默认值</li>
+</ul>
+</li>
+<li>2.<strong>「索引方面」</strong><ul>
+<li>2.1索引字段的选择</li>
+<li>2.2利用好mysql支持的索引下推，覆盖索引等功能</li>
+<li>2.3唯一索引和普通索引的选择</li>
+</ul>
+</li>
+<li>3.<strong>「查询语句方面」</strong><ul>
+<li>3.1避免索引失效</li>
+<li>3.2合理的书写where条件字段顺序</li>
+<li>3.3小表驱动大表</li>
+<li>3.4可以使用force index()防止优化器选错索引</li>
+</ul>
+</li>
+<li>4.<strong>「分库分表」</strong></li>
+</ul>
+]]></content>
+      <categories>
+        <category>八股文</category>
+      </categories>
+      <tags>
+        <tag>面试</tag>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>面试八股文 计网篇</title>
+    <url>/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20%E8%AE%A1%E7%BD%91%E7%AF%87/</url>
+    <content><![CDATA[<h2 id="计算机网络"><a href="#计算机网络" class="headerlink" title="计算机网络"></a>计算机网络</h2><h3 id="各层协议"><a href="#各层协议" class="headerlink" title="各层协议"></a>各层协议</h3><ul>
+<li><p>应用层：HTTP、FTP、SMTP、BOOTP、DHCP、TFTP、SOCKS（安全套接字协议）</p>
+</li>
+<li><p>表示层：信息语法语义以及他们的关联，如加密解密、转换翻译、压缩解压缩</p>
+</li>
+<li><p>会话层：不同机器的用户之间建立以及管理会话，SSL（安全套接字协议）、TLS（传输层安全协议）</p>
+</li>
+<li><p>传输层：接受上一次层的数据，分割处理，交给网络层，TCP、UDP</p>
+</li>
+<li><p>网络层：控制子网的运行，逻辑编址、分组传输、路由选择，IP、IPv6、EGP（外部网关协议）、IGRP（内部网关协议）、RIP、OSPF、BGP、ICMP、IGMP（组管理协议）</p>
+</li>
+<li><p>数据链路层：物理寻址，将原始比特流转变成逻辑传输线路，ARP、RARP、</p>
+</li>
+<li><p>物理层：原始比特流传输，IEEE802.2、Ethernet v.2 Internetwork222</p>
+</li>
+</ul>
+<span id="more"></span>
+
+
+
+
+
+<h3 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h3><ul>
+<li>向上层提供服务</li>
+<li>无连接</li>
+<li>尽最大努力交付的数据报</li>
+<li>点到点</li>
+</ul>
+<h4 id="主要协议"><a href="#主要协议" class="headerlink" title="主要协议"></a>主要协议</h4><ul>
+<li>ip/ipv6 </li>
+<li>ICMP 互联网控制信息协议</li>
+<li>EGP 外部网关协议</li>
+<li>OSPF 开放最短路径优先协议</li>
+<li>IGRP 内部网关协议</li>
+<li>RIP2 路由信息协议</li>
+</ul>
+<h4 id="IP协议"><a href="#IP协议" class="headerlink" title="IP协议"></a>IP协议</h4><p>屏蔽底层物理网络协议差异，实现异构网络互连</p>
+<ul>
+<li>无连接投递机制</li>
+<li>不保证数据报文传输的可靠性</li>
+<li>   提供尽最大努力的投递机制</li>
+</ul>
+<h5 id="报文格式"><a href="#报文格式" class="headerlink" title="报文格式"></a><strong>报文格式</strong></h5><div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/85c05fb1-5546-4c50-9221-21f231cdc8c5.jpg" width="700"/> </div><br>
+
+<ul>
+<li><p>  <strong>版本</strong>   : 有 4（IPv4）和 6（IPv6）两个值；</p>
+</li>
+<li><p>  <strong>首部长度</strong>   : 占 4 位，因此最大值为 15。值为 1 表示的是 1 个 32 位字的长度，也就是 4 字节。因为固定部分长度为 20 字节，因此该值最小为 5。如果可选字段的长度不是 4 字节的整数倍，就用尾部的填充部分来填充。<strong>首部最大长度60字节</strong></p>
+</li>
+<li><p>  <strong>区分服务</strong>   : 用来获得更好的服务，一般情况下不使用。</p>
+</li>
+<li><p>  <strong>总长度</strong>   : 包括首部长度和数据部分长度。<strong>ip数据报最大长度65535=64k</strong></p>
+</li>
+<li><p>  <strong>生存时间</strong>   ：TTL，它的存在是为了防止无法交付的数据报在互联网中不断兜圈子。以路由器跳数为单位，当 TTL 为 0 时就丢弃数据报。</p>
+</li>
+<li><p>  <strong>协议</strong>  ：指出携带的数据应该上交给哪个协议进行处理，例如 ICMP、TCP、UDP 等。</p>
+</li>
+<li><p>  <strong>首部检验和</strong>  ：因为数据报每经过一个路由器，都要重新计算检验和，因此检验和不包含数据部分可以减少计算的工作量。</p>
+</li>
+<li><p>  <strong>标识</strong>   : 在数据报长度过长从而发生分片的情况下，相同数据报的不同分片具有相同的标识符。</p>
+</li>
+<li><p>  <strong>片偏移</strong>   : 和标识符一起，用于发生分片的情况。片偏移的单位为 8 字节。</p>
+</li>
+</ul>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/23ba890e-e11c-45e2-a20c-64d217f83430.png" width="700"/> </div><br>
+
+<h5 id="分片重组"><a href="#分片重组" class="headerlink" title="分片重组"></a><strong>分片重组</strong></h5><p>分片重组：标识、标志、片偏移量</p>
+<ul>
+<li>目的主机重组完成后交付上层协议</li>
+<li>标识：识别属于哪一个原始数据报</li>
+<li>标志：MF 是否还有分片 DF 是否可以分片</li>
+</ul>
+<h5 id="FreeBSD分片重组算法：思想"><a href="#FreeBSD分片重组算法：思想" class="headerlink" title="FreeBSD分片重组算法：思想"></a><strong>FreeBSD分片重组算法</strong>：思想</h5><p>1.每收到一个IP数据报，算法首先检查其MF位及偏移量的值：<br>（1）如果二者至少有一个不为0，说明这是一个需要重组的分片；<br>2.检查其ID：<br>（1）如果未出现在已有的ipq链表中，则说明是一个新的数据报，此时重组算法会分配一个新的ipq和ipasfrag结构；<br>（2）如果不是新的数据报，则重组算法根据其源IP地址、目的IP地址、协议、ID及偏移量字段将其插入链表适当的位置；<br>3.每次插入一个新的分片，重组算法都会重新计算已经收到的数据长度，并与总长度对比：<br>（1）如果已经达到了总长度，说明所有分片都已到达，此时可以进行数据合并，并将报头附加在数据的前边；<br>4.删除链表中相应的结构。</p>
+<h4 id="ICMP"><a href="#ICMP" class="headerlink" title="ICMP"></a>ICMP</h4><ul>
+<li>传递控制信息<ul>
+<li>拥塞控制</li>
+<li>选路优化</li>
+<li>目的地可达性判断</li>
+<li>时钟同步</li>
+</ul>
+</li>
+<li>提供差错报告<ul>
+<li>循环投递</li>
+<li>分片丢失</li>
+<li>投递失败</li>
+</ul>
+</li>
+<li>传递控制信息+提供差错报告=ICMP</li>
+</ul>
+<p>ICMP 是为了更有效地转发 IP 数据报和提高交付成功的机会。它封装在 IP 数据报中，但是不属于高层协议。</p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/e3124763-f75e-46c3-ba82-341e6c98d862.jpg" width="500"/> </div><br>
+
+<p>ICMP 报文分为差错报告报文和询问报文。</p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/aa29cc88-7256-4399-8c7f-3cf4a6489559.png" width="600"/> </div><br>
+
+<p><strong>应用</strong></p>
+<ul>
+<li><p>ping，测试主机连通性</p>
+<p>Ping 的原理是通过向目的主机发送 ICMP Echo 请求报文，目的主机收到之后会发送 Echo 回答报文。Ping 会根据时间和成功响应的次数估算出数据包往返时间以及丢包率。</p>
+</li>
+<li><p>traceroute</p>
+<p>Traceroute 是 ICMP 的另一个应用，用来跟踪一个分组从源点到终点的路径。</p>
+<p>Traceroute 发送的 IP 数据报封装的是无法交付的 UDP 用户数据报，并由目的主机发送终点不可达差错报告报文。</p>
+<ul>
+<li>源主机向目的主机发送一连串的 IP 数据报。第一个数据报 P1 的生存时间 TTL 设置为 1，当 P1 到达路径上的第一个路由器 R1 时，R1 收下它并把 TTL 减 1，此时 TTL 等于 0，R1 就把 P1 丢弃，并向源主机发送一个 ICMP 时间==超过差错报告报文==；</li>
+<li>源主机接着发送第二个数据报 P2，并把 TTL 设置为 2。P2 先到达 R1，R1 收下后把 TTL 减 1 再转发给 R2，R2 收下后也把 TTL 减 1，由于此时 TTL 等于 0，R2 就丢弃 P2，并向源主机发送一个 ICMP ==时间超过差错报文==。</li>
+<li>不断执行这样的步骤，直到最后一个数据报刚刚到达目的主机，主机不转发数据报，也不把 TTL 值减 1。但是因为数据报封装的是无法交付的 UDP，因此目的主机要向源主机发送 ==ICMP 终点不可达差错报告报文==。</li>
+<li>之后源主机知道了到达目的主机所经过的路由器 IP 地址以及到达每个路由器的往返时间。</li>
+</ul>
+</li>
+</ul>
+<h4 id="虚拟专用网VPN"><a href="#虚拟专用网VPN" class="headerlink" title="虚拟专用网VPN"></a>虚拟专用网VPN</h4><p>由于 IP 地址的紧缺，一个机构能申请到的 IP 地址数往往远小于本机构所拥有的主机数。并且一个机构并不需要把所有的主机接入到外部的互联网中，机构内的计算机可以使用仅在本机构有效的 IP 地址（专用地址）。</p>
+<p>有三个专用地址块：</p>
+<ul>
+<li>10.0.0.0 ~ 10.255.255.255</li>
+<li>172.16.0.0 ~ 172.31.255.255</li>
+<li>192.168.0.0 ~ 192.168.255.255</li>
+</ul>
+<p>VPN 使用公用的互联网作为本机构各专用网之间的通信载体。专用指机构内的主机只与本机构内的其它主机通信；虚拟指好像是，而实际上并不是，它有经过公用的互联网。</p>
+<p><strong>下图中，场所 A 和 B 的通信经过互联网，如果场所 A 的主机 X 要和另一个场所 B 的主机 Y 通信</strong></p>
+<ul>
+<li><p>IP 数据报的源地址是 10.1.0.1，目的地址是 10.2.0.3。</p>
+</li>
+<li><p>数据报先发送到与互联网相连的路由器 R1，R1 对内部数据进行加密，然后重新加上数据报的首部，源地址是路由器 R1 的全球地址 125.1.2.3，目的地址是路由器 R2 的全球地址 194.4.5.6。</p>
+</li>
+<li><p>路由器 R2 收到数据报后将数据部分进行解密，恢复原来的数据报，此时目的地址为 10.2.0.3，就交付给 Y。</p>
+</li>
+</ul>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/1556770b-8c01-4681-af10-46f1df69202c.jpg" width="800"/> </div><br>
+
+<h4 id="网络地址转换NAT"><a href="#网络地址转换NAT" class="headerlink" title="网络地址转换NAT"></a>网络地址转换NAT</h4><p>专用网内部的主机使用本地 IP 地址又想和互联网上的主机通信时，可以使用 NAT 来将本地 IP 转换为全球 IP。</p>
+<ul>
+<li><p>只能由专有网络的主机发起链接</p>
+</li>
+<li><p>NATip报文转发属于网络层，查看和转换端口号属于传输层</p>
+</li>
+</ul>
+<p>在以前，NAT 将本地 IP 和全球 IP 一一对应，这种方式下拥有 n 个全球 IP 地址的专用网内最多只可以同时有 n 台主机接入互联网。为了更有效地利用全球 IP 地址，现在常用的 NAT 转换表把传输层的端口号也用上了，使得多个专用网内部的主机共用一个全球 IP 地址。使用端口号的 NAT 也叫做网络地址与端口转换 NAPT。</p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/2719067e-b299-4639-9065-bed6729dbf0b.png" width=""/> </div><br>
+
+
+
+<h4 id="路由转发"><a href="#路由转发" class="headerlink" title="路由转发"></a>路由转发</h4><ul>
+<li>从数据报的首部提取目的主机的 IP 地址 D，得到目的网络地址 N。</li>
+<li>若 N 就是与此路由器直接相连的某个网络地址，则进行直接交付；</li>
+<li>若路由表中有目的地址为 D 的特定主机路由，则把数据报传送给表中所指明的下一跳路由器；</li>
+<li>若路由表中有到达网络 N 的路由，则把数据报传送给路由表中所指明的下一跳路由器；</li>
+<li>若路由表中有一个默认路由，则把数据报传送给路由表中所指明的默认路由器；</li>
+<li>报告转发分组出错。</li>
+</ul>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/1ab49e39-012b-4383-8284-26570987e3c4.jpg" width="800"/> </div><br>
+
+<h4 id="路由选择协议"><a href="#路由选择协议" class="headerlink" title="路由选择协议"></a>路由选择协议</h4><h5 id="RIP"><a href="#RIP" class="headerlink" title="RIP"></a>RIP</h5><ul>
+<li>属于内部网关协议</li>
+<li>适合小规模网络</li>
+<li>使用向量距离算法，通告路由信息（目的地址，距离）</li>
+<li>使用udp端口520</li>
+<li>周期性向相邻路由通告本地路i有信息，response传送</li>
+<li>rip路由器分主动型（Active）和被动型（Passive），主机只能选择被动型</li>
+</ul>
+<p><strong>向量距离算法</strong></p>
+<ul>
+<li>对地址为 X 的相邻路由器发来的 RIP 报文，先修改报文中的所有项目，把下一跳字段中的地址改为 X，并把所有的距离字段加 1；</li>
+<li>对修改后的 RIP 报文中的每一个项目，进行以下步骤：</li>
+<li>若原来的路由表中没有目的网络 N，则把该项目添加到路由表中；</li>
+<li>否则：若下一跳路由器地址是 X，则把收到的项目替换原来路由表中的项目；否则：若收到的项目中的距离 d 小于路由表中的距离，则进行更新（例如原始路由表项为 Net2, 5, P，新表项为 Net2, 4, X，则更新）；否则什么也不做。</li>
+<li>若 3 分钟还没有收到相邻路由器的更新路由表，则把该相邻路由器标为不可达，即把距离置为 16。</li>
+</ul>
+<p><strong>慢收敛问题</strong></p>
+<p><img src="https://gitee.com/Leo_Anna/image/raw/master/img//20200909112920.png" alt="image-20200909112917814"></p>
+<p>解决：</p>
+<p>1.简单分割范围法：当路由器向一个接口发送路由更新报文时，其中不包含从该接口获取的路径信息。<br>2.<strong>带毒性逆转的分割范围法</strong>：当路由器向一个接口发送路由更新报文时，如果某个条目是通过该接口获得的，则将该条目的距离设置为无穷大。<br>3.抑制法：所有路由器在收到某个网络不可达的消息后，将相应表项的距离值置为16，并将此信息保留一段时间（坏消息保留时间默认60秒）。<br>4.触发更新法：一旦发现网络连接消失，就将该网络设置为不可达，并立即发送路由更新报文，而不等待正常的路由更新周期时间到。</p>
+<p>总结：RIP 协议实现简单，开销小。但是 RIP 能使用的最大距离为 15，限制了网络的规模。并且当网络出现故障时，要经过比较长的时间才能将此消息传送到所有路由器<strong>（慢收敛问题）</strong>。</p>
+<h5 id="ospf"><a href="#ospf" class="headerlink" title="ospf"></a>ospf</h5><ul>
+<li><p>开放最短路径优先 OSPF，是为了克服 RIP 的缺点而开发出来的，适合大规模网络。</p>
+</li>
+<li><p>基于ip</p>
+</li>
+<li><p>思想：将一个大规模网络划分为多个易于管理的区域，缩小交换链路状态数据的路由器群组规模</p>
+</li>
+<li><p>最短路径优先使用了SPF</p>
+</li>
+</ul>
+<p><strong>路由器分类</strong></p>
+<ul>
+<li><p>内部路由器IR</p>
+</li>
+<li><p>区域边界路由器ABR</p>
+</li>
+<li><p>骨干路由器BR</p>
+</li>
+<li><p>自制系统边界路由器 ASBR</p>
+</li>
+<li><p>区域分类（骨干区个非骨干）</p>
+</li>
+</ul>
+<p><strong>OSPF 具有以下特点：</strong></p>
+<ul>
+<li>向本自治系统中的所有路由器发送信息，这种方法是洪泛法。</li>
+<li>发送的信息就是与相邻路由器的链路状态，链路状态包括与哪些路由器相连以及链路的度量，度量用费用、距离、时延、带宽等来表示。</li>
+<li>只有当链路状态发生变化时，路由器才会发送信息。</li>
+</ul>
+<p>所有路由器都具有全网的拓扑结构图，并且是一致的。相比于 RIP，OSPF 的更新过程收敛的很快。</p>
+<h5 id="BGP"><a href="#BGP" class="headerlink" title="BGP"></a>BGP</h5><ul>
+<li>边界网关协议，AS之间路由信息交换</li>
+<li>基于TCP，端口号179</li>
+<li>BGP发言人通告路由信息经过聚类后的可达性路由信息，以降低路由规模和隐藏网络拓扑结构</li>
+</ul>
+<p><strong>AS 之间的路由选择很困难，主要是由于</strong>：</p>
+<ul>
+<li>互联网规模很大；</li>
+<li>各个 AS 内部使用不同的路由选择协议，无法准确定义路径的度量；</li>
+<li>AS 之间的路由选择必须考虑有关的策略，比如有些 AS 不愿意让其它 AS 经过。</li>
+</ul>
+<p>BGP 只能寻找一条比较好的路由，而不是最佳路由。</p>
+<p>每个 AS 都必须配置 BGP 发言人，通过在两个相邻 BGP 发言人之间建立 TCP 连接来交换路由信息。</p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/9cd0ae20-4fb5-4017-a000-f7d3a0eb3529.png" width="600"/> </div><br>
+
+<h3 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h3><p>网络层只把分组发送到目的主机，但是真正通信的并不是主机而是主机中的进程。</p>
+<p>传输层提供了进程间的逻辑通信，传输层向高层用户屏蔽了下面网络层的核心细节，使应用程序看起来像是在两个传输层实体之间有一条端到端的逻辑通信信道。</p>
+<h4 id="TCP和UDP的特点区别"><a href="#TCP和UDP的特点区别" class="headerlink" title="TCP和UDP的特点区别"></a>TCP和UDP的特点区别</h4><ul>
+<li>用户数据包协议udp<ul>
+<li>无连接</li>
+<li>最近大可能交付</li>
+<li>没有拥塞控制</li>
+<li>面向报文，对于应用程序传下来的报文不合并也不拆分，只添加udp头部</li>
+<li>支持一对一，一对多，多对一，多对多的通信方式</li>
+</ul>
+</li>
+<li>传输控制协议tcp<ul>
+<li>面向连接</li>
+<li>提供可靠交付，有流量控制，拥塞控制，</li>
+<li>提供全双工通信，面向字节流（对于应用层传下来的报文堪称字节流，把字节流组成大小不等的数据块）</li>
+<li>只能点对点，一对一</li>
+</ul>
+</li>
+</ul>
+<h4 id="问题：为什莫TCP传输比UDP慢"><a href="#问题：为什莫TCP传输比UDP慢" class="headerlink" title="问题：为什莫TCP传输比UDP慢"></a>问题：为什莫TCP传输比UDP慢</h4><ul>
+<li>udp首部8，TCP首部20</li>
+<li>tcp数据块分组</li>
+<li>tcp要先三次握手建立连接</li>
+<li><strong>主要原因：TCP有发送确认机制，反馈信息占用一部分带宽资源</strong></li>
+</ul>
+<h4 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h4><p><strong>UDP 首部格式</strong></p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/d4c3a4a1-0846-46ec-9cc3-eaddfca71254.jpg" width="600"/> </div><br>
+
+<p>首部字段只有 8 个字节，包括源端口、目的端口、长度、检验和。</p>
+<p>12 字节的伪首部是为了计算检验和临时添加的。</p>
+<h4 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h4><h5 id="首部格式"><a href="#首部格式" class="headerlink" title="首部格式"></a><strong>首部格式</strong></h5><div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/55dc4e84-573d-4c13-a765-52ed1dd251f9.png" width="700"/> </div><br>
+
+<ul>
+<li><p>  <strong>序号</strong>   ：用于对字节流进行编号，例如序号为 301，表示第一个字节的编号为 301，如果携带的数据长度为 100 字节，那么下一个报文段的序号应为 401。</p>
+</li>
+<li><p>  <strong>确认号</strong>   ：期望收到的下一个报文段的序号。例如 B 正确收到 A 发送来的一个报文段，序号为 501，携带的数据长度为 200 字节，==因此 B 期望下一个报文段的序号为 701==，B 发送给 A 的确认报文段中确认号就为 701。</p>
+</li>
+<li><p>  <strong>数据偏移</strong>   ：指的是数据部分距离报文段起始处的偏移量，实际上指的是首部的长度。</p>
+</li>
+<li><p>  <strong>确认 ACK</strong>   ：当 ACK=1 时确认号字段有效，否则无效。==TCP 规定，在连接建立后所有传送的报文段都必须把 ACK 置 1==。</p>
+</li>
+<li><p>  <strong>同步 SYN</strong>   ：在连接建立时用来同步序号。==当 SYN=1，ACK=0== 时表示这是一个连接请求报文段。若对方同意建立连接，则响应报文中 SYN=1，ACK=1。</p>
+</li>
+<li><p>  <strong>终止 FIN</strong>   ：用来释放一个连接，当 FIN=1 时，表示此报文段的发送方的数据已发送完毕，并要求释放连接。</p>
+</li>
+<li><p>  <strong>窗口</strong>   ：窗口值作为接收方让发送方设置其发送窗口的依据。之所以要有这个限制，是因为接收方的数据缓存空间是有限的。</p>
+</li>
+</ul>
+<h5 id="TCP三次握手"><a href="#TCP三次握手" class="headerlink" title="TCP三次握手"></a>TCP三次握手</h5><div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/e92d0ebc-7d46-413b-aec1-34a39602f787.png" width="600"/> </div><br>
+
+<p>假设 A 为客户端，B 为服务器端。</p>
+<ul>
+<li><p>首先 B 处于 LISTEN（监听）状态，等待客户的连接请求。</p>
+</li>
+<li><p>A 向 B 发送连接请求报文，SYN=1，ACK=0，选择一个初始的序号 x。</p>
+</li>
+<li><p>B 收到连接请求报文，如果同意建立连接，则向 A 发送连接确认报文，SYN=1，ACK=1，确认号为 x+1，同时也选择一个初始的序号 y。</p>
+</li>
+<li><p>A 收到 B 的连接确认报文后，还要向 B 发出确认，==确认号为 y+1，序号为 x+1==。</p>
+</li>
+<li><p>B 收到 A 的确认后，连接建立。</p>
+</li>
+</ul>
+<p><strong>三次握手的原因</strong>  </p>
+<p>==第三次握手是为了防止失效的连接请求到达服务器，让服务器错误打开连接==。</p>
+<p>客户端发送的连接请求如果在网络中滞留，那么就会隔很长一段时间才能收到服务器端发回的连接确认。客户端等待一个超时重传时间之后，就会重新请求连接。但是这个滞留的连接请求最后还是会到达服务器，<strong>如果不进行三次握手，那么服务器就会打开两个连接</strong>。如果有第三次握手，客户端会忽略服务器之后发送的对滞留连接请求的连接确认，不进行第三次握手，因此就不会再次打开连接。</p>
+<h5 id="TCP四次挥手"><a href="#TCP四次挥手" class="headerlink" title="TCP四次挥手"></a>TCP四次挥手</h5><div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/f87afe72-c2df-4c12-ac03-9b8d581a8af8.jpg" width="600"/> </div><br>
+
+<p>以下描述不讨论序号和确认号，因为序号和确认号的规则比较简单。并且不讨论 ACK，因为 ACK 在连接建立之后都为 1。</p>
+<ul>
+<li><p>A 发送连接释放报文，FIN=1。</p>
+</li>
+<li><p>B 收到之后发出确认，<strong>此时 TCP 属于半关闭状态，B 能向 A 发送数据但是 A 不能向 B 发送数据</strong>。</p>
+</li>
+<li><p>当 B 不再需要连接时，发送连接释放报文，FIN=1。</p>
+</li>
+<li><p>A 收到后发出确认，进入 TIME-WAIT 状态，<strong>等待 2 MSL（最大报文存活时间）后释放连接。</strong></p>
+</li>
+<li><p>B 收到 A 的确认后释放连接。</p>
+</li>
+</ul>
+<p><strong>四次挥手的原因</strong>  </p>
+<p>客户端发送了 FIN 连接释放报文之后，服务器收到了这个报文，就进入了 ==CLOSE-WAIT 状态==。这个状态是为了让服务器端发送还未传送完毕的数据，传送完毕之后，服务器会发送 FIN 连接释放报文。</p>
+<p><strong>TIME_WAIT</strong>  </p>
+<p>客户端接收到服务器端的 FIN 报文后进入此状态，此时并不是直接进入 CLOSED 状态，还需要等待一个时间计时器设置的时间 2MSL。这么做有两个理由：</p>
+<ul>
+<li><p>确保最后一个确认报文能够到达。如果 B 没收到 A 发送来的确认报文，那么就会重新发送连接释放请求报文，A 等待一段时间就是为了处理这种情况的发生。</p>
+</li>
+<li><p>等待一段时间是为了让本连接持续时间内所产生的所有报文都从网络中消失，使得下一个新的连接不会出现旧的连接请求报文。</p>
+</li>
+</ul>
+<h5 id="可靠传输"><a href="#可靠传输" class="headerlink" title="可靠传输"></a>可靠传输</h5><p>TCP使用超时重传实现可靠传输：如果一个已经发送的报文在超时时间内没有收到确认，那么重传这个报文段</p>
+<p>一个报文段从发送再到接收到确认所经过的时间称为往返时间 RTT，加权平均往返时间 RTTs 计算如下：</p>
+<div align="center"><img src="https://latex.codecogs.com/gif.latex?RTTs=(1-a)*(RTTs)+a*RTT" class="mathjax-pic"/></div> <br>
+
+<p>其中，0 ≤ a ＜ 1，RTTs 随着 a 的增加更容易受到 RTT 的影响。</p>
+<p>超时时间 RTO 应该略大于 RTTs，TCP 使用的超时时间计算如下：</p>
+<div align="center"><img src="https://latex.codecogs.com/gif.latex?RTO=RTTs+4*RTT_d" class="mathjax-pic"/></div> <br>
+
+<p>其中 RTT<sub>d</sub> 为偏差的加权平均值。</p>
+<h5 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h5><ul>
+<li>思想：允许在一个分组确认到达之前发送多个分组</li>
+</ul>
+<p>窗口是缓存的一部分，用来暂时存放字节流。发送方和接收方各有一个窗口，接收方通过 TCP 报文段中的窗口字段告诉发送方自己的窗口大小，发送方根据这个值和其它信息设置自己的窗口大小。</p>
+<p>发送窗口内的字节都允许被发送，接收窗口内的字节都允许被接收。如果发送窗口左部的字节已经发送并且收到了确认，那么就将发送窗口向右滑动一定距离，<strong>直到左部第一个字节不是已发送并且已确认的状态；接收窗口的滑动类似，接收窗口左部字节已经发送确认并交付主机，就向右滑动接收窗口。</strong></p>
+<p>接收窗口只会对窗口内最后一个按序到达的字节进行确认，例如接收窗口已经收到的字节为 {31, 34, 35}，其中 {31} 按序到达，而 {34, 35} 就不是，因此只对字节 31 进行确认。发送方得到一个字节的确认之后，就知道这个字节之前的所有字节都已经被接收。</p>
+<p><img src="https://gitee.com/Leo_Anna/image/raw/master/img//20200914104709.png" alt="image-20200914104707367"></p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/a3253deb-8d21-40a1-aae4-7d178e4aa319.jpg" width="800"/> </div><br>
+
+<h5 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h5><p>流量控制是为了控制发送方发送速率，保证接收方来得及接收。</p>
+<p>接收方发送的==确认报文中的窗口字段==可以用来控制发送方窗口大小，从而影响发送方的发送速率。将窗口字段设置为 0，则发送方不能发送数据。</p>
+<h5 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h5><p>如果网络出现拥塞，分组将会丢失，此时发送方会继续重传，从而导致网络拥塞程度更高。因此当出现拥塞时，应当控制发送方的速率。这一点和流量控制很像，但是出发点不同。</p>
+<p><strong>流量控制是为了让接收方能来得及接收，而拥塞控制是为了降低整个网络的拥塞程度。</strong></p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/51e2ed95-65b8-4ae9-8af3-65602d452a25.jpg" width="500"/> </div><br>
+
+<p>TCP 主要通过四个算法来进行拥塞控制==慢开始、拥塞避免、快重传、快恢复==。</p>
+<p>发送方需要维护一个叫做拥塞窗口（cwnd）的状态变量，注意拥塞窗口与发送方窗口的区别：拥塞窗口只是一个状态变量，实际决定发送方能发送多少数据的是发送方窗口。</p>
+<p>为了便于讨论，做如下假设：</p>
+<ul>
+<li>接收方有足够大的接收缓存，因此不会发生流量控制；</li>
+<li>虽然 TCP 的窗口基于字节，但是这里设窗口的大小单位为报文段。</li>
+</ul>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/910f613f-514f-4534-87dd-9b4699d59d31.png" width="800"/> </div><br>
+
+<ol>
+<li><strong>慢开始与拥塞避免</strong></li>
+</ol>
+<p>发送的最初执行慢开始，令 cwnd = 1，发送方只能发送 1 个报文段；当收到确认后，将 cwnd 加倍，因此之后发送方能够发送的报文段数量为：2、4、8 …</p>
+<p>注意到慢开始每个轮次都将 cwnd 加倍，这样会让 cwnd 增长速度非常快，从而使得发送方发送的速度增长速度过快，网络拥塞的可能性也就更高。设置一个慢开始门限 ssthresh，当 cwnd &gt;= ssthresh 时，进入拥塞避免，每个轮次只将 cwnd 加 1。</p>
+<p>如果出现了超时，则令 ssthresh = cwnd / 2，然后重新执行慢开始。</p>
+<ol start="2">
+<li><strong>快重传与快恢复</strong></li>
+</ol>
+<p>在接收方，要求每次接收到报文段都应该对最后一个已收到的有序报文段进行确认。例如已经接收到 M<sub>1</sub> 和 M<sub>2</sub>，此时收到 M<sub>4</sub>，应当发送对 M<sub>2</sub> 的确认。</p>
+<p>==在发送方，如果收到三个重复确认，那么可以知道下一个报文段丢失==，此时执行快重传，立即重传下一个报文段。例如收到三个 M<sub>2</sub>，则 M<sub>3</sub> 丢失，立即重传 M<sub>3</sub>。</p>
+<p>在这种情况下，只是丢失个别报文段，而不是网络拥塞。因此执行快恢复，令 ssthresh = cwnd / 2 ，cwnd = ssthresh，注意到此时直接进入拥塞避免。</p>
+<p>慢开始和快恢复的快慢指的是 cwnd 的设定值，而不是 cwnd 的增长速率。慢开始 cwnd 设定为 1，而快恢复 cwnd 设定为 ssthresh。</p>
+<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/f61b5419-c94a-4df1-8d4d-aed9ae8cc6d5.png" width="600"/> </div><br>
+
+]]></content>
+      <categories>
+        <category>八股文</category>
+      </categories>
+      <tags>
+        <tag>面试</tag>
+        <tag>网络</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>go基础</title>
     <url>/2021/12/11/go%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<blockquote>
@@ -142,7 +858,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#x67;&#x69;&#116;&#x40;&#49;&#57;&#50;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#46;&#x31;&#x31;&#x39;">&#x67;&#x69;&#116;&#x40;&#49;&#57;&#50;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#46;&#x31;&#x31;&#x39;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#103;&#105;&#116;&#64;&#49;&#57;&#50;&#46;&#x31;&#x36;&#56;&#46;&#49;&#x2e;&#49;&#49;&#x39;">&#103;&#105;&#116;&#64;&#49;&#57;&#50;&#46;&#x31;&#x36;&#56;&#46;&#49;&#x2e;&#49;&#49;&#x39;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
