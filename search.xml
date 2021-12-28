@@ -1299,4 +1299,75 @@
         <tag>go基础</tag>
       </tags>
   </entry>
+  <entry>
+    <title>redolog和binlog 刷盘参数</title>
+    <url>/2021/12/28/redolog%E5%92%8Cbinlog%20%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0/</url>
+    <content><![CDATA[<p>涉及参数（都是事务提交后的动作参数）：</p>
+<p>redolog：innodb_flush_log_at_trx_commit</p>
+<p>binlog ：sync_binlog  binlog_group_commit_sync_delay  binlog_group_commit_sync_no_delay_count</p>
+<p>主要分几个维度来分析和理解</p>
+<span id="more"></span>
+
+<h2 id="写入机制"><a href="#写入机制" class="headerlink" title="写入机制"></a>写入机制</h2><h3 id="binlog"><a href="#binlog" class="headerlink" title="binlog"></a>binlog</h3><p>未提交前，写入binlog cache，提交后，写入file cache（简称write），然后根据sync_cache参数配置fsync到磁盘的时机</p>
+<h3 id="redolog"><a href="#redolog" class="headerlink" title="redolog"></a>redolog</h3><p>未提交前，写入log buffer，提交后，写入file cache（简称write），，根据redolog：innodb_flush_log_at_trx_commit参数配置fsync到磁盘的时机</p>
+<h3 id="binlog-cache和log-buffer区别"><a href="#binlog-cache和log-buffer区别" class="headerlink" title="binlog cache和log buffer区别"></a>binlog cache和log buffer区别</h3><p>binlog cache 是写binlog线程内存，是系统分配的和mysql进程内存无关</p>
+<p>log buffer  是使用的mysql进程占有的内存</p>
+<h3 id="未提交事务的redolog刷盘场景"><a href="#未提交事务的redolog刷盘场景" class="headerlink" title="未提交事务的redolog刷盘场景"></a>未提交事务的redolog刷盘场景</h3><ul>
+<li><p>后台线程每秒轮询，把logbuffer里面中的日志写到file cache，然后调用fsync刷盘</p>
+</li>
+<li><p>redlog buffer 占用空间为buffer pool一半的空间的时候，会把日志写入file cache中不刷盘</p>
+</li>
+<li><p>并行的事务提交，且redolog：innodb_flush_log_at_trx_commit参数为1，则会写入file cache中并调用fsync刷盘</p>
+</li>
+</ul>
+<h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><p>binlog sync_binlog</p>
+<ul>
+<li>sync_binlog=0 的时候，表示每次提交事务都只 write，不 fsync；</li>
+<li>sync_binlog=1 的时候，表示每次提交事务都会执行 fsync；</li>
+<li>sync_binlog=N(N&gt;1) 的时候，表示每次提交事务都 write，但累积 N 个事务后才 fsync。</li>
+</ul>
+<p>redolog：innodb_flush_log_at_trx_commit</p>
+<ul>
+<li>设置为 0 的时候，表示每次事务提交时都只是把 redo log 留在 redo log buffer 中 ;</li>
+<li>设置为 1 的时候，表示每次事务提交时都将 redo log 直接持久化到磁盘；</li>
+<li>设置为 2 的时候，表示每次事务提交时都只是把 redo log 写到 page cache。</li>
+</ul>
+<h3 id="“双1”配置"><a href="#“双1”配置" class="headerlink" title="“双1”配置"></a>“双1”配置</h3><p>通常我们说 MySQL 的“双 1”配置，指的就是 sync_binlog 和 innodb_flush_log_at_trx_commit 都设置成 1。也就是说，一个事务完整提交前，需要等待两次刷盘，一次是 redo log（prepare 阶段），一次是 binlog。</p>
+<p>mysql可以根据redolog prepare状态的持久化的日志+binlog进行崩溃恢复的</p>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2><h2 id="binlog组提交参数"><a href="#binlog组提交参数" class="headerlink" title="binlog组提交参数"></a>binlog组提交参数</h2><img src="https://gitee.com/leo_anna/image/raw/master/img//20211228221730.png" alt="img" style="zoom: 33%;" />
+
+<p>参数：binlog_group_commit_sync_delay 和binlog_group_commit_sync_no_delay_count </p>
+<ul>
+<li>binlog_group_commit_sync_delay 参数，表示延迟多少微秒后才调用 fsync;</li>
+<li>binlog_group_commit_sync_no_delay_count 参数，表示累积多少次以后才调用 fsync。</li>
+</ul>
+<p>这两个条件是或的关系，也就是说只要有一个满足条件就会调用 fsync。所以，当 binlog_group_commit_sync_delay 设置为 0 的时候，binlog_group_commit_sync_no_delay_count 也无效了。</p>
+<h2 id="丢失数据场景分析"><a href="#丢失数据场景分析" class="headerlink" title="丢失数据场景分析"></a>丢失数据场景分析</h2><ol>
+<li>大促期间吗，设置的是sync_binlog=0和innodb_flush_log_at_trx_commit=2<br>在主机重启时，会有几种风险:</li>
+</ol>
+<ul>
+<li>如果事务的binlog和redo log都还未fsync,则该事务数据丢失</li>
+<li>如果事务binlog fsync成功,redo log未fsync,则该事务数据丢失。虽然binlog落盘成功,但是binlog没有恢复redo log的能力,所以redo log不能恢复.<br>不过后续可以解析binlog来恢复这部分数据</li>
+<li>如果事务binlog fsync未成功,redo log成功。由于redo log恢复数据是在引擎层,所以重新启动数据库,redo log能恢复数据,但是不能恢复server层的binlog,则binlog丢失。如果该事务还未从filesystem page cache里发送给从库,那么主从就会出现不一致的情况</li>
+</ul>
+<p>注意：filesystem page cache中的数据是可以读到的</p>
+<ol start="2">
+<li>设置sync_binlog = N，如果是<strong>主机异常重启</strong>，会丢失n条数据</li>
+<li>redolog：innodb_flush_log_at_trx_commit 设置2，会丢失数据</li>
+</ol>
+<h2 id="io瓶颈的优化"><a href="#io瓶颈的优化" class="headerlink" title="io瓶颈的优化"></a>io瓶颈的优化</h2><ul>
+<li>组提交，设置 binlog_group_commit_sync_delay 和 binlog_group_commit_sync_no_delay_count 参数，减少 binlog 的写盘次数。这个方法是基于“额外的故意等待”来实现的，因此可能会增加语句的响应时间，但没有丢失数据的风险。</li>
+<li>将 sync_binlog 设置为大于 1 的值（比较常见是 100~1000）。这样做的风险是，主机掉电时会丢 binlog 日志。</li>
+<li>将 innodb_flush_log_at_trx_commit 设置为 2。这样做的风险是，主机掉电的时候会丢数据。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>redolog和binlog</tag>
+        <tag>刷盘</tag>
+        <tag>io瓶颈</tag>
+      </tags>
+  </entry>
 </search>

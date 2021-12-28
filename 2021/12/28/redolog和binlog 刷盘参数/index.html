@@ -21,28 +21,32 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"www.leoyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
-<meta name="description" content="包括数字转链表，翻转链表的几种方式（双链表，双指针）">
+<meta name="description" content="涉及参数（都是事务提交后的动作参数）： redolog：innodb_flush_log_at_trx_commit binlog ：sync_binlog  binlog_group_commit_sync_delay  binlog_group_commit_sync_no_delay_count 主要分几个维度来分析和理解">
 <meta property="og:type" content="article">
-<meta property="og:title" content="链表">
-<meta property="og:url" content="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/index.html">
+<meta property="og:title" content="redolog和binlog 刷盘参数">
+<meta property="og:url" content="http://www.leoyun.top/2021/12/28/redolog%E5%92%8Cbinlog%20%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0/index.html">
 <meta property="og:site_name" content="勇往直前">
-<meta property="og:description" content="包括数字转链表，翻转链表的几种方式（双链表，双指针）">
+<meta property="og:description" content="涉及参数（都是事务提交后的动作参数）： redolog：innodb_flush_log_at_trx_commit binlog ：sync_binlog  binlog_group_commit_sync_delay  binlog_group_commit_sync_no_delay_count 主要分几个维度来分析和理解">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-12-26T14:49:35.000Z">
-<meta property="article:modified_time" content="2021-12-26T07:56:47.288Z">
+<meta property="og:image" content="https://gitee.com/leo_anna/image/raw/master/img//20211228221730.png">
+<meta property="article:published_time" content="2021-12-28T14:49:35.000Z">
+<meta property="article:modified_time" content="2021-12-28T14:31:14.988Z">
 <meta property="article:author" content="小庄">
-<meta property="article:tag" content="链表">
+<meta property="article:tag" content="redolog和binlog">
+<meta property="article:tag" content="刷盘">
+<meta property="article:tag" content="io瓶颈">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/leo_anna/image/raw/master/img//20211228221730.png">
 
 
-<link rel="canonical" href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/">
+<link rel="canonical" href="http://www.leoyun.top/2021/12/28/redolog%E5%92%8Cbinlog%20%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/","path":"2021/12/26/链表/","title":"链表"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/28/redolog%E5%92%8Cbinlog%20%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0/","path":"2021/12/28/redolog和binlog 刷盘参数/","title":"redolog和binlog 刷盘参数"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>链表 | 勇往直前</title>
+<title>redolog和binlog 刷盘参数 | 勇往直前</title>
   
 
 
@@ -136,7 +140,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -149,6 +153,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%85%A5%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">写入机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#binlog"><span class="nav-number">1.1.</span> <span class="nav-text">binlog</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog"><span class="nav-number">1.2.</span> <span class="nav-text">redolog</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#binlog-cache%E5%92%8Clog-buffer%E5%8C%BA%E5%88%AB"><span class="nav-number">1.3.</span> <span class="nav-text">binlog cache和log buffer区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AA%E6%8F%90%E4%BA%A4%E4%BA%8B%E5%8A%A1%E7%9A%84redolog%E5%88%B7%E7%9B%98%E5%9C%BA%E6%99%AF"><span class="nav-number">1.4.</span> <span class="nav-text">未提交事务的redolog刷盘场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">参数说明</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9C%E5%8F%8C1%E2%80%9D%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">“双1”配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#binlog%E7%BB%84%E6%8F%90%E4%BA%A4%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">binlog组提交参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A2%E5%A4%B1%E6%95%B0%E6%8D%AE%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">丢失数据场景分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#io%E7%93%B6%E9%A2%88%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">io瓶颈的优化</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -213,7 +218,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/">
+    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/28/redolog%E5%92%8Cbinlog%20%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/20211210231228.png">
@@ -226,7 +231,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          链表
+          redolog和binlog 刷盘参数
         </h1>
 
         <div class="post-meta-container">
@@ -238,7 +243,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-12-26 22:49:35 / 修改时间：15:56:47" itemprop="dateCreated datePublished" datetime="2021-12-26T22:49:35+08:00">2021-12-26</time>
+      <time title="创建时间：2021-12-28 22:49:35 / 修改时间：22:31:14" itemprop="dateCreated datePublished" datetime="2021-12-28T22:49:35+08:00">2021-12-28</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -246,7 +251,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构和算法</span></a>
+          <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
         </span>
     </span>
 
@@ -264,14 +269,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.2k</span>
+      <span>2.2k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
+      <span>2 分钟</span>
     </span>
 </div>
 
@@ -282,10 +287,65 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
+        <p>涉及参数（都是事务提交后的动作参数）：</p>
+<p>redolog：innodb_flush_log_at_trx_commit</p>
+<p>binlog ：sync_binlog  binlog_group_commit_sync_delay  binlog_group_commit_sync_no_delay_count</p>
+<p>主要分几个维度来分析和理解</p>
 <span id="more"></span>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="写入机制"><a href="#写入机制" class="headerlink" title="写入机制"></a>写入机制</h2><h3 id="binlog"><a href="#binlog" class="headerlink" title="binlog"></a>binlog</h3><p>未提交前，写入binlog cache，提交后，写入file cache（简称write），然后根据sync_cache参数配置fsync到磁盘的时机</p>
+<h3 id="redolog"><a href="#redolog" class="headerlink" title="redolog"></a>redolog</h3><p>未提交前，写入log buffer，提交后，写入file cache（简称write），，根据redolog：innodb_flush_log_at_trx_commit参数配置fsync到磁盘的时机</p>
+<h3 id="binlog-cache和log-buffer区别"><a href="#binlog-cache和log-buffer区别" class="headerlink" title="binlog cache和log buffer区别"></a>binlog cache和log buffer区别</h3><p>binlog cache 是写binlog线程内存，是系统分配的和mysql进程内存无关</p>
+<p>log buffer  是使用的mysql进程占有的内存</p>
+<h3 id="未提交事务的redolog刷盘场景"><a href="#未提交事务的redolog刷盘场景" class="headerlink" title="未提交事务的redolog刷盘场景"></a>未提交事务的redolog刷盘场景</h3><ul>
+<li><p>后台线程每秒轮询，把logbuffer里面中的日志写到file cache，然后调用fsync刷盘</p>
+</li>
+<li><p>redlog buffer 占用空间为buffer pool一半的空间的时候，会把日志写入file cache中不刷盘</p>
+</li>
+<li><p>并行的事务提交，且redolog：innodb_flush_log_at_trx_commit参数为1，则会写入file cache中并调用fsync刷盘</p>
+</li>
+</ul>
+<h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><p>binlog sync_binlog</p>
+<ul>
+<li>sync_binlog=0 的时候，表示每次提交事务都只 write，不 fsync；</li>
+<li>sync_binlog=1 的时候，表示每次提交事务都会执行 fsync；</li>
+<li>sync_binlog=N(N&gt;1) 的时候，表示每次提交事务都 write，但累积 N 个事务后才 fsync。</li>
+</ul>
+<p>redolog：innodb_flush_log_at_trx_commit</p>
+<ul>
+<li>设置为 0 的时候，表示每次事务提交时都只是把 redo log 留在 redo log buffer 中 ;</li>
+<li>设置为 1 的时候，表示每次事务提交时都将 redo log 直接持久化到磁盘；</li>
+<li>设置为 2 的时候，表示每次事务提交时都只是把 redo log 写到 page cache。</li>
+</ul>
+<h3 id="“双1”配置"><a href="#“双1”配置" class="headerlink" title="“双1”配置"></a>“双1”配置</h3><p>通常我们说 MySQL 的“双 1”配置，指的就是 sync_binlog 和 innodb_flush_log_at_trx_commit 都设置成 1。也就是说，一个事务完整提交前，需要等待两次刷盘，一次是 redo log（prepare 阶段），一次是 binlog。</p>
+<p>mysql可以根据redolog prepare状态的持久化的日志+binlog进行崩溃恢复的</p>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2><h2 id="binlog组提交参数"><a href="#binlog组提交参数" class="headerlink" title="binlog组提交参数"></a>binlog组提交参数</h2><img src="https://gitee.com/leo_anna/image/raw/master/img//20211228221730.png" alt="img" style="zoom: 33%;" />
+
+<p>参数：binlog_group_commit_sync_delay 和binlog_group_commit_sync_no_delay_count </p>
+<ul>
+<li>binlog_group_commit_sync_delay 参数，表示延迟多少微秒后才调用 fsync;</li>
+<li>binlog_group_commit_sync_no_delay_count 参数，表示累积多少次以后才调用 fsync。</li>
+</ul>
+<p>这两个条件是或的关系，也就是说只要有一个满足条件就会调用 fsync。所以，当 binlog_group_commit_sync_delay 设置为 0 的时候，binlog_group_commit_sync_no_delay_count 也无效了。</p>
+<h2 id="丢失数据场景分析"><a href="#丢失数据场景分析" class="headerlink" title="丢失数据场景分析"></a>丢失数据场景分析</h2><ol>
+<li>大促期间吗，设置的是sync_binlog=0和innodb_flush_log_at_trx_commit=2<br>在主机重启时，会有几种风险:</li>
+</ol>
+<ul>
+<li>如果事务的binlog和redo log都还未fsync,则该事务数据丢失</li>
+<li>如果事务binlog fsync成功,redo log未fsync,则该事务数据丢失。虽然binlog落盘成功,但是binlog没有恢复redo log的能力,所以redo log不能恢复.<br>不过后续可以解析binlog来恢复这部分数据</li>
+<li>如果事务binlog fsync未成功,redo log成功。由于redo log恢复数据是在引擎层,所以重新启动数据库,redo log能恢复数据,但是不能恢复server层的binlog,则binlog丢失。如果该事务还未从filesystem page cache里发送给从库,那么主从就会出现不一致的情况</li>
+</ul>
+<p>注意：filesystem page cache中的数据是可以读到的</p>
+<ol start="2">
+<li>设置sync_binlog = N，如果是<strong>主机异常重启</strong>，会丢失n条数据</li>
+<li>redolog：innodb_flush_log_at_trx_commit 设置2，会丢失数据</li>
+</ol>
+<h2 id="io瓶颈的优化"><a href="#io瓶颈的优化" class="headerlink" title="io瓶颈的优化"></a>io瓶颈的优化</h2><ul>
+<li>组提交，设置 binlog_group_commit_sync_delay 和 binlog_group_commit_sync_no_delay_count 参数，减少 binlog 的写盘次数。这个方法是基于“额外的故意等待”来实现的，因此可能会增加语句的响应时间，但没有丢失数据的风险。</li>
+<li>将 sync_binlog 设置为大于 1 的值（比较常见是 100~1000）。这样做的风险是，主机掉电时会丢 binlog 日志。</li>
+<li>将 innodb_flush_log_at_trx_commit 设置为 2。这样做的风险是，主机掉电的时候会丢数据。</li>
+</ul>
+
     </div>
 
     
@@ -302,7 +362,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/" title="链表">http://www.leoyun.top/2021/12/26/链表/</a>
+      <a href="http://www.leoyun.top/2021/12/28/redolog%E5%92%8Cbinlog%20%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0/" title="redolog和binlog 刷盘参数">http://www.leoyun.top/2021/12/28/redolog和binlog 刷盘参数/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -311,20 +371,22 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag"># 链表</a>
+              <a href="/tags/redolog%E5%92%8Cbinlog/" rel="tag"># redolog和binlog</a>
+              <a href="/tags/%E5%88%B7%E7%9B%98/" rel="tag"># 刷盘</a>
+              <a href="/tags/io%E7%93%B6%E9%A2%88/" rel="tag"># io瓶颈</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" rel="prev" title="两数之和">
-                  <i class="fa fa-chevron-left"></i> 两数之和
+                <a href="/2021/12/27/%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/" rel="prev" title="用两个栈实现队列">
+                  <i class="fa fa-chevron-left"></i> 用两个栈实现队列
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="next" title="二叉树">
-                  二叉树 <i class="fa fa-chevron-right"></i>
+                <a href="/2021/12/28/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/" rel="next" title="面试八股文 mysql篇">
+                  面试八股文 mysql篇 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
