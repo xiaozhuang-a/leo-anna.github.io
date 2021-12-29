@@ -44,7 +44,7 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png">
 <meta property="article:published_time" content="2021-12-28T14:49:35.000Z">
-<meta property="article:modified_time" content="2021-12-28T03:47:57.598Z">
+<meta property="article:modified_time" content="2021-12-29T04:05:46.082Z">
 <meta property="article:author" content="小庄">
 <meta property="article:tag" content="面试">
 <meta property="article:tag" content="mysql">
@@ -166,7 +166,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql%E9%9D%A2%E8%AF%95%E7%9A%84%E5%85%AB%E8%82%A1%E6%96%87%EF%BC%8C%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0"><span class="nav-number">1.</span> <span class="nav-text">mysql面试的八股文，持续更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%9A%84%E6%9C%80%E5%A4%A7%E8%BF%9E%E6%8E%A5%E6%95%B0%E4%BB%A5%E5%8F%8A%E8%B0%83%E4%BC%98"><span class="nav-number">2.</span> <span class="nav-text">连接器的最大连接数以及调优</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog%E5%92%8Cbinlog%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">redolog和binlog区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog%E5%92%8Cbinlog-%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">redolog和binlog 刷盘参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undolog"><span class="nav-number">5.</span> <span class="nav-text">undolog</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">6.</span> <span class="nav-text">sql执行流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mvcc"><span class="nav-number">7.</span> <span class="nav-text">mvcc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mha"><span class="nav-number">8.</span> <span class="nav-text">mha</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E4%B8%80%E8%AF%B4%E4%B8%89%E5%A4%A7%E8%8C%83%E5%BC%8F"><span class="nav-number">9.</span> <span class="nav-text">说一说三大范式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MyISAM-%E4%B8%8E-InnoDB-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">10.</span> <span class="nav-text">MyISAM 与 InnoDB 的区别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8%E8%87%AA%E5%A2%9E-id-%E4%BD%9C%E4%B8%BA%E4%B8%BB%E9%94%AE%EF%BC%9F"><span class="nav-number">11.</span> <span class="nav-text">为什么推荐使用自增 id 作为主键？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">12.</span> <span class="nav-text">一条查询语句是怎么执行的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Innodb-%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E4%B8%80%E6%9D%A1%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">13.</span> <span class="nav-text">使用 Innodb 的情况下，一条更新语句是怎么执行的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Innodb-%E4%BA%8B%E5%8A%A1%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4"><span class="nav-number">14.</span> <span class="nav-text">Innodb 事务为什么要两阶段提交?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%B4%A2%E5%BC%95"><span class="nav-number">15.</span> <span class="nav-text">什么是索引?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E5%9C%BA%E6%99%AF%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="nav-number">16.</span> <span class="nav-text">索引失效的场景有哪些?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%87%87%E7%94%A8-B-%E6%A0%91-%E8%80%8C%E4%B8%8D%E6%98%AF-B-%E6%A0%91"><span class="nav-number">17.</span> <span class="nav-text">为什么采用 B+ 树,而不是 B-树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WAl-%E6%98%AF%E4%BB%80%E4%B9%88-%E6%9C%89%E4%BB%80%E4%B9%88%E5%A5%BD%E5%A4%84"><span class="nav-number">18.</span> <span class="nav-text">WAl 是什么?有什么好处?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%9B%9E%E8%A1%A8"><span class="nav-number">19.</span> <span class="nav-text">什么是回表?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%B4%A2%E5%BC%95%E4%B8%8B%E6%8E%A8"><span class="nav-number">20.</span> <span class="nav-text">什么是索引下推?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95"><span class="nav-number">21.</span> <span class="nav-text">什么是覆盖索引?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8E%9F%E5%88%99"><span class="nav-number">22.</span> <span class="nav-text">什么是最左前缀原则?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E7%B4%A2%E5%BC%95%E5%92%8C%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E8%AF%A5%E6%80%8E%E4%B9%88%E9%80%89%E6%8B%A9"><span class="nav-number">23.</span> <span class="nav-text">普通索引和唯一索引该怎么选择?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1-%E5%85%B6%E7%89%B9%E6%80%A7%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">24.</span> <span class="nav-text">什么是事务?其特性是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">25.</span> <span class="nav-text">事务的隔离级别?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#binlog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">26.</span> <span class="nav-text">binlog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undolog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">27.</span> <span class="nav-text">undolog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#relaylog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">28.</span> <span class="nav-text">relaylog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">29.</span> <span class="nav-text">redolog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E6%98%AF%E6%80%8E%E4%B9%88%E8%AE%B0%E5%BD%95%E6%97%A5%E5%BF%97%E7%9A%84"><span class="nav-number">30.</span> <span class="nav-text">redolog 是怎么记录日志的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E5%92%8C-binlog-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">31.</span> <span class="nav-text">redolog 和 binlog 的区别是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E4%B8%80%E8%AF%B4-mvcc-%E5%90%A7%EF%BC%8C%E6%9C%89%E4%BB%80%E4%B9%88%E4%BD%9C%E7%94%A8"><span class="nav-number">32.</span> <span class="nav-text">说一说 mvcc 吧，有什么作用?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1-Sql-%E8%AF%AD%E5%8F%A5%E6%9F%A5%E8%AF%A2%E4%B8%80%E7%9B%B4%E6%85%A2%E4%BC%9A%E6%98%AF%E4%BB%80%E4%B9%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">33.</span> <span class="nav-text">一条 Sql 语句查询一直慢会是什么原因?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1-Sql-%E8%AF%AD%E5%8F%A5%E6%9F%A5%E8%AF%A2%E5%81%B6%E5%B0%94%E6%85%A2%E4%BC%9A%E6%98%AF%E4%BB%80%E4%B9%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">34.</span> <span class="nav-text">一条 Sql 语句查询偶尔慢会是什么原因?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-%E4%B8%BB%E4%BB%8E%E4%B9%8B%E9%97%B4%E6%98%AF%E6%80%8E%E4%B9%88%E5%90%8C%E6%AD%A5%E6%95%B0%E6%8D%AE%E7%9A%84"><span class="nav-number">35.</span> <span class="nav-text">Mysql 主从之间是怎么同步数据的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E5%BB%B6%E8%BF%9F%E8%A6%81%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3"><span class="nav-number">36.</span> <span class="nav-text">主从延迟要怎么解决?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%90%8E%E8%A1%A8%E7%9A%84%E5%A4%A7%E5%B0%8F%E5%8D%B4%E6%B2%A1%E6%9C%89%E5%8F%98%E5%8A%A8-%E8%BF%99%E6%98%AF%E4%B8%BA%E4%BB%80%E4%B9%88"><span class="nav-number">37.</span> <span class="nav-text">删除表数据后表的大小却没有变动,这是为什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-VarChar-%E5%BB%BA%E8%AE%AE%E4%B8%8D%E8%A6%81%E8%B6%85%E8%BF%87255"><span class="nav-number">38.</span> <span class="nav-text">为什么 VarChar 建议不要超过255?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%BC%8F%E4%BA%8B%E5%8A%A1%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0"><span class="nav-number">39.</span> <span class="nav-text">分布式式事务怎么实现?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E9%94%81"><span class="nav-number">40.</span> <span class="nav-text">Mysql 中有哪些锁?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%A6%81%E4%BD%BF%E7%94%A8%E9%95%BF%E4%BA%8B%E5%8A%A1"><span class="nav-number">41.</span> <span class="nav-text">为什么不要使用长事务?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#buffer-pool-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">42.</span> <span class="nav-text">buffer pool 是做什么的?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#35-%E8%AF%B4%E8%AF%B4%E4%BD%A0%E7%9A%84-Sql-%E8%B0%83%E4%BC%98%E6%80%9D%E8%B7%AF%E5%90%A7"><span class="nav-number"></span> <span class="nav-text">35.说说你的 Sql 调优思路吧</span></a></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql%E9%9D%A2%E8%AF%95%E7%9A%84%E5%85%AB%E8%82%A1%E6%96%87%EF%BC%8C%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0"><span class="nav-number">1.</span> <span class="nav-text">mysql面试的八股文，持续更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%9A%84%E6%9C%80%E5%A4%A7%E8%BF%9E%E6%8E%A5%E6%95%B0%E4%BB%A5%E5%8F%8A%E8%B0%83%E4%BC%98"><span class="nav-number">2.</span> <span class="nav-text">连接器的最大连接数以及调优</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%B7%E8%84%8F%E9%A1%B5-%E5%8F%82%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">刷脏页 参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog%E5%92%8Cbinlog%E5%8C%BA%E5%88%AB"><span class="nav-number">4.</span> <span class="nav-text">redolog和binlog区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog%E5%92%8Cbinlog-%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">redolog和binlog 刷盘参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undolog"><span class="nav-number">6.</span> <span class="nav-text">undolog</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">7.</span> <span class="nav-text">sql执行流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mvcc"><span class="nav-number">8.</span> <span class="nav-text">mvcc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mha"><span class="nav-number">9.</span> <span class="nav-text">mha</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8b-tree%EF%BC%8C%E5%85%B6%E4%BB%96%E5%8F%AF%E4%BB%A5%E7%94%A8%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%83%BD%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="nav-number">10.</span> <span class="nav-text">为什么要用b+tree，其他可以用的数据结构都有哪些</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E4%B8%80%E8%AF%B4%E4%B8%89%E5%A4%A7%E8%8C%83%E5%BC%8F"><span class="nav-number">11.</span> <span class="nav-text">说一说三大范式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MyISAM-%E4%B8%8E-InnoDB-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">12.</span> <span class="nav-text">MyISAM 与 InnoDB 的区别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8%E8%87%AA%E5%A2%9E-id-%E4%BD%9C%E4%B8%BA%E4%B8%BB%E9%94%AE%EF%BC%9F"><span class="nav-number">13.</span> <span class="nav-text">为什么推荐使用自增 id 作为主键？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">14.</span> <span class="nav-text">一条查询语句是怎么执行的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Innodb-%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E4%B8%80%E6%9D%A1%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">15.</span> <span class="nav-text">使用 Innodb 的情况下，一条更新语句是怎么执行的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Innodb-%E4%BA%8B%E5%8A%A1%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4"><span class="nav-number">16.</span> <span class="nav-text">Innodb 事务为什么要两阶段提交?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%B4%A2%E5%BC%95"><span class="nav-number">17.</span> <span class="nav-text">什么是索引?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E5%9C%BA%E6%99%AF%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="nav-number">18.</span> <span class="nav-text">索引失效的场景有哪些?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%87%87%E7%94%A8-B-%E6%A0%91-%E8%80%8C%E4%B8%8D%E6%98%AF-B-%E6%A0%91"><span class="nav-number">19.</span> <span class="nav-text">为什么采用 B+ 树,而不是 B-树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WAl-%E6%98%AF%E4%BB%80%E4%B9%88-%E6%9C%89%E4%BB%80%E4%B9%88%E5%A5%BD%E5%A4%84"><span class="nav-number">20.</span> <span class="nav-text">WAl 是什么?有什么好处?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%9B%9E%E8%A1%A8"><span class="nav-number">21.</span> <span class="nav-text">什么是回表?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%B4%A2%E5%BC%95%E4%B8%8B%E6%8E%A8"><span class="nav-number">22.</span> <span class="nav-text">什么是索引下推?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95"><span class="nav-number">23.</span> <span class="nav-text">什么是覆盖索引?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8E%9F%E5%88%99"><span class="nav-number">24.</span> <span class="nav-text">什么是最左前缀原则?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E7%B4%A2%E5%BC%95%E5%92%8C%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E8%AF%A5%E6%80%8E%E4%B9%88%E9%80%89%E6%8B%A9"><span class="nav-number">25.</span> <span class="nav-text">普通索引和唯一索引该怎么选择?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1-%E5%85%B6%E7%89%B9%E6%80%A7%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">26.</span> <span class="nav-text">什么是事务?其特性是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">27.</span> <span class="nav-text">事务的隔离级别?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#binlog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">28.</span> <span class="nav-text">binlog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#undolog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">29.</span> <span class="nav-text">undolog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#relaylog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">30.</span> <span class="nav-text">relaylog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">31.</span> <span class="nav-text">redolog 是做什么的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E6%98%AF%E6%80%8E%E4%B9%88%E8%AE%B0%E5%BD%95%E6%97%A5%E5%BF%97%E7%9A%84"><span class="nav-number">32.</span> <span class="nav-text">redolog 是怎么记录日志的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redolog-%E5%92%8C-binlog-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">33.</span> <span class="nav-text">redolog 和 binlog 的区别是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E4%B8%80%E8%AF%B4-mvcc-%E5%90%A7%EF%BC%8C%E6%9C%89%E4%BB%80%E4%B9%88%E4%BD%9C%E7%94%A8"><span class="nav-number">34.</span> <span class="nav-text">说一说 mvcc 吧，有什么作用?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1-Sql-%E8%AF%AD%E5%8F%A5%E6%9F%A5%E8%AF%A2%E4%B8%80%E7%9B%B4%E6%85%A2%E4%BC%9A%E6%98%AF%E4%BB%80%E4%B9%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">35.</span> <span class="nav-text">一条 Sql 语句查询一直慢会是什么原因?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%9D%A1-Sql-%E8%AF%AD%E5%8F%A5%E6%9F%A5%E8%AF%A2%E5%81%B6%E5%B0%94%E6%85%A2%E4%BC%9A%E6%98%AF%E4%BB%80%E4%B9%88%E5%8E%9F%E5%9B%A0"><span class="nav-number">36.</span> <span class="nav-text">一条 Sql 语句查询偶尔慢会是什么原因?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-%E4%B8%BB%E4%BB%8E%E4%B9%8B%E9%97%B4%E6%98%AF%E6%80%8E%E4%B9%88%E5%90%8C%E6%AD%A5%E6%95%B0%E6%8D%AE%E7%9A%84"><span class="nav-number">37.</span> <span class="nav-text">Mysql 主从之间是怎么同步数据的?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E5%BB%B6%E8%BF%9F%E8%A6%81%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3"><span class="nav-number">38.</span> <span class="nav-text">主从延迟要怎么解决?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E8%A1%A8%E6%95%B0%E6%8D%AE%E5%90%8E%E8%A1%A8%E7%9A%84%E5%A4%A7%E5%B0%8F%E5%8D%B4%E6%B2%A1%E6%9C%89%E5%8F%98%E5%8A%A8-%E8%BF%99%E6%98%AF%E4%B8%BA%E4%BB%80%E4%B9%88"><span class="nav-number">39.</span> <span class="nav-text">删除表数据后表的大小却没有变动,这是为什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-VarChar-%E5%BB%BA%E8%AE%AE%E4%B8%8D%E8%A6%81%E8%B6%85%E8%BF%87255"><span class="nav-number">40.</span> <span class="nav-text">为什么 VarChar 建议不要超过255?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%BC%8F%E4%BA%8B%E5%8A%A1%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0"><span class="nav-number">41.</span> <span class="nav-text">分布式式事务怎么实现?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysql-%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E9%94%81"><span class="nav-number">42.</span> <span class="nav-text">Mysql 中有哪些锁?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%A6%81%E4%BD%BF%E7%94%A8%E9%95%BF%E4%BA%8B%E5%8A%A1"><span class="nav-number">43.</span> <span class="nav-text">为什么不要使用长事务?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#buffer-pool-%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84"><span class="nav-number">44.</span> <span class="nav-text">buffer pool 是做什么的?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#35-%E8%AF%B4%E8%AF%B4%E4%BD%A0%E7%9A%84-Sql-%E8%B0%83%E4%BC%98%E6%80%9D%E8%B7%AF%E5%90%A7"><span class="nav-number"></span> <span class="nav-text">35.说说你的 Sql 调优思路吧</span></a></div>
         </div>
         <!--/noindex-->
 
@@ -254,9 +254,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2021-12-28 22:49:35 / 修改时间：11:47:57" itemprop="dateCreated datePublished" datetime="2021-12-28T22:49:35+08:00">2021-12-28</time>
+      <time title="创建时间：2021-12-28 22:49:35" itemprop="dateCreated datePublished" datetime="2021-12-28T22:49:35+08:00">2021-12-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2021-12-29 12:05:46" itemprop="dateModified" datetime="2021-12-29T12:05:46+08:00">2021-12-29</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -282,7 +288,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>8.3k</span>
+      <span>8.6k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -302,7 +308,12 @@
     <div class="post-body" itemprop="articleBody">
         <h3 id="mysql面试的八股文，持续更新"><a href="#mysql面试的八股文，持续更新" class="headerlink" title="mysql面试的八股文，持续更新"></a>mysql面试的八股文，持续更新</h3><span id="more"></span>
 
-<h3 id="连接器的最大连接数以及调优"><a href="#连接器的最大连接数以及调优" class="headerlink" title="连接器的最大连接数以及调优"></a>连接器的最大连接数以及调优</h3><h3 id="redolog和binlog区别"><a href="#redolog和binlog区别" class="headerlink" title="redolog和binlog区别"></a>redolog和binlog区别</h3><ul>
+<h3 id="连接器的最大连接数以及调优"><a href="#连接器的最大连接数以及调优" class="headerlink" title="连接器的最大连接数以及调优"></a>连接器的最大连接数以及调优</h3><p>mysql服务器最大支持max_connect 为 16384</p>
+<p>根据需求来看，一般2核4G机器填写1000，16核64G填写5000。</p>
+<h3 id="刷脏页-参数"><a href="#刷脏页-参数" class="headerlink" title="刷脏页 参数"></a>刷脏页 参数</h3><p> innodb_io_capacity 表示磁盘的io能力，控制了刷脏页的速度</p>
+<p>innodb_max_dirty_pages_pct 脏页比例阈值，达到这个值就开始刷脏页</p>
+<p>脏页比例计算 Innodb_buffer_pool_pages_dirty/Innodb_buffer_pool_pages_total</p>
+<h3 id="redolog和binlog区别"><a href="#redolog和binlog区别" class="headerlink" title="redolog和binlog区别"></a>redolog和binlog区别</h3><ul>
 <li>redolog innodb存储层，binlog server层</li>
 <li>redolog 是物理日志，记录的语句在内存中执行了什么动作，binlog是逻辑日志，记录了语句的原始逻辑</li>
 <li>先写内存，再写redolog prepare 再写binlog 再写redolog commit</li>
@@ -328,13 +339,22 @@
 <li>执行器，调用存储引擎api，执行语句，要什么，存储引擎给什么</li>
 <li>存储引擎，从内存和磁盘中找到sql执行结果，返回执行器</li>
 </ul>
-<h3 id="mvcc"><a href="#mvcc" class="headerlink" title="mvcc"></a>mvcc</h3><h3 id="mha"><a href="#mha" class="headerlink" title="mha"></a>mha</h3><h3 id="说一说三大范式"><a href="#说一说三大范式" class="headerlink" title="说一说三大范式"></a>说一说三大范式</h3><ul>
+<h3 id="mvcc"><a href="#mvcc" class="headerlink" title="mvcc"></a>mvcc</h3><h3 id="mha"><a href="#mha" class="headerlink" title="mha"></a>mha</h3><h3 id="为什么要用b-tree，其他可以用的数据结构都有哪些"><a href="#为什么要用b-tree，其他可以用的数据结构都有哪些" class="headerlink" title="为什么要用b+tree，其他可以用的数据结构都有哪些"></a>为什么要用b+tree，其他可以用的数据结构都有哪些</h3><p>索引的常用<strong>数据结构</strong>：</p>
+<ol>
+<li>二叉树</li>
+<li>红黑树</li>
+<li>Hash 表</li>
+<li><code>B-tree</code> （B树，并不叫什么B减树😁）</li>
+<li><code>B+tree</code></li>
+</ol>
+<h3 id="说一说三大范式"><a href="#说一说三大范式" class="headerlink" title="说一说三大范式"></a>说一说三大范式</h3><ul>
 <li><strong>「第一范式」</strong>：数据库中的字段具有<strong>「原子性」</strong>，不可再分，并且是单一职责</li>
 <li><strong>「第二范式」</strong>：<strong>「建立在第一范式的基础上」</strong>，第二范式要求数据库表中的每个实例或行必须<strong>「可以被惟一地区分」</strong>。为实现区分通常需要为表加上一个列，以存储各个实例的惟一标识。这个惟一属性列被称为主键</li>
 <li><strong>「第三范式」</strong>：<strong>「建立在第一，第二范式的基础上」</strong>，确保每列都和主键列直接相关，而不是间接相关不存在其他表的非主键信息</li>
 </ul>
 <p>但是在我们的日常开发当中，<strong>「并不是所有的表一定要满足三大范式」</strong>，有时候冗余几个字段可以少关联几张表，带来的查询效率的提升有可能是质变的</p>
-<h3 id="MyISAM-与-InnoDB-的区别是什么？"><a href="#MyISAM-与-InnoDB-的区别是什么？" class="headerlink" title="MyISAM 与 InnoDB 的区别是什么？"></a>MyISAM 与 InnoDB 的区别是什么？</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png" alt="e42a8e4a50675fbe6540fb3558986add.png"></p>
+<h3 id="MyISAM-与-InnoDB-的区别是什么？"><a href="#MyISAM-与-InnoDB-的区别是什么？" class="headerlink" title="MyISAM 与 InnoDB 的区别是什么？"></a>MyISAM 与 InnoDB 的区别是什么？</h3><img src="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png" alt="e42a8e4a50675fbe6540fb3558986add.png" style="zoom:50%;" />
+
 <ul>
 <li><p><strong>「InnoDB支持事务，MyISAM不支持」</strong>。</p>
 </li>
@@ -355,13 +375,15 @@
 <li><strong>「InnoDB 支持表、行锁，而 MyISAM 支持表级锁」</strong></li>
 <li><em>「InnoDB 必须有唯一索引(主键)」</em><em>,如果没有指定的话 InnoDB 会自己生成一个隐藏列Row_id来充当默认主键，*<em>「MyISAM 可以没有」</em></em></li>
 </ul>
-<h3 id="为什么推荐使用自增-id-作为主键？"><a href="#为什么推荐使用自增-id-作为主键？" class="headerlink" title="为什么推荐使用自增 id 作为主键？"></a>为什么推荐使用自增 id 作为主键？</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/69a8346941af33b8ceded3fcafe0ce03.png" alt="69a8346941af33b8ceded3fcafe0ce03.png"></p>
+<h3 id="为什么推荐使用自增-id-作为主键？"><a href="#为什么推荐使用自增-id-作为主键？" class="headerlink" title="为什么推荐使用自增 id 作为主键？"></a>为什么推荐使用自增 id 作为主键？</h3><img src="https://img-blog.csdnimg.cn/img_convert/69a8346941af33b8ceded3fcafe0ce03.png" alt="69a8346941af33b8ceded3fcafe0ce03.png" style="zoom:50%;" />
+
 <ul>
 <li>１.普通索引的 B+ 树上存放的是主键索引的值，如果该值较大，会<strong>「导致普通索引的存储空间较大」</strong></li>
 <li>２.使用自增 id 做主键索引新插入数据只要放在该页的最尾端就可以，直接<strong>「按照顺序插入」</strong>，不用刻意维护</li>
 <li>3.页分裂容易维护，当插入数据的当前页快满时，会发生页分裂的现象，如果主键索引不为自增 id，那么数据就可能从页的中间插入，页的数据会频繁的变动，<strong>「导致页分裂维护成本较高」</strong></li>
 </ul>
-<h3 id="一条查询语句是怎么执行的"><a href="#一条查询语句是怎么执行的" class="headerlink" title="一条查询语句是怎么执行的?"></a>一条查询语句是怎么执行的?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/eb4e297a05891f2cdcfd9990f89e483a.png" alt="eb4e297a05891f2cdcfd9990f89e483a.png"></p>
+<h3 id="一条查询语句是怎么执行的"><a href="#一条查询语句是怎么执行的" class="headerlink" title="一条查询语句是怎么执行的?"></a>一条查询语句是怎么执行的?</h3><img src="https://img-blog.csdnimg.cn/img_convert/eb4e297a05891f2cdcfd9990f89e483a.png" alt="eb4e297a05891f2cdcfd9990f89e483a.png" style="zoom:50%;" />
+
 <ul>
 <li>通过连接器跟客户端<strong>「建立连接」</strong></li>
 <li>通过查询<strong>「缓存查询」</strong>之前是否有查询过该 sql<ul>
@@ -424,7 +446,8 @@
 <li>先写入 log 中，磁盘写入从<strong>「随机写变为顺序写」</strong>，降低了 client 端的延迟就。并且，由于顺序写入大概率是在一个磁盘块内，这样产生的 io 次数也大大降低</li>
 <li>写入日志当数据库崩溃的时候<strong>「可以使用日志来恢复磁盘数据」</strong></li>
 </ul>
-<h3 id="什么是回表"><a href="#什么是回表" class="headerlink" title="什么是回表?"></a>什么是回表?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/b7ac1234b2d44d81bf17dee1c95d4d37.png" alt="b7ac1234b2d44d81bf17dee1c95d4d37.png"></p>
+<h3 id="什么是回表"><a href="#什么是回表" class="headerlink" title="什么是回表?"></a>什么是回表?</h3><img src="https://img-blog.csdnimg.cn/img_convert/b7ac1234b2d44d81bf17dee1c95d4d37.png" alt="b7ac1234b2d44d81bf17dee1c95d4d37.png" style="zoom:67%;" />
+
 <p>回表就是先通过数据库索引扫描出该索引树中数据所在的行，取到主键 id，再通过主键 id 取出主键索引数中的数据，即基于非主键索引的查询需要多扫描一棵索引树.</p>
 <h3 id="什么是索引下推"><a href="#什么是索引下推" class="headerlink" title="什么是索引下推?"></a>什么是索引下推?</h3><p>如果存在某些被索引的列的判断条件时，MySQL 将这一部分判断条件传递给存储引擎，然后由存储引擎通过判断索引是否符合 MySQL 服务器传递的条件，<strong>「只有当索引符合条件时才会将数据检索出来返回给 MySQL 服务器」</strong> 。</p>
 <p>就是<strong>一般情况</strong>下，索引列中存在的字段，并且存在where 判断，都可以被利用到，无论是否满足索引使用规则</p>
@@ -461,7 +484,8 @@
 <li>一般不建议使用唯一索引</li>
 </ul>
 <h3 id="什么是事务-其特性是什么"><a href="#什么是事务-其特性是什么" class="headerlink" title="什么是事务?其特性是什么?"></a>什么是事务?其特性是什么?</h3><p>事务是指是程序中一系列操作必须全部成功完成，有一个失败则全部失败。</p>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/6d4384f30d148e586ee353b97e1f0fef.png" alt="6d4384f30d148e586ee353b97e1f0fef.png"></p>
+<img src="https://img-blog.csdnimg.cn/img_convert/6d4384f30d148e586ee353b97e1f0fef.png" alt="6d4384f30d148e586ee353b97e1f0fef.png" style="zoom:50%;" />
+
 <p>特性</p>
 <ul>
 <li><strong>「1.原子性（Atomicity）」</strong>：要么全部执行成功，要么全部不执行。</li>
@@ -475,7 +499,8 @@
 <li>3.<strong>「可重复读」</strong>:可重复读指的是在一个事务内，最开始读到的数据和事务结束前的<strong>「任意时刻读到的同一批数据都是一致的」</strong></li>
 <li>4.<strong>「可串行化」</strong>:最高事务隔离级别，不管多少事务，都是<strong>「依次按序一个一个执行」</strong></li>
 </ul>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/875a4a8184a2eccf33ca1176799d540a.png" alt="875a4a8184a2eccf33ca1176799d540a.png"></p>
+<img src="https://img-blog.csdnimg.cn/img_convert/875a4a8184a2eccf33ca1176799d540a.png" alt="875a4a8184a2eccf33ca1176799d540a.png" style="zoom: 67%;" />
+
 <ul>
 <li><strong>「脏读」</strong><ul>
 <li>脏读指的是<strong>「读到了其他事务未提交的数据」</strong>，未提交意味着这些数据可能会回滚，也就是可能最终不会存到数据库中，也就是不存在的数据。读到了并一定最终存在的数据，这就是脏读</li>
@@ -503,15 +528,18 @@
 <li>实现多版本控制(MVCC)</li>
 </ul>
 <h3 id="relaylog-是做什么的"><a href="#relaylog-是做什么的" class="headerlink" title="relaylog 是做什么的?"></a>relaylog 是做什么的?</h3><p>relaylog 是中继日志，<strong>「在主从同步的时候使用到」</strong>，它是一个中介临时的日志文件，用于存储从master节点同步过来的binlog日志内容。</p>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/682ebc9c026cc8b81bc74ca0115f79df.png" alt="682ebc9c026cc8b81bc74ca0115f79df.png"></p>
+<img src="https://img-blog.csdnimg.cn/img_convert/682ebc9c026cc8b81bc74ca0115f79df.png" alt="682ebc9c026cc8b81bc74ca0115f79df.png" style="zoom:67%;" />
+
 <p>master 主节点的 binlog 传到 slave 从节点后，被写入 relay log 里，从节点的 slave sql 线程从 relaylog 里读取日志然后应用到 slave 从节点本地。从服务器 I/O 线程将主服务器的二进制日志读取过来记录到从服务器本地文件，然后 SQL 线程会读取 relay-log 日志的内容并应用到从服务器，从而<strong>「使从服务器和主服务器的数据保持一致」</strong>。</p>
 <h3 id="redolog-是做什么的"><a href="#redolog-是做什么的" class="headerlink" title="redolog 是做什么的?"></a>redolog 是做什么的?</h3><p>redolog 是 <strong>「InnoDB 存储引擎所特有的一种日志」</strong>，用于记录事务操作的变化，记录的是数据修改之后的值，不管事务是否提交都会记录下来。</p>
 <p>可以做<strong>「数据恢复并且提供 crash-safe 能力」</strong></p>
 <p>当有增删改相关的操作时，会先记录到 Innodb 中，并修改缓存页中的数据，<strong>「等到 mysql 闲下来的时候才会真正的将 redolog 中的数据写入到磁盘当中」</strong>。</p>
-<h3 id="redolog-是怎么记录日志的"><a href="#redolog-是怎么记录日志的" class="headerlink" title="redolog 是怎么记录日志的?"></a>redolog 是怎么记录日志的?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/9b9820761e6fc6d9b2644f70fea0c878.png" alt="9b9820761e6fc6d9b2644f70fea0c878.png"></p>
+<h3 id="redolog-是怎么记录日志的"><a href="#redolog-是怎么记录日志的" class="headerlink" title="redolog 是怎么记录日志的?"></a>redolog 是怎么记录日志的?</h3><img src="https://img-blog.csdnimg.cn/img_convert/9b9820761e6fc6d9b2644f70fea0c878.png" alt="9b9820761e6fc6d9b2644f70fea0c878.png" style="zoom:67%;" />
+
 <p>InnoDB 的 redo log 是固定大小的，比如可以配置为一组4个文件，每个文件的大小是1GB，那么总共就可以记录4GB的操作。<strong>「从头开始写，写到末尾就又回到开头循环写」</strong>。</p>
 <p>所以，如果数据写满了但是还没有来得及将数据真正的刷入磁盘当中，那么就会发生<strong>「内存抖动」</strong>现象，从肉眼的角度来观察会发现 mysql 会宕机一会儿，此时就是正在刷盘了。</p>
-<h3 id="redolog-和-binlog-的区别是什么"><a href="#redolog-和-binlog-的区别是什么" class="headerlink" title="redolog 和 binlog 的区别是什么?"></a>redolog 和 binlog 的区别是什么?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/b83959086f28bb82d5dd174a12af8bdc.png" alt="b83959086f28bb82d5dd174a12af8bdc.png"></p>
+<h3 id="redolog-和-binlog-的区别是什么"><a href="#redolog-和-binlog-的区别是什么" class="headerlink" title="redolog 和 binlog 的区别是什么?"></a>redolog 和 binlog 的区别是什么?</h3><img src="https://img-blog.csdnimg.cn/img_convert/b83959086f28bb82d5dd174a12af8bdc.png" alt="b83959086f28bb82d5dd174a12af8bdc.png" style="zoom:50%;" />
+
 <ul>
 <li><strong>「redolog」</strong> 是 <strong>「Innodb」</strong> 独有的日志，而 <strong>「binlog」</strong> 是 <strong>「server」</strong> 层的，所有的存储引擎都有使用到</li>
 <li><strong>「redolog」</strong> 记录了<strong>「具体的数值」</strong>，对某个页做了什么修改，<strong>「binlog」</strong> 记录的<strong>「操作内容」</strong></li>
@@ -522,7 +550,8 @@
 <h3 id="说一说-mvcc-吧，有什么作用"><a href="#说一说-mvcc-吧，有什么作用" class="headerlink" title="说一说 mvcc 吧，有什么作用?"></a>说一说 mvcc 吧，有什么作用?</h3><p>MVCC:多版本并发控制，是现代数据库(包括 MySQL、Oracle、PostgreSQL 等)引擎实现中常用的处理读写冲突的手段，目的在于<strong>「提高数据库高并发场景下的吞吐性能」</strong>。</p>
 <p>在 MVCC 协议下，每个读操作会看到一个一致性的快照，<strong>「这个快照是基于整个库的」</strong>，并且可以实现非阻塞的读，用于<strong>「支持读提交和可重复读隔离级别的实现」</strong>。</p>
 <p>MVCC 允许数据具有多个版本，这个版本可以是时间戳或者是全局递增的事务 ID，在同一个时间点，不同的事务看到的数据是不同的，这个修改的数据是<strong>「记录在 undolog 中」</strong>的。</p>
-<h3 id="一条-Sql-语句查询一直慢会是什么原因"><a href="#一条-Sql-语句查询一直慢会是什么原因" class="headerlink" title="一条 Sql 语句查询一直慢会是什么原因?"></a>一条 Sql 语句查询一直慢会是什么原因?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/d52351ca45402fd46125dc2e59be0a76.png" alt="d52351ca45402fd46125dc2e59be0a76.png"></p>
+<h3 id="一条-Sql-语句查询一直慢会是什么原因"><a href="#一条-Sql-语句查询一直慢会是什么原因" class="headerlink" title="一条 Sql 语句查询一直慢会是什么原因?"></a>一条 Sql 语句查询一直慢会是什么原因?</h3><img src="https://img-blog.csdnimg.cn/img_convert/d52351ca45402fd46125dc2e59be0a76.png" alt="d52351ca45402fd46125dc2e59be0a76.png" style="zoom:50%;" />
+
 <ul>
 <li><strong>「1.没有用到索引」</strong><ul>
 <li>比如函数导致的索引失效，或者本身就没有加索引</li>
@@ -537,7 +566,8 @@
 </ul>
 </li>
 </ul>
-<h3 id="一条-Sql-语句查询偶尔慢会是什么原因"><a href="#一条-Sql-语句查询偶尔慢会是什么原因" class="headerlink" title="一条 Sql 语句查询偶尔慢会是什么原因?"></a>一条 Sql 语句查询偶尔慢会是什么原因?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/bd6876ff641aba17165df1c7ef249df5.png" alt="bd6876ff641aba17165df1c7ef249df5.png"></p>
+<h3 id="一条-Sql-语句查询偶尔慢会是什么原因"><a href="#一条-Sql-语句查询偶尔慢会是什么原因" class="headerlink" title="一条 Sql 语句查询偶尔慢会是什么原因?"></a>一条 Sql 语句查询偶尔慢会是什么原因?</h3><img src="https://img-blog.csdnimg.cn/img_convert/bd6876ff641aba17165df1c7ef249df5.png" alt="bd6876ff641aba17165df1c7ef249df5.png" style="zoom: 67%;" />
+
 <ul>
 <li><strong>「1. 数据库在刷新脏页」</strong><ul>
 <li>比如 <strong>「redolog 写满了」</strong>，<strong>「内存不够用了」</strong>释放内存如果是脏页也需要刷，mysql <strong>「正常空闲状态刷脏页」</strong></li>
@@ -551,7 +581,8 @@
 <li>3.<strong>「slave」</strong> 向 master 节点发送请求，<strong>「将该 binlog 文件内容存到本地的 relaylog 中」</strong></li>
 <li>4.<strong>「slave 开启 sql 线程」</strong>读取 relaylog 中的内容，<strong>「将其中的内容在本地重新执行一遍」</strong>，完成主从数据同步</li>
 </ul>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/fae385cd4a137a82e28b52c9eb9737a5.png" alt="fae385cd4a137a82e28b52c9eb9737a5.png"></p>
+<img src="https://img-blog.csdnimg.cn/img_convert/fae385cd4a137a82e28b52c9eb9737a5.png" alt="fae385cd4a137a82e28b52c9eb9737a5.png" style="zoom: 67%;" />
+
 <p><strong>「同步策略」</strong>：</p>
 <ul>
 <li>1.<strong>「全同步复制」</strong>：主库强制同步日志到从库，等全部从库执行完才返回客户端，性能差</li>
@@ -566,7 +597,8 @@
 <li>6.对于一些对延迟很敏感的业务<strong>「直接使用主库读」</strong></li>
 </ul>
 <h3 id="删除表数据后表的大小却没有变动-这是为什么"><a href="#删除表数据后表的大小却没有变动-这是为什么" class="headerlink" title="删除表数据后表的大小却没有变动,这是为什么?"></a>删除表数据后表的大小却没有变动,这是为什么?</h3><p>在使用 delete 删除数据时，其实对应的数据行并不是真正的删除，是<strong>「逻辑删除」</strong>，InnoDB 仅仅是将其<strong>「标记成可复用的状态」</strong>，所以表空间不会变小</p>
-<h3 id="为什么-VarChar-建议不要超过255"><a href="#为什么-VarChar-建议不要超过255" class="headerlink" title="为什么 VarChar 建议不要超过255?"></a>为什么 VarChar 建议不要超过255?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/e7172b78774dcb6d1679d262491d3a32.png" alt="e7172b78774dcb6d1679d262491d3a32.png"></p>
+<h3 id="为什么-VarChar-建议不要超过255"><a href="#为什么-VarChar-建议不要超过255" class="headerlink" title="为什么 VarChar 建议不要超过255?"></a>为什么 VarChar 建议不要超过255?</h3><img src="https://img-blog.csdnimg.cn/img_convert/e7172b78774dcb6d1679d262491d3a32.png" alt="e7172b78774dcb6d1679d262491d3a32.png" style="zoom:67%;" />
+
 <p>innodb索引列最大长度不能超过767byte，等同于utf8mb4编码下，前缀索引列不能超过191，可以通过innodb_large_prefix参数修改+修改行格式来变大</p>
 <h3 id="分布式式事务怎么实现"><a href="#分布式式事务怎么实现" class="headerlink" title="分布式式事务怎么实现?"></a>分布式式事务怎么实现?</h3><ul>
 <li>1.<strong>「本地消息表」</strong></li>
@@ -584,7 +616,8 @@
 <li>基于锁的粒度分类：表锁、行锁、记录锁、间隙锁、临键锁</li>
 <li>基于锁的状态分类：意向共享锁、意向排它锁、死锁</li>
 </ul>
-<h3 id="为什么不要使用长事务"><a href="#为什么不要使用长事务" class="headerlink" title="为什么不要使用长事务?"></a>为什么不要使用长事务?</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png" alt="5cca8dadf562adaf140437cf95001d59.png"></p>
+<h3 id="为什么不要使用长事务"><a href="#为什么不要使用长事务" class="headerlink" title="为什么不要使用长事务?"></a>为什么不要使用长事务?</h3><img src="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png" alt="5cca8dadf562adaf140437cf95001d59.png" style="zoom:67%;" />
+
 <ul>
 <li>1.并发情况下，数据库<strong>「连接池容易被撑爆」</strong></li>
 <li>2.<strong>「容易造成大量的阻塞和锁超时」</strong><ul>
@@ -622,7 +655,8 @@
 <ul>
 <li>Buffer Pool 有一项特技叫预读，存储引擎的接口在被 Server 层调用时，会在响应的同时进行预判，将下次可能用到的数据和索引加载到 Buffer Pool</li>
 </ul>
-<h2 id="35-说说你的-Sql-调优思路吧"><a href="#35-说说你的-Sql-调优思路吧" class="headerlink" title="35.说说你的 Sql 调优思路吧"></a>35.说说你的 Sql 调优思路吧</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png" alt="e6d0dffc2b67df74c5ebc558dcb3e9ff.png"></p>
+<h2 id="35-说说你的-Sql-调优思路吧"><a href="#35-说说你的-Sql-调优思路吧" class="headerlink" title="35.说说你的 Sql 调优思路吧"></a>35.说说你的 Sql 调优思路吧</h2><img src="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png" alt="e6d0dffc2b67df74c5ebc558dcb3e9ff.png" style="zoom:67%;" />
+
 <ul>
 <li>1.<strong>「表结构优化」</strong><ul>
 <li>1.1拆分字段</li>
