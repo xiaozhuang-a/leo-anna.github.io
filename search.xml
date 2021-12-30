@@ -50,46 +50,6 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2021/12/30/mvcc/</url>
-    <content><![CDATA[<h1 id="mvcc"><a href="#mvcc" class="headerlink" title="mvcc"></a>mvcc</h1><ul>
-<li><p>使用一致性视图和undolog实现，数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。</p>
-</li>
-<li><p>用begin开始事务，并不会第一时间创建一致性视图，而且等第一个sql语句执行才会创建（可以用start transaction with consistent snapshot）</p>
-</li>
-<li><p>不同隔离等级下（mvcc只支持RR、RC），创建视图的时间不一样</p>
-<ul>
-<li>可重复度RR下，是事务开始的时候创建一致性视图</li>
-<li>读提交RC下，是每个sql语句执行前都会重新创建一致性视图</li>
-</ul>
-</li>
-</ul>
-<h3 id="一致性视图"><a href="#一致性视图" class="headerlink" title="一致性视图"></a>一致性视图</h3><p>InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正在“活跃”的所有事务 ID。“活跃”指的就是，启动了但还没提交。</p>
-<p>根据数据的row trx_id 和一致性视图判断是否可见</p>
-<img src="https://gitee.com/leo_anna/image/raw/master/img//20211230233220.png" alt="img" style="zoom: 50%;" />
-
-<h3 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h3><p>三个虚线箭头，就是 undo log；</p>
-<p>而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
-<p>具体的执行过程，是根据当前一致性视图去查undolog，回滚日志到当前事务id可见的版本</p>
-<img src="https://gitee.com/leo_anna/image/raw/master/img//20211230233220.png" alt="img" style="zoom:50%;" />
-
-
-
-<h3 id="当前读"><a href="#当前读" class="headerlink" title="当前读"></a>当前读</h3><p>更新语句执行都是先读后写，而且这个读是读当前数据的最近值，被称作“当前度”</p>
-<h3 id="分析过程示例"><a href="#分析过程示例" class="headerlink" title="分析过程示例"></a>分析过程示例</h3><p>[]中的是是一致性视图，()中的是当前事务id，最右边的是undolog</p>
-<img src="https://gitee.com/leo_anna/image/raw/master/img//20211230233220.png" alt="img" style="zoom:50%;" />
-
-<h3 id="无法修改数据的场景"><a href="#无法修改数据的场景" class="headerlink" title="无法修改数据的场景"></a>无法修改数据的场景</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 表结构和数据</span><br><span class="line">mysql&gt; CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `c` int(11) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB;</span><br><span class="line">insert into t(id, c) values(1,1),(2,2),(3,3),(4,4);</span><br></pre></td></tr></table></figure>
-
-
-
-<img src="https://gitee.com/leo_anna/image/raw/master/img//20211230233220.png" alt="img" style="zoom:80%;" />
-
-<p>无法修改的原因：“当前读”引起</p>
-<p>解决办法：重试或者根据主键id去修改</p>
-]]></content>
-  </entry>
-  <entry>
     <title>mysql 日记 2021.12.24</title>
     <url>/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/</url>
     <content><![CDATA[<h3 id="mysql-sql执行流程"><a href="#mysql-sql执行流程" class="headerlink" title="mysql sql执行流程"></a>mysql sql执行流程</h3><span id="more"></span>
