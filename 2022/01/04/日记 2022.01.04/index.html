@@ -28,13 +28,17 @@
 <meta property="og:site_name" content="勇往直前">
 <meta property="og:description" content="日记 2022.01.04mysqlMHAMDL 每个语句都会隐式申请MDL锁  对数据的增删改查会申请 MDL读锁  对表结构变更DDL会申请MDL写锁  MDL写-读 互斥，写-写 互斥，读 -读 不互斥   申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁  在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/leo_anna/image/raw/master/img//20220104164308.png">
+<meta property="og:image" content="https://gitee.com/leo_anna/image/raw/master/img//20220104163925.png">
 <meta property="article:published_time" content="2022-01-04T15:33:43.000Z">
-<meta property="article:modified_time" content="2022-01-04T02:20:58.628Z">
+<meta property="article:modified_time" content="2022-01-04T08:54:41.721Z">
 <meta property="article:author" content="小庄">
-<meta property="article:tag" content="日记">
 <meta property="article:tag" content="FTWRL">
 <meta property="article:tag" content="MDL">
+<meta property="article:tag" content="map">
+<meta property="article:tag" content="查找算法">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/leo_anna/image/raw/master/img//20220104164308.png">
 
 
 <link rel="canonical" href="http://www.leoyun.top/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/">
@@ -151,7 +155,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A5%E8%AE%B0-2022-01-04"><span class="nav-number">1.</span> <span class="nav-text">日记 2022.01.04</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql"><span class="nav-number">1.1.</span> <span class="nav-text">mysql</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MHA"><span class="nav-number">1.1.1.</span> <span class="nav-text">MHA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MDL"><span class="nav-number">1.1.2.</span> <span class="nav-text">MDL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDL%E5%AF%B9%E5%A4%87%E4%BB%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">1.1.3.</span> <span class="nav-text">DDL对备份的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E9%94%81FTWRL"><span class="nav-number">1.1.4.</span> <span class="nav-text">全局锁FTWRL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go"><span class="nav-number">1.2.</span> <span class="nav-text">go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#new%E5%92%8Cmake"><span class="nav-number">1.2.1.</span> <span class="nav-text">new和make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%9F%E5%88%97"><span class="nav-number">1.2.2.</span> <span class="nav-text">队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#map%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.3.</span> <span class="nav-text">map原理</span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A5%E8%AE%B0-2022-01-04"><span class="nav-number">1.</span> <span class="nav-text">日记 2022.01.04</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql"><span class="nav-number">1.1.</span> <span class="nav-text">mysql</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MHA"><span class="nav-number">1.1.1.</span> <span class="nav-text">MHA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MDL"><span class="nav-number">1.1.2.</span> <span class="nav-text">MDL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDL%E5%AF%B9%E5%A4%87%E4%BB%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">1.1.3.</span> <span class="nav-text">DDL对备份的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E9%94%81FTWRL"><span class="nav-number">1.1.4.</span> <span class="nav-text">全局锁FTWRL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go"><span class="nav-number">1.2.</span> <span class="nav-text">go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#new%E5%92%8Cmake"><span class="nav-number">1.2.1.</span> <span class="nav-text">new和make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%9F%E5%88%97%E5%92%8C%E9%93%BE%E8%A1%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">队列和链表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#map%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.3.</span> <span class="nav-text">map原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Map%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">Map执行过程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">数据结构和算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="nav-number">1.3.1.</span> <span class="nav-text">查找算法</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -172,12 +176,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -241,7 +245,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2022-01-04 23:33:43 / 修改时间：10:20:58" itemprop="dateCreated datePublished" datetime="2022-01-04T23:33:43+08:00">2022-01-04</time>
+      <time title="创建时间：2022-01-04 23:33:43 / 修改时间：16:54:41" itemprop="dateCreated datePublished" datetime="2022-01-04T23:33:43+08:00">2022-01-04</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -250,6 +254,14 @@
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
           <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/mysql/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/mysql/go/%E6%97%A5%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">日记</span></a>
         </span>
     </span>
 
@@ -267,7 +279,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>530</span>
+      <span>884</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -319,8 +331,33 @@
 <li>make只适用于slice、map、channel ，分配内存的同时会初始化</li>
 <li>new 分配的空间被清零， make 分配空间后，会进行初始化</li>
 </ul>
-<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><p>使用内置函数实现</p>
-<h3 id="map原理"><a href="#map原理" class="headerlink" title="map原理"></a>map原理</h3>
+<h3 id="队列和链表"><a href="#队列和链表" class="headerlink" title="队列和链表"></a>队列和链表</h3><p>使用内置函数实现 List.list</p>
+<ul>
+<li>本质是个循环队列</li>
+</ul>
+<p>实例代码：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">a:= list.List&#123;&#125;		</span><br><span class="line">a.Remove(a.Back())</span><br><span class="line">a.PushBack(<span class="number">1</span>)</span><br><span class="line">a.Len()</span><br><span class="line">a.Remove(a.Front())</span><br><span class="line">fmt.Println(a.Back())</span><br><span class="line">fmt.Println(a.Front())</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="map原理"><a href="#map原理" class="headerlink" title="map原理"></a>map原理</h3><img src="https://gitee.com/leo_anna/image/raw/master/img//20220104164308.png" alt="image-20220104164308489" style="zoom: 45%;" />
+
+<ul>
+<li>k、v表示key和value</li>
+<li>map底层使用数组实现</li>
+<li>使用桶bucket的概念，通过数组实现</li>
+</ul>
+<h4 id="Map执行过程"><a href="#Map执行过程" class="headerlink" title="Map执行过程"></a>Map执行过程</h4><ol>
+<li>通过k以及hash函数计算hash值，值分低8位和高8位</li>
+<li>低8位和bucket数组长度取余计算，定位到在哪个桶</li>
+<li>高8位用来判断是否key是否存在</li>
+<li>key和value的具体值则通过指针运算存储</li>
+<li>当桶满了，通过overflow指针链接到下一个桶</li>
+</ol>
+<h2 id="数据结构和算法"><a href="#数据结构和算法" class="headerlink" title="数据结构和算法"></a>数据结构和算法</h2><h3 id="查找算法"><a href="#查找算法" class="headerlink" title="查找算法"></a>查找算法</h3><p>优先想到二分法，以下都可以使用二分法解决</p>
+<img src="https://gitee.com/leo_anna/image/raw/master/img//20220104163925.png" alt="image-20220104163925568" style="zoom:50%;" />
+
+
     </div>
 
     
@@ -346,17 +383,18 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/%E6%97%A5%E8%AE%B0/" rel="tag"># 日记</a>
               <a href="/tags/FTWRL/" rel="tag"># FTWRL</a>
               <a href="/tags/MDL/" rel="tag"># MDL</a>
+              <a href="/tags/map/" rel="tag"># map</a>
+              <a href="/tags/%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95/" rel="tag"># 查找算法</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2021/12/30/mvvc%E4%B8%8Eundolog/" rel="prev" title="mvvc与undolog">
-                  <i class="fa fa-chevron-left"></i> mvvc与undolog
+                <a href="/2022/01/04/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20linux%20%E7%AF%87/" rel="prev" title="面试八股文 linux 篇">
+                  <i class="fa fa-chevron-left"></i> 面试八股文 linux 篇
                 </a>
             </div>
             <div class="post-nav-item">
@@ -395,14 +433,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">45k</span>
+    <span title="站点总字数">49k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">41 分钟</span>
+    <span title="站点阅读时长">44 分钟</span>
   </span>
 </div>
 <div class="busuanzi-count">
