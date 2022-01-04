@@ -127,6 +127,102 @@
       </tags>
   </entry>
   <entry>
+    <title>两数之和</title>
+    <url>/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</url>
+    <content><![CDATA[<p>两数之和</p>
+<span id="more"></span>
+<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211226154748.png" alt="image-20211226154748243"></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * </span></span><br><span class="line"><span class="comment">  * @param numbers int整型一维数组 </span></span><br><span class="line"><span class="comment">  * @param target int整型 </span></span><br><span class="line"><span class="comment">  * @return int整型一维数组</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoSum</span><span class="params">( numbers []<span class="keyword">int</span> ,  target <span class="keyword">int</span> )</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">	key := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">var</span> res []<span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> index,value := <span class="keyword">range</span> numbers&#123;</span><br><span class="line">			ret1,ok := key[target-value]</span><br><span class="line">			<span class="keyword">if</span> !ok&#123;</span><br><span class="line">				key[value] = index</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				res = <span class="built_in">append</span>(res,ret1+<span class="number">1</span>,index+<span class="number">1</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>解释：a+b=c,则a、b必然存在列表中，所以遍历一遍列表，并判重字典就可以了</p>
+]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>两数之和</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mvvc与undolog</title>
+    <url>/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/</url>
+    <content><![CDATA[<h1 id="日记-2022-01-04"><a href="#日记-2022-01-04" class="headerlink" title="日记 2022.01.04"></a>日记 2022.01.04</h1><h2 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h2><h3 id="MHA"><a href="#MHA" class="headerlink" title="MHA"></a>MHA</h3><h3 id="MDL"><a href="#MDL" class="headerlink" title="MDL"></a>MDL</h3><ul>
+<li><p>每个语句都会隐式申请MDL锁</p>
+</li>
+<li><p>对数据的增删改查会申请 MDL读锁</p>
+</li>
+<li><p>对表结构变更DDL会申请MDL写锁</p>
+</li>
+<li><p>MDL写-读 互斥，写-写 互斥，读 -读 不互斥 </p>
+</li>
+<li><p>申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁</p>
+</li>
+<li><p><strong>在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞</strong></p>
+<span id="more"></span></li>
+</ul>
+<h3 id="DDL对备份的影响"><a href="#DDL对备份的影响" class="headerlink" title="DDL对备份的影响"></a>DDL对备份的影响</h3><p>可能会存在主从延迟或者备份失败</p>
+<h3 id="全局锁FTWRL"><a href="#全局锁FTWRL" class="headerlink" title="全局锁FTWRL"></a>全局锁FTWRL</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 加锁</span><br><span class="line">Flush tables with read lock;</span><br><span class="line"># 解锁</span><br><span class="line">unlock tables</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使整库处于只读状态，主要用于备份时的获取一致性备份</li>
+<li>需要持有两把mdl锁，清理表缓存cache</li>
+</ul>
+<p>FTWRL过程：</p>
+<ol>
+<li>上全局读锁(lock_global_read_lock)；</li>
+<li>清理表缓存(close_cached_tables)；</li>
+<li>上全局COMMIT锁(make_global_read_lock_block_commit)。</li>
+</ol>
+<h2 id="go"><a href="#go" class="headerlink" title="go"></a>go</h2><h3 id="new和make"><a href="#new和make" class="headerlink" title="new和make"></a>new和make</h3><p><strong>所有的内存在 Go 中都是经过初始化的。</strong></p>
+<ul>
+<li>都是分配内存的内置函数</li>
+<li>new适用所有类型，分配内存，返回类型的零值的指针</li>
+<li>make只适用于slice、map、channel ，分配内存的同时会初始化</li>
+<li>new 分配的空间被清零， make 分配空间后，会进行初始化</li>
+</ul>
+<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><p>使用内置函数实现</p>
+<h3 id="map原理"><a href="#map原理" class="headerlink" title="map原理"></a>map原理</h3>]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>日记</tag>
+        <tag>FTWRL</tag>
+        <tag>MDL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二叉树</title>
+    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
+    <content><![CDATA[<p>二叉树的三种遍历方式</p>
+<span id="more"></span>
+
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>二叉树</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>用两个栈实现队列</title>
+    <url>/2021/12/27/%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</url>
+    <content><![CDATA[<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227210926.gif" alt="fig1"></p>
+<span id="more"></span>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">   <span class="string">&quot;container/list&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> CQueue <span class="keyword">struct</span> &#123;</span><br><span class="line">   stack1,stack2 *list.List</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> <span class="title">CQueue</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> CQueue&#123;</span><br><span class="line">      stack1: list.New(),</span><br><span class="line">      stack2: list.New(),</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">AppendTail</span><span class="params">(value <span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">   this.stack1.PushBack(value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">DeleteHead</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len()==<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">for</span> this.stack1.Len()!=<span class="number">0</span> &#123;</span><br><span class="line">         this.stack2.PushBack(this.stack1.Remove(this.stack1.Back()))</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//删除栈底元素</span></span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len() !=<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> this.stack2.Remove(this.stack2.Back()).(<span class="keyword">int</span>)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your CQueue object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * obj := Constructor();</span></span><br><span class="line"><span class="comment"> * obj.AppendTail(value);</span></span><br><span class="line"><span class="comment"> * param_2 := obj.DeleteHead();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>链表</tag>
+        <tag>栈</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>redolog和binlog 刷盘参数</title>
     <url>/2021/12/28/redolog%E5%92%8Cbinlog%20%E5%88%B7%E7%9B%98%E5%8F%82%E6%95%B0/</url>
     <content><![CDATA[<p>涉及参数（都是事务提交后的动作参数）：</p>
@@ -198,102 +294,6 @@
       </tags>
   </entry>
   <entry>
-    <title>用两个栈实现队列</title>
-    <url>/2021/12/27/%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</url>
-    <content><![CDATA[<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227210926.gif" alt="fig1"></p>
-<span id="more"></span>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">   <span class="string">&quot;container/list&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> CQueue <span class="keyword">struct</span> &#123;</span><br><span class="line">   stack1,stack2 *list.List</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> <span class="title">CQueue</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> CQueue&#123;</span><br><span class="line">      stack1: list.New(),</span><br><span class="line">      stack2: list.New(),</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">AppendTail</span><span class="params">(value <span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">   this.stack1.PushBack(value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">DeleteHead</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len()==<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">for</span> this.stack1.Len()!=<span class="number">0</span> &#123;</span><br><span class="line">         this.stack2.PushBack(this.stack1.Remove(this.stack1.Back()))</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//删除栈底元素</span></span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len() !=<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> this.stack2.Remove(this.stack2.Back()).(<span class="keyword">int</span>)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your CQueue object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * obj := Constructor();</span></span><br><span class="line"><span class="comment"> * obj.AppendTail(value);</span></span><br><span class="line"><span class="comment"> * param_2 := obj.DeleteHead();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>链表</tag>
-        <tag>栈</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>二叉树</title>
-    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
-    <content><![CDATA[<p>二叉树的三种遍历方式</p>
-<span id="more"></span>
-
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>二叉树</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>两数之和</title>
-    <url>/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</url>
-    <content><![CDATA[<p>两数之和</p>
-<span id="more"></span>
-<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211226154748.png" alt="image-20211226154748243"></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * </span></span><br><span class="line"><span class="comment">  * @param numbers int整型一维数组 </span></span><br><span class="line"><span class="comment">  * @param target int整型 </span></span><br><span class="line"><span class="comment">  * @return int整型一维数组</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoSum</span><span class="params">( numbers []<span class="keyword">int</span> ,  target <span class="keyword">int</span> )</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">	key := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">var</span> res []<span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> index,value := <span class="keyword">range</span> numbers&#123;</span><br><span class="line">			ret1,ok := key[target-value]</span><br><span class="line">			<span class="keyword">if</span> !ok&#123;</span><br><span class="line">				key[value] = index</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				res = <span class="built_in">append</span>(res,ret1+<span class="number">1</span>,index+<span class="number">1</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>解释：a+b=c,则a、b必然存在列表中，所以遍历一遍列表，并判重字典就可以了</p>
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>两数之和</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mvvc与undolog</title>
-    <url>/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/</url>
-    <content><![CDATA[<h1 id="日记-2022-01-04"><a href="#日记-2022-01-04" class="headerlink" title="日记 2022.01.04"></a>日记 2022.01.04</h1><h2 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h2><h3 id="MHA"><a href="#MHA" class="headerlink" title="MHA"></a>MHA</h3><h3 id="MDL"><a href="#MDL" class="headerlink" title="MDL"></a>MDL</h3><ul>
-<li><p>每个语句都会隐式申请MDL锁</p>
-</li>
-<li><p>对数据的增删改查会申请 MDL读锁</p>
-</li>
-<li><p>对表结构变更DDL会申请MDL写锁</p>
-</li>
-<li><p>MDL写-读 互斥，写-写 互斥，读 -读 不互斥 </p>
-</li>
-<li><p>申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁</p>
-</li>
-<li><p><strong>在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞</strong></p>
-<span id="more"></span></li>
-</ul>
-<h3 id="DDL对备份的影响"><a href="#DDL对备份的影响" class="headerlink" title="DDL对备份的影响"></a>DDL对备份的影响</h3><p>可能会存在主从延迟或者备份失败</p>
-<h3 id="全局锁FTWRL"><a href="#全局锁FTWRL" class="headerlink" title="全局锁FTWRL"></a>全局锁FTWRL</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 加锁</span><br><span class="line">Flush tables with read lock;</span><br><span class="line"># 解锁</span><br><span class="line">unlock tables</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>使整库处于只读状态，主要用于备份时的获取一致性备份</li>
-<li>需要持有两把mdl锁，清理表缓存cache</li>
-</ul>
-<p>FTWRL过程：</p>
-<ol>
-<li>上全局读锁(lock_global_read_lock)；</li>
-<li>清理表缓存(close_cached_tables)；</li>
-<li>上全局COMMIT锁(make_global_read_lock_block_commit)。</li>
-</ol>
-<h2 id="go"><a href="#go" class="headerlink" title="go"></a>go</h2><h3 id="new和make"><a href="#new和make" class="headerlink" title="new和make"></a>new和make</h3><p><strong>所有的内存在 Go 中都是经过初始化的。</strong></p>
-<ul>
-<li>都是分配内存的内置函数</li>
-<li>new适用所有类型，分配内存，返回类型的零值的指针</li>
-<li>make只适用于slice、map、channel ，分配内存的同时会初始化</li>
-<li>new 分配的空间被清零， make 分配空间后，会进行初始化</li>
-</ul>
-<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><p>使用内置函数实现</p>
-<h3 id="map原理"><a href="#map原理" class="headerlink" title="map原理"></a>map原理</h3>]]></content>
-      <categories>
-        <category>mysql</category>
-      </categories>
-      <tags>
-        <tag>日记</tag>
-        <tag>FTWRL</tag>
-        <tag>MDL</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>链表</title>
     <url>/2021/12/26/%E9%93%BE%E8%A1%A8/</url>
     <content><![CDATA[<p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
@@ -349,491 +349,6 @@
       </tags>
   </entry>
   <entry>
-    <title>面试八股文 mysql篇</title>
-    <url>/2021/12/28/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/</url>
-    <content><![CDATA[<h3 id="mysql面试的八股文，持续更新"><a href="#mysql面试的八股文，持续更新" class="headerlink" title="mysql面试的八股文，持续更新"></a>mysql面试的八股文，持续更新</h3><span id="more"></span>
-
-<h3 id="连接器的最大连接数以及调优"><a href="#连接器的最大连接数以及调优" class="headerlink" title="连接器的最大连接数以及调优"></a>连接器的最大连接数以及调优</h3><p>mysql服务器最大支持max_connect 为 16384</p>
-<p>根据需求来看，一般2核4G机器填写1000，16核64G填写5000。</p>
-<h3 id="刷脏页-参数"><a href="#刷脏页-参数" class="headerlink" title="刷脏页 参数"></a>刷脏页 参数</h3><p> innodb_io_capacity 表示磁盘的io能力，控制了刷脏页的速度</p>
-<p>innodb_max_dirty_pages_pct 脏页比例阈值，达到这个值就开始刷脏页</p>
-<p>脏页比例计算 Innodb_buffer_pool_pages_dirty/Innodb_buffer_pool_pages_total</p>
-<h3 id="redolog和binlog区别"><a href="#redolog和binlog区别" class="headerlink" title="redolog和binlog区别"></a>redolog和binlog区别</h3><ul>
-<li>redolog innodb存储层，binlog server层</li>
-<li>redolog 是物理日志，记录的语句在内存中执行了什么动作，binlog是逻辑日志，记录了语句的原始逻辑</li>
-<li>先写内存，再写redolog prepare 再写binlog 再写redolog commit</li>
-</ul>
-<h3 id="redolog和binlog-刷盘参数"><a href="#redolog和binlog-刷盘参数" class="headerlink" title="redolog和binlog 刷盘参数"></a>redolog和binlog 刷盘参数</h3><p>控制binlog 把binlog cache 刷到磁盘的时机：sync_binlog</p>
-<ul>
-<li>sync_binlog=0 的时候，表示每次提交事务都只 write，不 fsync；</li>
-<li>sync_binlog=1 的时候，表示每次提交事务都会执行 fsync；</li>
-<li>sync_binlog=N(N&gt;1) 的时候，表示每次提交事务都 write，但累积 N 个事务后才 fsync。</li>
-</ul>
-<p>binlog 组提交优化参数：binlog_group_commit_sync_delay和binlog_group_commit_sync_no_delay_count</p>
-<p>控制redolog把logbuffer 写入 oscache 和刷盘的时机： innodb_flush_log_at_trx_commit </p>
-<ul>
-<li>设置为 0 的时候，表示每次事务提交时都只是把 redo log 留在 redo log buffer 中 ;</li>
-<li>设置为 1 的时候，表示每次事务提交时都将 redo log 直接持久化到磁盘；</li>
-<li>设置为 2 的时候，表示每次事务提交时都只是把 redo log 写到 page cache。</li>
-</ul>
-<h3 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h3><h3 id="mysql如何保证acid"><a href="#mysql如何保证acid" class="headerlink" title="mysql如何保证acid"></a>mysql如何保证acid</h3><p>MySQL 作为一个关系型数据库，以最常见的 InnoDB 引擎来说，是如何保证 ACID 的。</p>
-<ul>
-<li><strong>（Atomicity</strong> ） <strong>原子性：</strong> 事务是最小的执行单位，不允许分割。原子性确保动作要么全部完成，要么完全不起作用；</li>
-<li><strong>（Consistency）一致性：</strong> 执行事务前后，数据保持一致；</li>
-<li><strong>（Isolation）隔离性：</strong> 并发访问数据库时，一个事务不被其他事务所干扰。</li>
-<li><strong>（Durability）持久性:</strong> 一个事务被提交之后。对数据库中数据的改变是持久的，即使数据库发生故障。</li>
-</ul>
-<p>如何保证</p>
-<ul>
-<li>原子性：undo log，要不执行成功，要不执行失败</li>
-<li>一致性：事务，也需要应用层面进行维护</li>
-<li>隔离性：隔离级别</li>
-<li>持久性：redo log </li>
-</ul>
-<h3 id="sql执行流程"><a href="#sql执行流程" class="headerlink" title="sql执行流程"></a>sql执行流程</h3><ul>
-<li>连接器，权限校验，连接池</li>
-<li>查询缓存，直接返回</li>
-<li>分析器，分析语法语义是否合规，正确</li>
-<li>优化器，优化sql，选择合适索引</li>
-<li>执行器，调用存储引擎api，执行语句，要什么，存储引擎给什么</li>
-<li>存储引擎，从内存和磁盘中找到sql执行结果，返回执行器</li>
-</ul>
-<h3 id="mvcc"><a href="#mvcc" class="headerlink" title="mvcc"></a>mvcc</h3><ul>
-<li><p>使用一致性视图和undolog实现，数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。</p>
-</li>
-<li><p>用begin开始事务，并不会第一时间创建一致性视图，而且等第一个sql语句执行才会创建（可以用start transaction with consistent snapshot）</p>
-</li>
-<li><p>不同隔离等级下（mvcc只支持RR、RC），创建视图的时间不一样</p>
-<ul>
-<li>可重复度RR下，是事务开始的时候创建一致性视图</li>
-<li>读提交RC下，是每个sql语句执行前都会重新创建一致性视图</li>
-</ul>
-</li>
-</ul>
-<p>一致性视图：</p>
-<p>InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正在“活跃”的所有事务 ID。“活跃”指的就是，启动了但还没提交。</p>
-<p>根据数据的row trx_id 和一致性视图判断是否可见</p>
-<img src="https://static001.geekbang.org/resource/image/88/5e/882114aaf55861832b4270d44507695e.png" alt="img" style="zoom: 50%;" />
-
-<p>undolog：</p>
-<p>三个虚线箭头，就是 undo log；</p>
-<p>而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
-<p>具体的执行过程，是根据当前一致性视图去查undolog，回滚日志到当前事务id可见的版本</p>
-<img src="https://static001.geekbang.org/resource/image/68/ed/68d08d277a6f7926a41cc5541d3dfced.png" alt="img" style="zoom:50%;" />
-
-
-
-<p>当前读：</p>
-<p>更新语句执行都是先读后写，而且这个读是读当前数据的最近值，被称作“当前度”</p>
-<p>分析过程示例：</p>
-<p>[]中的是是一致性视图，()中的是当前事务id，最右边的是undolog</p>
-<img src="https://static001.geekbang.org/resource/image/94/49/9416c310e406519b7460437cb0c5c149.png" alt="img" style="zoom:50%;" />
-
-<h3 id="无法修改数据的场景（mvcc）"><a href="#无法修改数据的场景（mvcc）" class="headerlink" title="无法修改数据的场景（mvcc）"></a>无法修改数据的场景（mvcc）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 表结构和数据</span><br><span class="line">mysql&gt; CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `c` int(11) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB;</span><br><span class="line">insert into t(id, c) values(1,1),(2,2),(3,3),(4,4);</span><br></pre></td></tr></table></figure>
-
-
-
-<img src="https://static001.geekbang.org/resource/image/be/ae/be7a4d8af04cdf93aaa11108933559ae.png" alt="img" style="zoom:80%;" />
-
-<p>无法修改的原因：“当前读”引起</p>
-<p>解决办法：重试或者根据主键id去修改</p>
-<h3 id="mha"><a href="#mha" class="headerlink" title="mha"></a>mha</h3><h3 id="两阶段锁协议"><a href="#两阶段锁协议" class="headerlink" title="两阶段锁协议"></a>两阶段锁协议</h3><p>在 InnoDB 事务中，行锁是在需要的时候才加上的，但并不是不需要了就立刻释放，而是要等到事务结束时才释放。这个就是两阶段锁协议。</p>
-<h3 id="为什么要用b-tree，其他可以用的数据结构都有哪些"><a href="#为什么要用b-tree，其他可以用的数据结构都有哪些" class="headerlink" title="为什么要用b+tree，其他可以用的数据结构都有哪些"></a>为什么要用b+tree，其他可以用的数据结构都有哪些</h3><p>索引的常用<strong>数据结构</strong>：</p>
-<ol>
-<li>二叉树</li>
-<li>红黑树  红黑树是一种特化的 AVL树（平衡二叉树），都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡；若一棵二叉查找树是红黑树，则它的任一子树必为红黑树。</li>
-<li>Hash 表</li>
-<li><code>B-tree</code>  是一颗绝对平衡的多路树，针对红黑树优化了树高，mongodb使用b-tree</li>
-<li><code>B+tree</code></li>
-</ol>
-<p>为什么不是用其他数据结构</p>
-<ul>
-<li>二叉树<ul>
-<li>对于递增的数据不适合当索引</li>
-</ul>
-</li>
-<li>红黑树<ul>
-<li>对是属于平衡二叉树的红黑树来说，数据量大的时候，树高就很高，查找的过程会产生很多随机io</li>
-</ul>
-</li>
-<li>hash表<ul>
-<li>不适合范围查询</li>
-</ul>
-</li>
-</ul>
-<h3 id="b-tree和b-tree区别和特点"><a href="#b-tree和b-tree区别和特点" class="headerlink" title="b-tree和b+tree区别和特点"></a>b-tree和b+tree区别和特点</h3><p>b-tree</p>
-<ol>
-<li><p>B-tree 主要用于文件系统以及部分数据库索引，例如：MongoDB。</p>
-</li>
-<li><p>从查找效率考虑一般要求 B-tree 的阶数 m ≥ 3</p>
-</li>
-<li><p>B-tree 上算法的执行时间主要由读、写磁盘的次数来决定，故一次I/O操作应读写尽可能多的信息。</p>
-<p>因此 B-tree 的节点规模一般以一个磁盘页为单位。一个结点包含的关键字及其孩子个数取决于磁盘页的大小。</p>
-</li>
-</ol>
-<p>b+tree</p>
-<ol>
-<li>单个节点存储越多的元素，自然在整个过程中的磁盘💽I/O交互就越少；</li>
-<li>相对 B-tree 来说，所有的查询最终都会找到叶子节点，这也是 B+tree 性能稳定的一个体现；</li>
-<li>所有叶子节点通过双向链表相连，范围查询非常方便，这也是 B+tree 最明显的优势。</li>
-</ol>
-<p>区别</p>
-<ol>
-<li><p>所有的子节点，一定会出现在叶子节点上</p>
-</li>
-<li><p>相邻的叶子节点之间，会用一个<strong>双向链表</strong>连接起来（关键）</p>
-</li>
-<li><p>非叶子节点只存储索引，不存储数据，就为放更多索引</p>
-</li>
-<li><ul>
-<li>相比 <code>B-tree</code> 来说，进行范围查找时只需要查找两个节点，进行遍历就行。而 <code>B-tree</code> 需要获取所有节点，相比之下 <code>B+tree</code> 效率更高。</li>
-</ul>
-</li>
-</ol>
-<h3 id="说一说三大范式"><a href="#说一说三大范式" class="headerlink" title="说一说三大范式"></a>说一说三大范式</h3><ul>
-<li><strong>「第一范式」</strong>：数据库中的字段具有<strong>「原子性」</strong>，不可再分，并且是单一职责</li>
-<li><strong>「第二范式」</strong>：<strong>「建立在第一范式的基础上」</strong>，第二范式要求数据库表中的每个实例或行必须<strong>「可以被惟一地区分」</strong>。为实现区分通常需要为表加上一个列，以存储各个实例的惟一标识。这个惟一属性列被称为主键</li>
-<li><strong>「第三范式」</strong>：<strong>「建立在第一，第二范式的基础上」</strong>，确保每列都和主键列直接相关，而不是间接相关不存在其他表的非主键信息</li>
-</ul>
-<p>但是在我们的日常开发当中，<strong>「并不是所有的表一定要满足三大范式」</strong>，有时候冗余几个字段可以少关联几张表，带来的查询效率的提升有可能是质变的</p>
-<h3 id="MyISAM-与-InnoDB-的区别是什么？"><a href="#MyISAM-与-InnoDB-的区别是什么？" class="headerlink" title="MyISAM 与 InnoDB 的区别是什么？"></a>MyISAM 与 InnoDB 的区别是什么？</h3><img src="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png" alt="e42a8e4a50675fbe6540fb3558986add.png" style="zoom:50%;" />
-
-<ul>
-<li><p><strong>「InnoDB支持事务，MyISAM不支持」</strong>。</p>
-</li>
-<li><p><strong>「InnoDB 支持外键，而 MyISAM 不支持」</strong>。</p>
-</li>
-<li><p><strong>「InnoDB是聚集索引」</strong>，使用B+Tree作为索引结构，数据文件是和索引绑在一起的，必须要有主键。<strong>「MyISAM是非聚集索引」</strong>，也是使用B+Tree作为索引结构，索引和数据文件是分离的，索引保存的是数据文件的指针。主键索引和辅助索引是独立的。</p>
-</li>
-<li><p><strong>「InnoDB 不保存表的具体行数」</strong>。<strong>「MyISAM 用一个变量保存了整个表的行数」</strong>。</p>
-</li>
-<li><p>Innodb 有 <strong>「redolog」</strong> 日志文件，MyISAM 没有</p>
-</li>
-<li><p><strong>「Innodb存储文件有frm、ibd，而Myisam是frm、MYD、MYI」</strong></p>
-</li>
-</ul>
-<ul>
-<li>Innodb：frm是表定义文件，ibd是数据文件</li>
-<li>Myisam：frm是表定义文件，myd是数据文件，myi是索引文件</li>
-<li><strong>「InnoDB 支持表、行锁，而 MyISAM 支持表级锁」</strong></li>
-<li><em>「InnoDB 必须有唯一索引(主键)」</em><em>,如果没有指定的话 InnoDB 会自己生成一个隐藏列Row_id来充当默认主键，*<em>「MyISAM 可以没有」</em></em></li>
-</ul>
-<h3 id="为什么推荐使用自增-id-作为主键？"><a href="#为什么推荐使用自增-id-作为主键？" class="headerlink" title="为什么推荐使用自增 id 作为主键？"></a>为什么推荐使用自增 id 作为主键？</h3><img src="https://img-blog.csdnimg.cn/img_convert/69a8346941af33b8ceded3fcafe0ce03.png" alt="69a8346941af33b8ceded3fcafe0ce03.png" style="zoom:50%;" />
-
-<ul>
-<li>１.普通索引的 B+ 树上存放的是主键索引的值，如果该值较大，会<strong>「导致普通索引的存储空间较大」</strong></li>
-<li>２.使用自增 id 做主键索引新插入数据只要放在该页的最尾端就可以，直接<strong>「按照顺序插入」</strong>，不用刻意维护</li>
-<li>3.页分裂容易维护，当插入数据的当前页快满时，会发生页分裂的现象，如果主键索引不为自增 id，那么数据就可能从页的中间插入，页的数据会频繁的变动，<strong>「导致页分裂维护成本较高」</strong></li>
-</ul>
-<h3 id="一条查询语句是怎么执行的"><a href="#一条查询语句是怎么执行的" class="headerlink" title="一条查询语句是怎么执行的?"></a>一条查询语句是怎么执行的?</h3><img src="https://img-blog.csdnimg.cn/img_convert/eb4e297a05891f2cdcfd9990f89e483a.png" alt="eb4e297a05891f2cdcfd9990f89e483a.png" style="zoom:50%;" />
-
-<ul>
-<li>通过连接器跟客户端<strong>「建立连接」</strong></li>
-<li>通过查询<strong>「缓存查询」</strong>之前是否有查询过该 sql<ul>
-<li>有则直接返回结果</li>
-<li>没有则执行第三步</li>
-</ul>
-</li>
-<li>通过分析器<strong>「分析该 sql 的语义」</strong>是否正确，包括格式，表等等</li>
-<li>通过优化器<strong>「优化该语句」</strong>，比如选择索引，join 表的连接顺序</li>
-<li><strong>「验证权限」</strong>，验证是否有该表的查询权限<ul>
-<li>没有则返回无权限的错误</li>
-<li>有则执行第六步</li>
-</ul>
-</li>
-<li>通过执行器调用存储引擎执行该 sql，然后返回<strong>「执行结果」</strong></li>
-</ul>
-<h3 id="使用-Innodb-的情况下，一条更新语句是怎么执行的"><a href="#使用-Innodb-的情况下，一条更新语句是怎么执行的" class="headerlink" title="使用 Innodb 的情况下，一条更新语句是怎么执行的?"></a>使用 Innodb 的情况下，一条更新语句是怎么执行的?</h3><p>用以下语句来举例，c 字段无索引，id 为主键索引（无其他索引，有普通索引和唯一索引情况会发生变化，有了change buffer/insert buffer的优化）</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">update T set c=c+<span class="number">1</span> where id=<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>执行器先找引擎取 id=2 这一行。id 是主键，引擎直接用树搜索找到这一行<ul>
-<li>如果 id=2 这一行所在的数据页本来就<strong>「在内存中」</strong>，就<strong>「直接返回」</strong>给执行器</li>
-<li><strong>「不在内存」</strong>中，需要先从磁盘<strong>「读入内存」</strong>，然后再<strong>「返回」</strong></li>
-</ul>
-</li>
-<li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口<strong>「写入这行新数据」</strong></li>
-<li>擎将这行新数据更新到内存中，同时将这个更新操作<strong>「记录到 redo log 里面」</strong>，此时 redo log 处于 <strong>「prepare」</strong> 状态。然后告知执行器执行完成了，随时可以提交事务</li>
-<li>执行器<strong>「生成这个操作的 binlog」</strong>，并把 binlog <strong>「写入磁盘」</strong></li>
-<li>执行器调用引擎的<strong>「提交事务」</strong>接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，<strong>「更新完成」</strong></li>
-</ul>
-<h3 id="Innodb-事务为什么要两阶段提交"><a href="#Innodb-事务为什么要两阶段提交" class="headerlink" title="Innodb 事务为什么要两阶段提交?"></a>Innodb 事务为什么要两阶段提交?</h3><p>目的：保持redolog和binlog的状态一致性，进而保证了主从一致性</p>
-<ul>
-<li>先写 redolog 后写binlog。假设在 redolog 写完，binlog 还没有写完的时候，MySQL 进程异常重启，这时候 binlog 里面就没有记录这个语句。然后你会发现，如果需要用这个 binlog 来恢复临时库的话，由于这个语句的 <strong>「binlog 丢失」</strong>，这个临时库就会少了这一次更新，恢复出来的这一行 c 的值就是 0，与原库的值不同。</li>
-<li>先写 binlog 后写 redolog。如果在 binlog 写完之后 crash，由于 redolog 还没写，崩溃恢复以后这个事务无效，所以这一行c的值是0。但是 binlog 里面已经记录了“把c从0改成1”这个日志。所以，在之后用 binlog 来恢复的时候就<strong>「多了一个事务出来」</strong>，恢复出来的这一行 c 的值就是 1，与原库的值不同。</li>
-</ul>
-<p>可以看到，<strong>「如果不使用“两阶段提交”，那么数据库的状态就有可能和用它的日志恢复出来的库的状态不一致」</strong>。</p>
-<h3 id="什么是索引"><a href="#什么是索引" class="headerlink" title="什么是索引?"></a>什么是索引?</h3><p>相信大家小时候学习汉字的时候都会查字典，想想你查字典的步骤，我们是通过汉字的首字母 a～z 一个一个在字典目录中查找，最终找到该字的页数。想想，如果没有目录会怎么样，最差的结果是你有可能翻到字典的最后一页才找到你想要找的字。</p>
-<p>索引就<strong>「相当于我们字典中的目录」</strong>，可以极大的提高我们在数据库的查询效率。</p>
-<h3 id="索引失效的场景有哪些"><a href="#索引失效的场景有哪些" class="headerlink" title="索引失效的场景有哪些?"></a>索引失效的场景有哪些?</h3><p>以下随便列举几个，不同版本的 mysql 场景不一</p>
-<ul>
-<li>最左前缀法则（带头索引不能死，中间索引不能断)</li>
-<li>不要在索引上做任何操作（计算、函数、自动/手动类型转换），不然会导致索引失效而转向全表扫描</li>
-<li>不能继续使用索引中范围条件（bettween、&lt;、&gt;、in等）右边的列，如：</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a from user where c &gt; <span class="number">5</span> and b = <span class="number">4</span>；</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>索引字段上使用（！= 或者 &lt; &gt;）判断时，会导致索引失效而转向全表扫描</li>
-<li>索引字段上使用 is null / is not null 判断时，会导致索引失效而转向全表扫描。</li>
-<li>索引字段使用like以通配符开头（‘%字符串’）时，会导致索引失效而转向全表扫描，也是最左前缀原则。</li>
-<li>索引字段是字符串，但查询时不加单引号，会导致索引失效而转向全表扫描</li>
-<li>索引字段使用 or 时，会导致索引失效而转向全表扫描</li>
-</ul>
-<h3 id="为什么采用-B-树-而不是-B-树"><a href="#为什么采用-B-树-而不是-B-树" class="headerlink" title="为什么采用 B+ 树,而不是 B-树"></a>为什么采用 B+ 树,而不是 B-树</h3><p>B+ 树只在叶子结点储存数据，非叶子结点不存具体数据，只存 key，查询更稳定，增大了广度，而一个节点就是磁盘一个内存页，内存页大小固定，那么相比 B 树，B- 树这些<strong>「可以存更多的索引结点」</strong>，宽度更大，树高矮，节点小，拉取一次数据的磁盘 IO 次数少，并且 B+ 树只需要去遍历叶子节点就可以实现整棵树的遍历。而且在数据库中基于范围的查询是非常频繁的，效率更高。</p>
-<h3 id="WAl-是什么-有什么好处"><a href="#WAl-是什么-有什么好处" class="headerlink" title="WAl 是什么?有什么好处?"></a>WAl 是什么?有什么好处?</h3><p>先写日志，在写磁盘</p>
-<p>WAL 就是 Write-Ahead Logging，其实就是<strong>「所有的修改都先被写入到日志中，然后再写磁盘」</strong>，用于保证数据操作的原子性和持久性。</p>
-<p>好处:</p>
-<ul>
-<li><strong>「读和写可以完全地并发执行」</strong>，不会互相阻塞</li>
-<li>先写入 log 中，磁盘写入从<strong>「随机写变为顺序写」</strong>，降低了 client 端的延迟就。并且，由于顺序写入大概率是在一个磁盘块内，这样产生的 io 次数也大大降低</li>
-<li>写入日志当数据库崩溃的时候<strong>「可以使用日志来恢复磁盘数据」</strong></li>
-</ul>
-<h3 id="什么是回表"><a href="#什么是回表" class="headerlink" title="什么是回表?"></a>什么是回表?</h3><img src="https://img-blog.csdnimg.cn/img_convert/b7ac1234b2d44d81bf17dee1c95d4d37.png" alt="b7ac1234b2d44d81bf17dee1c95d4d37.png" style="zoom:67%;" />
-
-<p>回表就是先通过数据库索引扫描出该索引树中数据所在的行，取到主键 id，再通过主键 id 取出主键索引数中的数据，即基于非主键索引的查询需要多扫描一棵索引树.</p>
-<h3 id="什么是索引下推"><a href="#什么是索引下推" class="headerlink" title="什么是索引下推?"></a>什么是索引下推?</h3><p>如果存在某些被索引的列的判断条件时，MySQL 将这一部分判断条件传递给存储引擎，然后由存储引擎通过判断索引是否符合 MySQL 服务器传递的条件，<strong>「只有当索引符合条件时才会将数据检索出来返回给 MySQL 服务器」</strong> 。</p>
-<p>就是<strong>一般情况</strong>下，索引列中存在的字段，并且存在where 判断，都可以被利用到，无论是否满足索引使用规则</p>
-<h3 id="什么是覆盖索引"><a href="#什么是覆盖索引" class="headerlink" title="什么是覆盖索引?"></a>什么是覆盖索引?</h3><p>覆盖索引（covering index）指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取，可以减少回表的次数。比如:</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> id from t where age = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p>id 为主键索引，age 为普通索引，age 这个索引树存储的就是逐渐信息，可以直接返回</p>
-<h3 id="什么是最左前缀原则"><a href="#什么是最左前缀原则" class="headerlink" title="什么是最左前缀原则?"></a>什么是最左前缀原则?</h3><p>最左前缀其实说的是，在 where 条件中出现的字段，<strong>「如果只有组合索引中的部分列，则这部分列的触发索引顺序」</strong>，是按照定义索引的时候的顺序从前到后触发，最左面一个列触发不了，之后的所有列索引都无法触发。</p>
-<p>比如<strong>「有一个 (a,b,c) 的组合索引」</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where a = <span class="number">1</span> and b = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>此时 a,b 会命中该组合索引</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where a = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>此时 a 会命中该组合索引, c 不会</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where b = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>此时不会命中该组合索引</p>
-<h3 id="普通索引和唯一索引该怎么选择"><a href="#普通索引和唯一索引该怎么选择" class="headerlink" title="普通索引和唯一索引该怎么选择?"></a>普通索引和唯一索引该怎么选择?</h3><ul>
-<li>查询<ul>
-<li>当普通索引为条件时查询到数据会一直扫描,直到扫到不同的值</li>
-<li>当唯一索引为查询条件时,查到该数据会直接返回,不会继续扫表</li>
-</ul>
-</li>
-<li>更新<ul>
-<li>普通索引会直接将操作更新到 change buffer 中,然后结束</li>
-<li>唯一索引需要判断数据是否冲突，不能使用change buffer</li>
-</ul>
-</li>
-</ul>
-<p>适合场景：</p>
-<ul>
-<li>普通索引适合<strong>读多写少</strong>的情况，尤其是在写完，立马就读的场景是不能使用的（原因是会增加changebuffer 的维护成本）</li>
-<li>一般不建议使用唯一索引</li>
-</ul>
-<h3 id="什么是事务-其特性是什么"><a href="#什么是事务-其特性是什么" class="headerlink" title="什么是事务?其特性是什么?"></a>什么是事务?其特性是什么?</h3><p>事务是指是程序中一系列操作必须全部成功完成，有一个失败则全部失败。</p>
-<img src="https://img-blog.csdnimg.cn/img_convert/6d4384f30d148e586ee353b97e1f0fef.png" alt="6d4384f30d148e586ee353b97e1f0fef.png" style="zoom:50%;" />
-
-<p>特性</p>
-<ul>
-<li><strong>「1.原子性（Atomicity）」</strong>：要么全部执行成功，要么全部不执行。</li>
-<li><strong>「2.一致性（Consistency）」</strong>：事务前后数据的完整性必须保持一致。</li>
-<li><strong>「3.隔离性（Isolation）」</strong>：隔离性是当多个事务同事触发时，不能被其他事务的操作所干扰，多个并发事务之间要相互隔离。</li>
-<li><strong>「4.持久性（Durability）」</strong>：事务完成之后的改变是永久的。</li>
-</ul>
-<h3 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别?"></a>事务的隔离级别?</h3><ul>
-<li>1.<strong>「读提交」</strong>:即能够<strong>「读取到那些已经提交」</strong>的数据</li>
-<li>2.<strong>「读未提交」</strong>:即能够<strong>「读取到没有被提交」</strong>的数据</li>
-<li>3.<strong>「可重复读」</strong>:可重复读指的是在一个事务内，最开始读到的数据和事务结束前的<strong>「任意时刻读到的同一批数据都是一致的」</strong></li>
-<li>4.<strong>「可串行化」</strong>:最高事务隔离级别，不管多少事务，都是<strong>「依次按序一个一个执行」</strong></li>
-</ul>
-<img src="https://img-blog.csdnimg.cn/img_convert/875a4a8184a2eccf33ca1176799d540a.png" alt="875a4a8184a2eccf33ca1176799d540a.png" style="zoom: 67%;" />
-
-<ul>
-<li><strong>「脏读」</strong><ul>
-<li>脏读指的是<strong>「读到了其他事务未提交的数据」</strong>，未提交意味着这些数据可能会回滚，也就是可能最终不会存到数据库中，也就是不存在的数据。读到了并一定最终存在的数据，这就是脏读</li>
-</ul>
-</li>
-<li><strong>「不可重复读」</strong><ul>
-<li>对比可重复读，不可重复读指的是在同一事务内，<strong>「不同的时刻读到的同一批数据可能是不一样的」</strong>。</li>
-</ul>
-</li>
-<li><strong>「幻读」</strong><ul>
-<li>幻读是针对数据插入（INSERT）操作来说的。假设事务A对某些行的内容作了更改，但是还未提交，此时事务B插入了与事务A更改前的记录相同的记录行，并且在事务A提交之前先提交了，而这时，在事务A中查询，会发现<strong>「好像刚刚的更改对于某些数据未起作用」</strong>，但其实是事务B刚插入进来的这就叫幻读</li>
-</ul>
-</li>
-</ul>
-<h3 id="binlog-是做什么的"><a href="#binlog-是做什么的" class="headerlink" title="binlog 是做什么的?"></a>binlog 是做什么的?</h3><p>binlog 是归档日志，属于 Server 层的日志，是一个二进制格式的文件，用于<strong>「记录用户对数据库更新的SQL语句信息」</strong>。</p>
-<p>主要作用</p>
-<ul>
-<li>主从复制</li>
-<li>数据恢复</li>
-</ul>
-<h3 id="undolog-是做什么的"><a href="#undolog-是做什么的" class="headerlink" title="undolog 是做什么的?"></a>undolog 是做什么的?</h3><p>undolog 是 InnoDB 存储引擎的日志，用于保证数据的原子性，<strong>「保存了事务发生之前的数据的一个版本，也就是说记录的是数据是修改之前的数据，可以用于回滚」</strong>，同时可以提供多版本并发控制下的读（MVCC）。</p>
-<p>主要作用</p>
-<ul>
-<li>事务回滚</li>
-<li>实现多版本控制(MVCC)</li>
-</ul>
-<h3 id="relaylog-是做什么的"><a href="#relaylog-是做什么的" class="headerlink" title="relaylog 是做什么的?"></a>relaylog 是做什么的?</h3><p>relaylog 是中继日志，<strong>「在主从同步的时候使用到」</strong>，它是一个中介临时的日志文件，用于存储从master节点同步过来的binlog日志内容。</p>
-<img src="https://img-blog.csdnimg.cn/img_convert/682ebc9c026cc8b81bc74ca0115f79df.png" alt="682ebc9c026cc8b81bc74ca0115f79df.png" style="zoom:67%;" />
-
-<p>master 主节点的 binlog 传到 slave 从节点后，被写入 relay log 里，从节点的 slave sql 线程从 relaylog 里读取日志然后应用到 slave 从节点本地。从服务器 I/O 线程将主服务器的二进制日志读取过来记录到从服务器本地文件，然后 SQL 线程会读取 relay-log 日志的内容并应用到从服务器，从而<strong>「使从服务器和主服务器的数据保持一致」</strong>。</p>
-<h3 id="redolog-是做什么的"><a href="#redolog-是做什么的" class="headerlink" title="redolog 是做什么的?"></a>redolog 是做什么的?</h3><p>redolog 是 <strong>「InnoDB 存储引擎所特有的一种日志」</strong>，用于记录事务操作的变化，记录的是数据修改之后的值，不管事务是否提交都会记录下来。</p>
-<p>可以做<strong>「数据恢复并且提供 crash-safe 能力」</strong></p>
-<p>当有增删改相关的操作时，会先记录到 Innodb 中，并修改缓存页中的数据，<strong>「等到 mysql 闲下来的时候才会真正的将 redolog 中的数据写入到磁盘当中」</strong>。</p>
-<h3 id="redolog-是怎么记录日志的"><a href="#redolog-是怎么记录日志的" class="headerlink" title="redolog 是怎么记录日志的?"></a>redolog 是怎么记录日志的?</h3><img src="https://img-blog.csdnimg.cn/img_convert/9b9820761e6fc6d9b2644f70fea0c878.png" alt="9b9820761e6fc6d9b2644f70fea0c878.png" style="zoom:67%;" />
-
-<p>InnoDB 的 redo log 是固定大小的，比如可以配置为一组4个文件，每个文件的大小是1GB，那么总共就可以记录4GB的操作。<strong>「从头开始写，写到末尾就又回到开头循环写」</strong>。</p>
-<p>所以，如果数据写满了但是还没有来得及将数据真正的刷入磁盘当中，那么就会发生<strong>「内存抖动」</strong>现象，从肉眼的角度来观察会发现 mysql 会宕机一会儿，此时就是正在刷盘了。</p>
-<h3 id="redolog-和-binlog-的区别是什么"><a href="#redolog-和-binlog-的区别是什么" class="headerlink" title="redolog 和 binlog 的区别是什么?"></a>redolog 和 binlog 的区别是什么?</h3><img src="https://img-blog.csdnimg.cn/img_convert/b83959086f28bb82d5dd174a12af8bdc.png" alt="b83959086f28bb82d5dd174a12af8bdc.png" style="zoom:50%;" />
-
-<ul>
-<li><strong>「redolog」</strong> 是 <strong>「Innodb」</strong> 独有的日志，而 <strong>「binlog」</strong> 是 <strong>「server」</strong> 层的，所有的存储引擎都有使用到</li>
-<li><strong>「redolog」</strong> 记录了<strong>「具体的数值」</strong>，对某个页做了什么修改，<strong>「binlog」</strong> 记录的<strong>「操作内容」</strong></li>
-<li><strong>「binlog」</strong> 大小达到上限或者 flush log <strong>「会生成一个新的文件」</strong>，而 <strong>「redolog」</strong> 有固定大小<strong>「只能循环利用」</strong></li>
-<li><strong>「binlog 日志没有 crash-safe 的能力」</strong>，只能用于归档。而 redo log 有 crash-safe 能力。</li>
-<li>binlog 是server 层，redolog 是存储层</li>
-</ul>
-<h3 id="说一说-mvcc-吧，有什么作用"><a href="#说一说-mvcc-吧，有什么作用" class="headerlink" title="说一说 mvcc 吧，有什么作用?"></a>说一说 mvcc 吧，有什么作用?</h3><p>MVCC:多版本并发控制，是现代数据库(包括 MySQL、Oracle、PostgreSQL 等)引擎实现中常用的处理读写冲突的手段，目的在于<strong>「提高数据库高并发场景下的吞吐性能」</strong>。</p>
-<p>在 MVCC 协议下，每个读操作会看到一个一致性的快照，<strong>「这个快照是基于整个库的」</strong>，并且可以实现非阻塞的读，用于<strong>「支持读提交和可重复读隔离级别的实现」</strong>。</p>
-<p>MVCC 允许数据具有多个版本，这个版本可以是时间戳或者是全局递增的事务 ID，在同一个时间点，不同的事务看到的数据是不同的，这个修改的数据是<strong>「记录在 undolog 中」</strong>的。</p>
-<h3 id="一条-Sql-语句查询一直慢会是什么原因"><a href="#一条-Sql-语句查询一直慢会是什么原因" class="headerlink" title="一条 Sql 语句查询一直慢会是什么原因?"></a>一条 Sql 语句查询一直慢会是什么原因?</h3><img src="https://img-blog.csdnimg.cn/img_convert/d52351ca45402fd46125dc2e59be0a76.png" alt="d52351ca45402fd46125dc2e59be0a76.png" style="zoom:50%;" />
-
-<ul>
-<li><strong>「1.没有用到索引」</strong><ul>
-<li>比如函数导致的索引失效，或者本身就没有加索引</li>
-</ul>
-</li>
-<li><strong>「2.表数据量太大」</strong><ul>
-<li>考虑分库分表吧</li>
-</ul>
-</li>
-<li><strong>「3.优化器选错了索引」</strong><ul>
-<li><strong>「考虑使用」</strong> force index 强制走索引</li>
-</ul>
-</li>
-</ul>
-<h3 id="一条-Sql-语句查询偶尔慢会是什么原因"><a href="#一条-Sql-语句查询偶尔慢会是什么原因" class="headerlink" title="一条 Sql 语句查询偶尔慢会是什么原因?"></a>一条 Sql 语句查询偶尔慢会是什么原因?</h3><img src="https://img-blog.csdnimg.cn/img_convert/bd6876ff641aba17165df1c7ef249df5.png" alt="bd6876ff641aba17165df1c7ef249df5.png" style="zoom: 67%;" />
-
-<ul>
-<li><strong>「1. 数据库在刷新脏页」</strong><ul>
-<li>比如 <strong>「redolog 写满了」</strong>，<strong>「内存不够用了」</strong>释放内存如果是脏页也需要刷，mysql <strong>「正常空闲状态刷脏页」</strong></li>
-</ul>
-</li>
-<li><strong>「2. 没有拿到锁」</strong></li>
-</ul>
-<h3 id="Mysql-主从之间是怎么同步数据的"><a href="#Mysql-主从之间是怎么同步数据的" class="headerlink" title="Mysql 主从之间是怎么同步数据的?"></a>Mysql 主从之间是怎么同步数据的?</h3><ul>
-<li>1.master 主库将此次更新的事件类型<strong>「写入到主库的 binlog 文件」</strong>中</li>
-<li>2.master <strong>「创建 log dump 线程通知 slave」</strong> 需要更新数据</li>
-<li>3.<strong>「slave」</strong> 向 master 节点发送请求，<strong>「将该 binlog 文件内容存到本地的 relaylog 中」</strong></li>
-<li>4.<strong>「slave 开启 sql 线程」</strong>读取 relaylog 中的内容，<strong>「将其中的内容在本地重新执行一遍」</strong>，完成主从数据同步</li>
-</ul>
-<img src="https://img-blog.csdnimg.cn/img_convert/fae385cd4a137a82e28b52c9eb9737a5.png" alt="fae385cd4a137a82e28b52c9eb9737a5.png" style="zoom: 67%;" />
-
-<p><strong>「同步策略」</strong>：</p>
-<ul>
-<li>1.<strong>「全同步复制」</strong>：主库强制同步日志到从库，等全部从库执行完才返回客户端，性能差</li>
-<li>2.<strong>「半同步复制」</strong>：主库收到至少一个从库确认就认为操作成功，从库写入日志成功返回ack确认</li>
-</ul>
-<h3 id="主从延迟要怎么解决"><a href="#主从延迟要怎么解决" class="headerlink" title="主从延迟要怎么解决?"></a>主从延迟要怎么解决?</h3><ul>
-<li>1.MySQL 5.6 版本以后，提供了一种<strong>「并行复制」</strong>的方式，通过将 SQL 线程转换为多个 work 线程来进行重放</li>
-<li>2.<strong>「提高机器配置」</strong>(王道)</li>
-<li>3.在业务初期就选择合适的分库、分表策略，<strong>「避免单表单库过大」</strong>带来额外的复制压力</li>
-<li>4.<strong>「避免长事务」</strong></li>
-<li>5.<strong>「避免让数据库进行各种大量运算」</strong></li>
-<li>6.对于一些对延迟很敏感的业务<strong>「直接使用主库读」</strong></li>
-</ul>
-<h3 id="删除表数据后表的大小却没有变动-这是为什么"><a href="#删除表数据后表的大小却没有变动-这是为什么" class="headerlink" title="删除表数据后表的大小却没有变动,这是为什么?"></a>删除表数据后表的大小却没有变动,这是为什么?</h3><p>在使用 delete 删除数据时，其实对应的数据行并不是真正的删除，是<strong>「逻辑删除」</strong>，InnoDB 仅仅是将其<strong>「标记成可复用的状态」</strong>，所以表空间不会变小</p>
-<h3 id="为什么-VarChar-建议不要超过255"><a href="#为什么-VarChar-建议不要超过255" class="headerlink" title="为什么 VarChar 建议不要超过255?"></a>为什么 VarChar 建议不要超过255?</h3><img src="https://img-blog.csdnimg.cn/img_convert/e7172b78774dcb6d1679d262491d3a32.png" alt="e7172b78774dcb6d1679d262491d3a32.png" style="zoom:67%;" />
-
-<p>innodb索引列最大长度不能超过767byte，等同于utf8mb4编码下，前缀索引列不能超过191，可以通过innodb_large_prefix参数修改+修改行格式来变大</p>
-<h3 id="分布式式事务怎么实现"><a href="#分布式式事务怎么实现" class="headerlink" title="分布式式事务怎么实现?"></a>分布式式事务怎么实现?</h3><ul>
-<li>1.<strong>「本地消息表」</strong></li>
-<li>2.<strong>「消息事务」</strong></li>
-<li>3.<strong>「二阶段提交」</strong></li>
-<li>4.<strong>「三阶段提交」</strong></li>
-<li>5.<strong>「TCC」</strong></li>
-<li>6.<strong>「最大努力通知」</strong></li>
-<li>7.<strong>「Seata 框架」</strong></li>
-</ul>
-<p><a href="https://blog.csdn.net/qq_43513205/article/details/114265756">七种分布式事务的解决方案，一次讲给你听</a></p>
-<h3 id="Mysql-中有哪些锁"><a href="#Mysql-中有哪些锁" class="headerlink" title="Mysql 中有哪些锁?"></a>Mysql 中有哪些锁?</h3><p>以下并不全，主要理解下锁的意义即可</p>
-<ul>
-<li>基于锁的属性分类：共享锁、排他锁</li>
-<li>基于锁的粒度分类：表锁、行锁、记录锁、间隙锁、临键锁</li>
-<li>基于锁的状态分类：意向共享锁、意向排它锁、死锁</li>
-</ul>
-<h3 id="为什么不要使用长事务"><a href="#为什么不要使用长事务" class="headerlink" title="为什么不要使用长事务?"></a>为什么不要使用长事务?</h3><img src="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png" alt="5cca8dadf562adaf140437cf95001d59.png" style="zoom:67%;" />
-
-<ul>
-<li>1.并发情况下，数据库<strong>「连接池容易被撑爆」</strong></li>
-<li>2.<strong>「容易造成大量的阻塞和锁超时」</strong><ul>
-<li>长事务还占用锁资源，也可能拖垮整个库，</li>
-</ul>
-</li>
-<li>3.执行时间长，容易造成<strong>「主从延迟」</strong></li>
-<li>4.<strong>「回滚所需要的时间比较长」</strong><ul>
-<li>事务越长整个时间段内的事务也就越多</li>
-</ul>
-</li>
-<li>5.<strong>「undolog 日志越来越大」</strong><ul>
-<li>长事务意味着系统里面会存在很老的事务视图。由于这些事务随时可能访问数据库里面的任何数据，所以这个事务提交之前，数据库里面它可能用到的回滚记录都必须保留，这就会导致大量占用存储空间。</li>
-</ul>
-</li>
-</ul>
-<h3 id="buffer-pool-是做什么的"><a href="#buffer-pool-是做什么的" class="headerlink" title="buffer pool 是做什么的?"></a>buffer pool 是做什么的?</h3><p>buffer pool 是一块内存区域，为了<strong>「提高数据库的性能」</strong>，当数据库操作数据的时候，把硬盘上的数据加载到 buffer pool，不直接和硬盘打交道，操作的是 buffer pool 里面的数据，数据库的增删改查都是在 buffer pool 上进行</p>
-<p>buffer pool 里面缓存的数据内容也是一个个数据页</p>
-<p>其中<strong>「有三大双向链表」</strong>:</p>
-<ul>
-<li><strong>「free 链表」</strong><ul>
-<li>用于帮助我们找到空闲的缓存页</li>
-</ul>
-</li>
-<li><strong>「flush 链表」</strong><ul>
-<li>用于找到脏缓存页，也就是需要刷盘的缓存页</li>
-</ul>
-</li>
-<li><strong>「lru 链表」</strong><ul>
-<li>用来淘汰不常被访问的缓存页，分为热数据区和冷数据区，冷数据区主要存放那些不常被用到的数据</li>
-</ul>
-</li>
-</ul>
-<p>预读机制:</p>
-<ul>
-<li>Buffer Pool 有一项特技叫预读，存储引擎的接口在被 Server 层调用时，会在响应的同时进行预判，将下次可能用到的数据和索引加载到 Buffer Pool</li>
-</ul>
-<h3 id="说说你的-Sql-调优思路吧"><a href="#说说你的-Sql-调优思路吧" class="headerlink" title="说说你的 Sql 调优思路吧"></a>说说你的 Sql 调优思路吧</h3><img src="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png" alt="e6d0dffc2b67df74c5ebc558dcb3e9ff.png" style="zoom:67%;" />
-
-<ul>
-<li>1.<strong>「表结构优化」</strong><ul>
-<li>1.1拆分字段</li>
-<li>1.2字段类型的选择</li>
-<li>1.3字段类型大小的限制</li>
-<li>1.4合理的增加冗余字段</li>
-<li>1.5新建字段一定要有默认值</li>
-</ul>
-</li>
-<li>2.<strong>「索引方面」</strong><ul>
-<li>2.1索引字段的选择</li>
-<li>2.2利用好mysql支持的索引下推，覆盖索引等功能</li>
-<li>2.3唯一索引和普通索引的选择</li>
-</ul>
-</li>
-<li>3.<strong>「查询语句方面」</strong><ul>
-<li>3.1避免索引失效</li>
-<li>3.2合理的书写where条件字段顺序</li>
-<li>3.3小表驱动大表</li>
-<li>3.4可以使用force index()防止优化器选错索引</li>
-</ul>
-</li>
-<li>4.<strong>「分库分表」</strong></li>
-</ul>
-]]></content>
-      <categories>
-        <category>八股文</category>
-      </categories>
-      <tags>
-        <tag>面试</tag>
-        <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>go基础</title>
     <url>/2021/12/11/go%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<blockquote>
@@ -865,7 +380,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#x67;&#105;&#116;&#64;&#49;&#57;&#50;&#46;&#x31;&#x36;&#56;&#x2e;&#x31;&#46;&#49;&#49;&#x39;">&#x67;&#105;&#116;&#64;&#49;&#57;&#50;&#46;&#x31;&#x36;&#56;&#x2e;&#x31;&#46;&#49;&#49;&#x39;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#103;&#105;&#x74;&#x40;&#49;&#x39;&#50;&#46;&#x31;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#x31;&#57;">&#103;&#105;&#x74;&#x40;&#49;&#x39;&#50;&#46;&#x31;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#x31;&#57;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
@@ -1606,6 +1121,491 @@
       <tags>
         <tag>面试</tag>
         <tag>网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>面试八股文 mysql篇</title>
+    <url>/2021/12/28/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20mysql%E7%AF%87/</url>
+    <content><![CDATA[<h3 id="mysql面试的八股文，持续更新"><a href="#mysql面试的八股文，持续更新" class="headerlink" title="mysql面试的八股文，持续更新"></a>mysql面试的八股文，持续更新</h3><span id="more"></span>
+
+<h3 id="连接器的最大连接数以及调优"><a href="#连接器的最大连接数以及调优" class="headerlink" title="连接器的最大连接数以及调优"></a>连接器的最大连接数以及调优</h3><p>mysql服务器最大支持max_connect 为 16384</p>
+<p>根据需求来看，一般2核4G机器填写1000，16核64G填写5000。</p>
+<h3 id="刷脏页-参数"><a href="#刷脏页-参数" class="headerlink" title="刷脏页 参数"></a>刷脏页 参数</h3><p> innodb_io_capacity 表示磁盘的io能力，控制了刷脏页的速度</p>
+<p>innodb_max_dirty_pages_pct 脏页比例阈值，达到这个值就开始刷脏页</p>
+<p>脏页比例计算 Innodb_buffer_pool_pages_dirty/Innodb_buffer_pool_pages_total</p>
+<h3 id="redolog和binlog区别"><a href="#redolog和binlog区别" class="headerlink" title="redolog和binlog区别"></a>redolog和binlog区别</h3><ul>
+<li>redolog innodb存储层，binlog server层</li>
+<li>redolog 是物理日志，记录的语句在内存中执行了什么动作，binlog是逻辑日志，记录了语句的原始逻辑</li>
+<li>先写内存，再写redolog prepare 再写binlog 再写redolog commit</li>
+</ul>
+<h3 id="redolog和binlog-刷盘参数"><a href="#redolog和binlog-刷盘参数" class="headerlink" title="redolog和binlog 刷盘参数"></a>redolog和binlog 刷盘参数</h3><p>控制binlog 把binlog cache 刷到磁盘的时机：sync_binlog</p>
+<ul>
+<li>sync_binlog=0 的时候，表示每次提交事务都只 write，不 fsync；</li>
+<li>sync_binlog=1 的时候，表示每次提交事务都会执行 fsync；</li>
+<li>sync_binlog=N(N&gt;1) 的时候，表示每次提交事务都 write，但累积 N 个事务后才 fsync。</li>
+</ul>
+<p>binlog 组提交优化参数：binlog_group_commit_sync_delay和binlog_group_commit_sync_no_delay_count</p>
+<p>控制redolog把logbuffer 写入 oscache 和刷盘的时机： innodb_flush_log_at_trx_commit </p>
+<ul>
+<li>设置为 0 的时候，表示每次事务提交时都只是把 redo log 留在 redo log buffer 中 ;</li>
+<li>设置为 1 的时候，表示每次事务提交时都将 redo log 直接持久化到磁盘；</li>
+<li>设置为 2 的时候，表示每次事务提交时都只是把 redo log 写到 page cache。</li>
+</ul>
+<h3 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h3><h3 id="mysql如何保证acid"><a href="#mysql如何保证acid" class="headerlink" title="mysql如何保证acid"></a>mysql如何保证acid</h3><p>MySQL 作为一个关系型数据库，以最常见的 InnoDB 引擎来说，是如何保证 ACID 的。</p>
+<ul>
+<li><strong>（Atomicity</strong> ） <strong>原子性：</strong> 事务是最小的执行单位，不允许分割。原子性确保动作要么全部完成，要么完全不起作用；</li>
+<li><strong>（Consistency）一致性：</strong> 执行事务前后，数据保持一致；</li>
+<li><strong>（Isolation）隔离性：</strong> 并发访问数据库时，一个事务不被其他事务所干扰。</li>
+<li><strong>（Durability）持久性:</strong> 一个事务被提交之后。对数据库中数据的改变是持久的，即使数据库发生故障。</li>
+</ul>
+<p>如何保证</p>
+<ul>
+<li>原子性：undo log，要不执行成功，要不执行失败</li>
+<li>一致性：事务，也需要应用层面进行维护</li>
+<li>隔离性：隔离级别</li>
+<li>持久性：redo log </li>
+</ul>
+<h3 id="sql执行流程"><a href="#sql执行流程" class="headerlink" title="sql执行流程"></a>sql执行流程</h3><ul>
+<li>连接器，权限校验，连接池</li>
+<li>查询缓存，直接返回</li>
+<li>分析器，分析语法语义是否合规，正确</li>
+<li>优化器，优化sql，选择合适索引</li>
+<li>执行器，调用存储引擎api，执行语句，要什么，存储引擎给什么</li>
+<li>存储引擎，从内存和磁盘中找到sql执行结果，返回执行器</li>
+</ul>
+<h3 id="mvcc"><a href="#mvcc" class="headerlink" title="mvcc"></a>mvcc</h3><ul>
+<li><p>使用一致性视图和undolog实现，数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。</p>
+</li>
+<li><p>用begin开始事务，并不会第一时间创建一致性视图，而且等第一个sql语句执行才会创建（可以用start transaction with consistent snapshot）</p>
+</li>
+<li><p>不同隔离等级下（mvcc只支持RR、RC），创建视图的时间不一样</p>
+<ul>
+<li>可重复度RR下，是事务开始的时候创建一致性视图</li>
+<li>读提交RC下，是每个sql语句执行前都会重新创建一致性视图</li>
+</ul>
+</li>
+</ul>
+<p>一致性视图：</p>
+<p>InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正在“活跃”的所有事务 ID。“活跃”指的就是，启动了但还没提交。</p>
+<p>根据数据的row trx_id 和一致性视图判断是否可见</p>
+<img src="https://static001.geekbang.org/resource/image/88/5e/882114aaf55861832b4270d44507695e.png" alt="img" style="zoom: 50%;" />
+
+<p>undolog：</p>
+<p>三个虚线箭头，就是 undo log；</p>
+<p>而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
+<p>具体的执行过程，是根据当前一致性视图去查undolog，回滚日志到当前事务id可见的版本</p>
+<img src="https://static001.geekbang.org/resource/image/68/ed/68d08d277a6f7926a41cc5541d3dfced.png" alt="img" style="zoom:50%;" />
+
+
+
+<p>当前读：</p>
+<p>更新语句执行都是先读后写，而且这个读是读当前数据的最近值，被称作“当前度”</p>
+<p>分析过程示例：</p>
+<p>[]中的是是一致性视图，()中的是当前事务id，最右边的是undolog</p>
+<img src="https://static001.geekbang.org/resource/image/94/49/9416c310e406519b7460437cb0c5c149.png" alt="img" style="zoom:50%;" />
+
+<h3 id="无法修改数据的场景（mvcc）"><a href="#无法修改数据的场景（mvcc）" class="headerlink" title="无法修改数据的场景（mvcc）"></a>无法修改数据的场景（mvcc）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 表结构和数据</span><br><span class="line">mysql&gt; CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `c` int(11) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB;</span><br><span class="line">insert into t(id, c) values(1,1),(2,2),(3,3),(4,4);</span><br></pre></td></tr></table></figure>
+
+
+
+<img src="https://static001.geekbang.org/resource/image/be/ae/be7a4d8af04cdf93aaa11108933559ae.png" alt="img" style="zoom:80%;" />
+
+<p>无法修改的原因：“当前读”引起</p>
+<p>解决办法：重试或者根据主键id去修改</p>
+<h3 id="mha"><a href="#mha" class="headerlink" title="mha"></a>mha</h3><h3 id="两阶段锁协议"><a href="#两阶段锁协议" class="headerlink" title="两阶段锁协议"></a>两阶段锁协议</h3><p>在 InnoDB 事务中，行锁是在需要的时候才加上的，但并不是不需要了就立刻释放，而是要等到事务结束时才释放。这个就是两阶段锁协议。</p>
+<h3 id="为什么要用b-tree，其他可以用的数据结构都有哪些"><a href="#为什么要用b-tree，其他可以用的数据结构都有哪些" class="headerlink" title="为什么要用b+tree，其他可以用的数据结构都有哪些"></a>为什么要用b+tree，其他可以用的数据结构都有哪些</h3><p>索引的常用<strong>数据结构</strong>：</p>
+<ol>
+<li>二叉树</li>
+<li>红黑树  红黑树是一种特化的 AVL树（平衡二叉树），都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡；若一棵二叉查找树是红黑树，则它的任一子树必为红黑树。</li>
+<li>Hash 表</li>
+<li><code>B-tree</code>  是一颗绝对平衡的多路树，针对红黑树优化了树高，mongodb使用b-tree</li>
+<li><code>B+tree</code></li>
+</ol>
+<p>为什么不是用其他数据结构</p>
+<ul>
+<li>二叉树<ul>
+<li>对于递增的数据不适合当索引</li>
+</ul>
+</li>
+<li>红黑树<ul>
+<li>对是属于平衡二叉树的红黑树来说，数据量大的时候，树高就很高，查找的过程会产生很多随机io</li>
+</ul>
+</li>
+<li>hash表<ul>
+<li>不适合范围查询</li>
+</ul>
+</li>
+</ul>
+<h3 id="b-tree和b-tree区别和特点"><a href="#b-tree和b-tree区别和特点" class="headerlink" title="b-tree和b+tree区别和特点"></a>b-tree和b+tree区别和特点</h3><p>b-tree</p>
+<ol>
+<li><p>B-tree 主要用于文件系统以及部分数据库索引，例如：MongoDB。</p>
+</li>
+<li><p>从查找效率考虑一般要求 B-tree 的阶数 m ≥ 3</p>
+</li>
+<li><p>B-tree 上算法的执行时间主要由读、写磁盘的次数来决定，故一次I/O操作应读写尽可能多的信息。</p>
+<p>因此 B-tree 的节点规模一般以一个磁盘页为单位。一个结点包含的关键字及其孩子个数取决于磁盘页的大小。</p>
+</li>
+</ol>
+<p>b+tree</p>
+<ol>
+<li>单个节点存储越多的元素，自然在整个过程中的磁盘💽I/O交互就越少；</li>
+<li>相对 B-tree 来说，所有的查询最终都会找到叶子节点，这也是 B+tree 性能稳定的一个体现；</li>
+<li>所有叶子节点通过双向链表相连，范围查询非常方便，这也是 B+tree 最明显的优势。</li>
+</ol>
+<p>区别</p>
+<ol>
+<li><p>所有的子节点，一定会出现在叶子节点上</p>
+</li>
+<li><p>相邻的叶子节点之间，会用一个<strong>双向链表</strong>连接起来（关键）</p>
+</li>
+<li><p>非叶子节点只存储索引，不存储数据，就为放更多索引</p>
+</li>
+<li><ul>
+<li>相比 <code>B-tree</code> 来说，进行范围查找时只需要查找两个节点，进行遍历就行。而 <code>B-tree</code> 需要获取所有节点，相比之下 <code>B+tree</code> 效率更高。</li>
+</ul>
+</li>
+</ol>
+<h3 id="说一说三大范式"><a href="#说一说三大范式" class="headerlink" title="说一说三大范式"></a>说一说三大范式</h3><ul>
+<li><strong>「第一范式」</strong>：数据库中的字段具有<strong>「原子性」</strong>，不可再分，并且是单一职责</li>
+<li><strong>「第二范式」</strong>：<strong>「建立在第一范式的基础上」</strong>，第二范式要求数据库表中的每个实例或行必须<strong>「可以被惟一地区分」</strong>。为实现区分通常需要为表加上一个列，以存储各个实例的惟一标识。这个惟一属性列被称为主键</li>
+<li><strong>「第三范式」</strong>：<strong>「建立在第一，第二范式的基础上」</strong>，确保每列都和主键列直接相关，而不是间接相关不存在其他表的非主键信息</li>
+</ul>
+<p>但是在我们的日常开发当中，<strong>「并不是所有的表一定要满足三大范式」</strong>，有时候冗余几个字段可以少关联几张表，带来的查询效率的提升有可能是质变的</p>
+<h3 id="MyISAM-与-InnoDB-的区别是什么？"><a href="#MyISAM-与-InnoDB-的区别是什么？" class="headerlink" title="MyISAM 与 InnoDB 的区别是什么？"></a>MyISAM 与 InnoDB 的区别是什么？</h3><img src="https://img-blog.csdnimg.cn/img_convert/e42a8e4a50675fbe6540fb3558986add.png" alt="e42a8e4a50675fbe6540fb3558986add.png" style="zoom:50%;" />
+
+<ul>
+<li><p><strong>「InnoDB支持事务，MyISAM不支持」</strong>。</p>
+</li>
+<li><p><strong>「InnoDB 支持外键，而 MyISAM 不支持」</strong>。</p>
+</li>
+<li><p><strong>「InnoDB是聚集索引」</strong>，使用B+Tree作为索引结构，数据文件是和索引绑在一起的，必须要有主键。<strong>「MyISAM是非聚集索引」</strong>，也是使用B+Tree作为索引结构，索引和数据文件是分离的，索引保存的是数据文件的指针。主键索引和辅助索引是独立的。</p>
+</li>
+<li><p><strong>「InnoDB 不保存表的具体行数」</strong>。<strong>「MyISAM 用一个变量保存了整个表的行数」</strong>。</p>
+</li>
+<li><p>Innodb 有 <strong>「redolog」</strong> 日志文件，MyISAM 没有</p>
+</li>
+<li><p><strong>「Innodb存储文件有frm、ibd，而Myisam是frm、MYD、MYI」</strong></p>
+</li>
+</ul>
+<ul>
+<li>Innodb：frm是表定义文件，ibd是数据文件</li>
+<li>Myisam：frm是表定义文件，myd是数据文件，myi是索引文件</li>
+<li><strong>「InnoDB 支持表、行锁，而 MyISAM 支持表级锁」</strong></li>
+<li><em>「InnoDB 必须有唯一索引(主键)」</em><em>,如果没有指定的话 InnoDB 会自己生成一个隐藏列Row_id来充当默认主键，*<em>「MyISAM 可以没有」</em></em></li>
+</ul>
+<h3 id="为什么推荐使用自增-id-作为主键？"><a href="#为什么推荐使用自增-id-作为主键？" class="headerlink" title="为什么推荐使用自增 id 作为主键？"></a>为什么推荐使用自增 id 作为主键？</h3><img src="https://img-blog.csdnimg.cn/img_convert/69a8346941af33b8ceded3fcafe0ce03.png" alt="69a8346941af33b8ceded3fcafe0ce03.png" style="zoom:50%;" />
+
+<ul>
+<li>１.普通索引的 B+ 树上存放的是主键索引的值，如果该值较大，会<strong>「导致普通索引的存储空间较大」</strong></li>
+<li>２.使用自增 id 做主键索引新插入数据只要放在该页的最尾端就可以，直接<strong>「按照顺序插入」</strong>，不用刻意维护</li>
+<li>3.页分裂容易维护，当插入数据的当前页快满时，会发生页分裂的现象，如果主键索引不为自增 id，那么数据就可能从页的中间插入，页的数据会频繁的变动，<strong>「导致页分裂维护成本较高」</strong></li>
+</ul>
+<h3 id="一条查询语句是怎么执行的"><a href="#一条查询语句是怎么执行的" class="headerlink" title="一条查询语句是怎么执行的?"></a>一条查询语句是怎么执行的?</h3><img src="https://img-blog.csdnimg.cn/img_convert/eb4e297a05891f2cdcfd9990f89e483a.png" alt="eb4e297a05891f2cdcfd9990f89e483a.png" style="zoom:50%;" />
+
+<ul>
+<li>通过连接器跟客户端<strong>「建立连接」</strong></li>
+<li>通过查询<strong>「缓存查询」</strong>之前是否有查询过该 sql<ul>
+<li>有则直接返回结果</li>
+<li>没有则执行第三步</li>
+</ul>
+</li>
+<li>通过分析器<strong>「分析该 sql 的语义」</strong>是否正确，包括格式，表等等</li>
+<li>通过优化器<strong>「优化该语句」</strong>，比如选择索引，join 表的连接顺序</li>
+<li><strong>「验证权限」</strong>，验证是否有该表的查询权限<ul>
+<li>没有则返回无权限的错误</li>
+<li>有则执行第六步</li>
+</ul>
+</li>
+<li>通过执行器调用存储引擎执行该 sql，然后返回<strong>「执行结果」</strong></li>
+</ul>
+<h3 id="使用-Innodb-的情况下，一条更新语句是怎么执行的"><a href="#使用-Innodb-的情况下，一条更新语句是怎么执行的" class="headerlink" title="使用 Innodb 的情况下，一条更新语句是怎么执行的?"></a>使用 Innodb 的情况下，一条更新语句是怎么执行的?</h3><p>用以下语句来举例，c 字段无索引，id 为主键索引（无其他索引，有普通索引和唯一索引情况会发生变化，有了change buffer/insert buffer的优化）</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">update T set c=c+<span class="number">1</span> where id=<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行器先找引擎取 id=2 这一行。id 是主键，引擎直接用树搜索找到这一行<ul>
+<li>如果 id=2 这一行所在的数据页本来就<strong>「在内存中」</strong>，就<strong>「直接返回」</strong>给执行器</li>
+<li><strong>「不在内存」</strong>中，需要先从磁盘<strong>「读入内存」</strong>，然后再<strong>「返回」</strong></li>
+</ul>
+</li>
+<li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口<strong>「写入这行新数据」</strong></li>
+<li>擎将这行新数据更新到内存中，同时将这个更新操作<strong>「记录到 redo log 里面」</strong>，此时 redo log 处于 <strong>「prepare」</strong> 状态。然后告知执行器执行完成了，随时可以提交事务</li>
+<li>执行器<strong>「生成这个操作的 binlog」</strong>，并把 binlog <strong>「写入磁盘」</strong></li>
+<li>执行器调用引擎的<strong>「提交事务」</strong>接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，<strong>「更新完成」</strong></li>
+</ul>
+<h3 id="Innodb-事务为什么要两阶段提交"><a href="#Innodb-事务为什么要两阶段提交" class="headerlink" title="Innodb 事务为什么要两阶段提交?"></a>Innodb 事务为什么要两阶段提交?</h3><p>目的：保持redolog和binlog的状态一致性，进而保证了主从一致性</p>
+<ul>
+<li>先写 redolog 后写binlog。假设在 redolog 写完，binlog 还没有写完的时候，MySQL 进程异常重启，这时候 binlog 里面就没有记录这个语句。然后你会发现，如果需要用这个 binlog 来恢复临时库的话，由于这个语句的 <strong>「binlog 丢失」</strong>，这个临时库就会少了这一次更新，恢复出来的这一行 c 的值就是 0，与原库的值不同。</li>
+<li>先写 binlog 后写 redolog。如果在 binlog 写完之后 crash，由于 redolog 还没写，崩溃恢复以后这个事务无效，所以这一行c的值是0。但是 binlog 里面已经记录了“把c从0改成1”这个日志。所以，在之后用 binlog 来恢复的时候就<strong>「多了一个事务出来」</strong>，恢复出来的这一行 c 的值就是 1，与原库的值不同。</li>
+</ul>
+<p>可以看到，<strong>「如果不使用“两阶段提交”，那么数据库的状态就有可能和用它的日志恢复出来的库的状态不一致」</strong>。</p>
+<h3 id="什么是索引"><a href="#什么是索引" class="headerlink" title="什么是索引?"></a>什么是索引?</h3><p>相信大家小时候学习汉字的时候都会查字典，想想你查字典的步骤，我们是通过汉字的首字母 a～z 一个一个在字典目录中查找，最终找到该字的页数。想想，如果没有目录会怎么样，最差的结果是你有可能翻到字典的最后一页才找到你想要找的字。</p>
+<p>索引就<strong>「相当于我们字典中的目录」</strong>，可以极大的提高我们在数据库的查询效率。</p>
+<h3 id="索引失效的场景有哪些"><a href="#索引失效的场景有哪些" class="headerlink" title="索引失效的场景有哪些?"></a>索引失效的场景有哪些?</h3><p>以下随便列举几个，不同版本的 mysql 场景不一</p>
+<ul>
+<li>最左前缀法则（带头索引不能死，中间索引不能断)</li>
+<li>不要在索引上做任何操作（计算、函数、自动/手动类型转换），不然会导致索引失效而转向全表扫描</li>
+<li>不能继续使用索引中范围条件（bettween、&lt;、&gt;、in等）右边的列，如：</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a from user where c &gt; <span class="number">5</span> and b = <span class="number">4</span>；</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>索引字段上使用（！= 或者 &lt; &gt;）判断时，会导致索引失效而转向全表扫描</li>
+<li>索引字段上使用 is null / is not null 判断时，会导致索引失效而转向全表扫描。</li>
+<li>索引字段使用like以通配符开头（‘%字符串’）时，会导致索引失效而转向全表扫描，也是最左前缀原则。</li>
+<li>索引字段是字符串，但查询时不加单引号，会导致索引失效而转向全表扫描</li>
+<li>索引字段使用 or 时，会导致索引失效而转向全表扫描</li>
+</ul>
+<h3 id="为什么采用-B-树-而不是-B-树"><a href="#为什么采用-B-树-而不是-B-树" class="headerlink" title="为什么采用 B+ 树,而不是 B-树"></a>为什么采用 B+ 树,而不是 B-树</h3><p>B+ 树只在叶子结点储存数据，非叶子结点不存具体数据，只存 key，查询更稳定，增大了广度，而一个节点就是磁盘一个内存页，内存页大小固定，那么相比 B 树，B- 树这些<strong>「可以存更多的索引结点」</strong>，宽度更大，树高矮，节点小，拉取一次数据的磁盘 IO 次数少，并且 B+ 树只需要去遍历叶子节点就可以实现整棵树的遍历。而且在数据库中基于范围的查询是非常频繁的，效率更高。</p>
+<h3 id="WAl-是什么-有什么好处"><a href="#WAl-是什么-有什么好处" class="headerlink" title="WAl 是什么?有什么好处?"></a>WAl 是什么?有什么好处?</h3><p>先写日志，在写磁盘</p>
+<p>WAL 就是 Write-Ahead Logging，其实就是<strong>「所有的修改都先被写入到日志中，然后再写磁盘」</strong>，用于保证数据操作的原子性和持久性。</p>
+<p>好处:</p>
+<ul>
+<li><strong>「读和写可以完全地并发执行」</strong>，不会互相阻塞</li>
+<li>先写入 log 中，磁盘写入从<strong>「随机写变为顺序写」</strong>，降低了 client 端的延迟就。并且，由于顺序写入大概率是在一个磁盘块内，这样产生的 io 次数也大大降低</li>
+<li>写入日志当数据库崩溃的时候<strong>「可以使用日志来恢复磁盘数据」</strong></li>
+</ul>
+<h3 id="什么是回表"><a href="#什么是回表" class="headerlink" title="什么是回表?"></a>什么是回表?</h3><img src="https://img-blog.csdnimg.cn/img_convert/b7ac1234b2d44d81bf17dee1c95d4d37.png" alt="b7ac1234b2d44d81bf17dee1c95d4d37.png" style="zoom:67%;" />
+
+<p>回表就是先通过数据库索引扫描出该索引树中数据所在的行，取到主键 id，再通过主键 id 取出主键索引数中的数据，即基于非主键索引的查询需要多扫描一棵索引树.</p>
+<h3 id="什么是索引下推"><a href="#什么是索引下推" class="headerlink" title="什么是索引下推?"></a>什么是索引下推?</h3><p>如果存在某些被索引的列的判断条件时，MySQL 将这一部分判断条件传递给存储引擎，然后由存储引擎通过判断索引是否符合 MySQL 服务器传递的条件，<strong>「只有当索引符合条件时才会将数据检索出来返回给 MySQL 服务器」</strong> 。</p>
+<p>就是<strong>一般情况</strong>下，索引列中存在的字段，并且存在where 判断，都可以被利用到，无论是否满足索引使用规则</p>
+<h3 id="什么是覆盖索引"><a href="#什么是覆盖索引" class="headerlink" title="什么是覆盖索引?"></a>什么是覆盖索引?</h3><p>覆盖索引（covering index）指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取，可以减少回表的次数。比如:</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> id from t where age = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>id 为主键索引，age 为普通索引，age 这个索引树存储的就是逐渐信息，可以直接返回</p>
+<h3 id="什么是最左前缀原则"><a href="#什么是最左前缀原则" class="headerlink" title="什么是最左前缀原则?"></a>什么是最左前缀原则?</h3><p>最左前缀其实说的是，在 where 条件中出现的字段，<strong>「如果只有组合索引中的部分列，则这部分列的触发索引顺序」</strong>，是按照定义索引的时候的顺序从前到后触发，最左面一个列触发不了，之后的所有列索引都无法触发。</p>
+<p>比如<strong>「有一个 (a,b,c) 的组合索引」</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where a = <span class="number">1</span> and b = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时 a,b 会命中该组合索引</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where a = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时 a 会命中该组合索引, c 不会</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">where b = <span class="number">1</span> and c = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>此时不会命中该组合索引</p>
+<h3 id="普通索引和唯一索引该怎么选择"><a href="#普通索引和唯一索引该怎么选择" class="headerlink" title="普通索引和唯一索引该怎么选择?"></a>普通索引和唯一索引该怎么选择?</h3><ul>
+<li>查询<ul>
+<li>当普通索引为条件时查询到数据会一直扫描,直到扫到不同的值</li>
+<li>当唯一索引为查询条件时,查到该数据会直接返回,不会继续扫表</li>
+</ul>
+</li>
+<li>更新<ul>
+<li>普通索引会直接将操作更新到 change buffer 中,然后结束</li>
+<li>唯一索引需要判断数据是否冲突，不能使用change buffer</li>
+</ul>
+</li>
+</ul>
+<p>适合场景：</p>
+<ul>
+<li>普通索引适合<strong>读多写少</strong>的情况，尤其是在写完，立马就读的场景是不能使用的（原因是会增加changebuffer 的维护成本）</li>
+<li>一般不建议使用唯一索引</li>
+</ul>
+<h3 id="什么是事务-其特性是什么"><a href="#什么是事务-其特性是什么" class="headerlink" title="什么是事务?其特性是什么?"></a>什么是事务?其特性是什么?</h3><p>事务是指是程序中一系列操作必须全部成功完成，有一个失败则全部失败。</p>
+<img src="https://img-blog.csdnimg.cn/img_convert/6d4384f30d148e586ee353b97e1f0fef.png" alt="6d4384f30d148e586ee353b97e1f0fef.png" style="zoom:50%;" />
+
+<p>特性</p>
+<ul>
+<li><strong>「1.原子性（Atomicity）」</strong>：要么全部执行成功，要么全部不执行。</li>
+<li><strong>「2.一致性（Consistency）」</strong>：事务前后数据的完整性必须保持一致。</li>
+<li><strong>「3.隔离性（Isolation）」</strong>：隔离性是当多个事务同事触发时，不能被其他事务的操作所干扰，多个并发事务之间要相互隔离。</li>
+<li><strong>「4.持久性（Durability）」</strong>：事务完成之后的改变是永久的。</li>
+</ul>
+<h3 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别?"></a>事务的隔离级别?</h3><ul>
+<li>1.<strong>「读提交」</strong>:即能够<strong>「读取到那些已经提交」</strong>的数据</li>
+<li>2.<strong>「读未提交」</strong>:即能够<strong>「读取到没有被提交」</strong>的数据</li>
+<li>3.<strong>「可重复读」</strong>:可重复读指的是在一个事务内，最开始读到的数据和事务结束前的<strong>「任意时刻读到的同一批数据都是一致的」</strong></li>
+<li>4.<strong>「可串行化」</strong>:最高事务隔离级别，不管多少事务，都是<strong>「依次按序一个一个执行」</strong></li>
+</ul>
+<img src="https://img-blog.csdnimg.cn/img_convert/875a4a8184a2eccf33ca1176799d540a.png" alt="875a4a8184a2eccf33ca1176799d540a.png" style="zoom: 67%;" />
+
+<ul>
+<li><strong>「脏读」</strong><ul>
+<li>脏读指的是<strong>「读到了其他事务未提交的数据」</strong>，未提交意味着这些数据可能会回滚，也就是可能最终不会存到数据库中，也就是不存在的数据。读到了并一定最终存在的数据，这就是脏读</li>
+</ul>
+</li>
+<li><strong>「不可重复读」</strong><ul>
+<li>对比可重复读，不可重复读指的是在同一事务内，<strong>「不同的时刻读到的同一批数据可能是不一样的」</strong>。</li>
+</ul>
+</li>
+<li><strong>「幻读」</strong><ul>
+<li>幻读是针对数据插入（INSERT）操作来说的。假设事务A对某些行的内容作了更改，但是还未提交，此时事务B插入了与事务A更改前的记录相同的记录行，并且在事务A提交之前先提交了，而这时，在事务A中查询，会发现<strong>「好像刚刚的更改对于某些数据未起作用」</strong>，但其实是事务B刚插入进来的这就叫幻读</li>
+</ul>
+</li>
+</ul>
+<h3 id="binlog-是做什么的"><a href="#binlog-是做什么的" class="headerlink" title="binlog 是做什么的?"></a>binlog 是做什么的?</h3><p>binlog 是归档日志，属于 Server 层的日志，是一个二进制格式的文件，用于<strong>「记录用户对数据库更新的SQL语句信息」</strong>。</p>
+<p>主要作用</p>
+<ul>
+<li>主从复制</li>
+<li>数据恢复</li>
+</ul>
+<h3 id="undolog-是做什么的"><a href="#undolog-是做什么的" class="headerlink" title="undolog 是做什么的?"></a>undolog 是做什么的?</h3><p>undolog 是 InnoDB 存储引擎的日志，用于保证数据的原子性，<strong>「保存了事务发生之前的数据的一个版本，也就是说记录的是数据是修改之前的数据，可以用于回滚」</strong>，同时可以提供多版本并发控制下的读（MVCC）。</p>
+<p>主要作用</p>
+<ul>
+<li>事务回滚</li>
+<li>实现多版本控制(MVCC)</li>
+</ul>
+<h3 id="relaylog-是做什么的"><a href="#relaylog-是做什么的" class="headerlink" title="relaylog 是做什么的?"></a>relaylog 是做什么的?</h3><p>relaylog 是中继日志，<strong>「在主从同步的时候使用到」</strong>，它是一个中介临时的日志文件，用于存储从master节点同步过来的binlog日志内容。</p>
+<img src="https://img-blog.csdnimg.cn/img_convert/682ebc9c026cc8b81bc74ca0115f79df.png" alt="682ebc9c026cc8b81bc74ca0115f79df.png" style="zoom:67%;" />
+
+<p>master 主节点的 binlog 传到 slave 从节点后，被写入 relay log 里，从节点的 slave sql 线程从 relaylog 里读取日志然后应用到 slave 从节点本地。从服务器 I/O 线程将主服务器的二进制日志读取过来记录到从服务器本地文件，然后 SQL 线程会读取 relay-log 日志的内容并应用到从服务器，从而<strong>「使从服务器和主服务器的数据保持一致」</strong>。</p>
+<h3 id="redolog-是做什么的"><a href="#redolog-是做什么的" class="headerlink" title="redolog 是做什么的?"></a>redolog 是做什么的?</h3><p>redolog 是 <strong>「InnoDB 存储引擎所特有的一种日志」</strong>，用于记录事务操作的变化，记录的是数据修改之后的值，不管事务是否提交都会记录下来。</p>
+<p>可以做<strong>「数据恢复并且提供 crash-safe 能力」</strong></p>
+<p>当有增删改相关的操作时，会先记录到 Innodb 中，并修改缓存页中的数据，<strong>「等到 mysql 闲下来的时候才会真正的将 redolog 中的数据写入到磁盘当中」</strong>。</p>
+<h3 id="redolog-是怎么记录日志的"><a href="#redolog-是怎么记录日志的" class="headerlink" title="redolog 是怎么记录日志的?"></a>redolog 是怎么记录日志的?</h3><img src="https://img-blog.csdnimg.cn/img_convert/9b9820761e6fc6d9b2644f70fea0c878.png" alt="9b9820761e6fc6d9b2644f70fea0c878.png" style="zoom:67%;" />
+
+<p>InnoDB 的 redo log 是固定大小的，比如可以配置为一组4个文件，每个文件的大小是1GB，那么总共就可以记录4GB的操作。<strong>「从头开始写，写到末尾就又回到开头循环写」</strong>。</p>
+<p>所以，如果数据写满了但是还没有来得及将数据真正的刷入磁盘当中，那么就会发生<strong>「内存抖动」</strong>现象，从肉眼的角度来观察会发现 mysql 会宕机一会儿，此时就是正在刷盘了。</p>
+<h3 id="redolog-和-binlog-的区别是什么"><a href="#redolog-和-binlog-的区别是什么" class="headerlink" title="redolog 和 binlog 的区别是什么?"></a>redolog 和 binlog 的区别是什么?</h3><img src="https://img-blog.csdnimg.cn/img_convert/b83959086f28bb82d5dd174a12af8bdc.png" alt="b83959086f28bb82d5dd174a12af8bdc.png" style="zoom:50%;" />
+
+<ul>
+<li><strong>「redolog」</strong> 是 <strong>「Innodb」</strong> 独有的日志，而 <strong>「binlog」</strong> 是 <strong>「server」</strong> 层的，所有的存储引擎都有使用到</li>
+<li><strong>「redolog」</strong> 记录了<strong>「具体的数值」</strong>，对某个页做了什么修改，<strong>「binlog」</strong> 记录的<strong>「操作内容」</strong></li>
+<li><strong>「binlog」</strong> 大小达到上限或者 flush log <strong>「会生成一个新的文件」</strong>，而 <strong>「redolog」</strong> 有固定大小<strong>「只能循环利用」</strong></li>
+<li><strong>「binlog 日志没有 crash-safe 的能力」</strong>，只能用于归档。而 redo log 有 crash-safe 能力。</li>
+<li>binlog 是server 层，redolog 是存储层</li>
+</ul>
+<h3 id="说一说-mvcc-吧，有什么作用"><a href="#说一说-mvcc-吧，有什么作用" class="headerlink" title="说一说 mvcc 吧，有什么作用?"></a>说一说 mvcc 吧，有什么作用?</h3><p>MVCC:多版本并发控制，是现代数据库(包括 MySQL、Oracle、PostgreSQL 等)引擎实现中常用的处理读写冲突的手段，目的在于<strong>「提高数据库高并发场景下的吞吐性能」</strong>。</p>
+<p>在 MVCC 协议下，每个读操作会看到一个一致性的快照，<strong>「这个快照是基于整个库的」</strong>，并且可以实现非阻塞的读，用于<strong>「支持读提交和可重复读隔离级别的实现」</strong>。</p>
+<p>MVCC 允许数据具有多个版本，这个版本可以是时间戳或者是全局递增的事务 ID，在同一个时间点，不同的事务看到的数据是不同的，这个修改的数据是<strong>「记录在 undolog 中」</strong>的。</p>
+<h3 id="一条-Sql-语句查询一直慢会是什么原因"><a href="#一条-Sql-语句查询一直慢会是什么原因" class="headerlink" title="一条 Sql 语句查询一直慢会是什么原因?"></a>一条 Sql 语句查询一直慢会是什么原因?</h3><img src="https://img-blog.csdnimg.cn/img_convert/d52351ca45402fd46125dc2e59be0a76.png" alt="d52351ca45402fd46125dc2e59be0a76.png" style="zoom:50%;" />
+
+<ul>
+<li><strong>「1.没有用到索引」</strong><ul>
+<li>比如函数导致的索引失效，或者本身就没有加索引</li>
+</ul>
+</li>
+<li><strong>「2.表数据量太大」</strong><ul>
+<li>考虑分库分表吧</li>
+</ul>
+</li>
+<li><strong>「3.优化器选错了索引」</strong><ul>
+<li><strong>「考虑使用」</strong> force index 强制走索引</li>
+</ul>
+</li>
+</ul>
+<h3 id="一条-Sql-语句查询偶尔慢会是什么原因"><a href="#一条-Sql-语句查询偶尔慢会是什么原因" class="headerlink" title="一条 Sql 语句查询偶尔慢会是什么原因?"></a>一条 Sql 语句查询偶尔慢会是什么原因?</h3><img src="https://img-blog.csdnimg.cn/img_convert/bd6876ff641aba17165df1c7ef249df5.png" alt="bd6876ff641aba17165df1c7ef249df5.png" style="zoom: 67%;" />
+
+<ul>
+<li><strong>「1. 数据库在刷新脏页」</strong><ul>
+<li>比如 <strong>「redolog 写满了」</strong>，<strong>「内存不够用了」</strong>释放内存如果是脏页也需要刷，mysql <strong>「正常空闲状态刷脏页」</strong></li>
+</ul>
+</li>
+<li><strong>「2. 没有拿到锁」</strong></li>
+</ul>
+<h3 id="Mysql-主从之间是怎么同步数据的"><a href="#Mysql-主从之间是怎么同步数据的" class="headerlink" title="Mysql 主从之间是怎么同步数据的?"></a>Mysql 主从之间是怎么同步数据的?</h3><ul>
+<li>1.master 主库将此次更新的事件类型<strong>「写入到主库的 binlog 文件」</strong>中</li>
+<li>2.master <strong>「创建 log dump 线程通知 slave」</strong> 需要更新数据</li>
+<li>3.<strong>「slave」</strong> 向 master 节点发送请求，<strong>「将该 binlog 文件内容存到本地的 relaylog 中」</strong></li>
+<li>4.<strong>「slave 开启 sql 线程」</strong>读取 relaylog 中的内容，<strong>「将其中的内容在本地重新执行一遍」</strong>，完成主从数据同步</li>
+</ul>
+<img src="https://img-blog.csdnimg.cn/img_convert/fae385cd4a137a82e28b52c9eb9737a5.png" alt="fae385cd4a137a82e28b52c9eb9737a5.png" style="zoom: 67%;" />
+
+<p><strong>「同步策略」</strong>：</p>
+<ul>
+<li>1.<strong>「全同步复制」</strong>：主库强制同步日志到从库，等全部从库执行完才返回客户端，性能差</li>
+<li>2.<strong>「半同步复制」</strong>：主库收到至少一个从库确认就认为操作成功，从库写入日志成功返回ack确认</li>
+</ul>
+<h3 id="主从延迟要怎么解决"><a href="#主从延迟要怎么解决" class="headerlink" title="主从延迟要怎么解决?"></a>主从延迟要怎么解决?</h3><ul>
+<li>1.MySQL 5.6 版本以后，提供了一种<strong>「并行复制」</strong>的方式，通过将 SQL 线程转换为多个 work 线程来进行重放</li>
+<li>2.<strong>「提高机器配置」</strong>(王道)</li>
+<li>3.在业务初期就选择合适的分库、分表策略，<strong>「避免单表单库过大」</strong>带来额外的复制压力</li>
+<li>4.<strong>「避免长事务」</strong></li>
+<li>5.<strong>「避免让数据库进行各种大量运算」</strong></li>
+<li>6.对于一些对延迟很敏感的业务<strong>「直接使用主库读」</strong></li>
+</ul>
+<h3 id="删除表数据后表的大小却没有变动-这是为什么"><a href="#删除表数据后表的大小却没有变动-这是为什么" class="headerlink" title="删除表数据后表的大小却没有变动,这是为什么?"></a>删除表数据后表的大小却没有变动,这是为什么?</h3><p>在使用 delete 删除数据时，其实对应的数据行并不是真正的删除，是<strong>「逻辑删除」</strong>，InnoDB 仅仅是将其<strong>「标记成可复用的状态」</strong>，所以表空间不会变小</p>
+<h3 id="为什么-VarChar-建议不要超过255"><a href="#为什么-VarChar-建议不要超过255" class="headerlink" title="为什么 VarChar 建议不要超过255?"></a>为什么 VarChar 建议不要超过255?</h3><img src="https://img-blog.csdnimg.cn/img_convert/e7172b78774dcb6d1679d262491d3a32.png" alt="e7172b78774dcb6d1679d262491d3a32.png" style="zoom:67%;" />
+
+<p>innodb索引列最大长度不能超过767byte，等同于utf8mb4编码下，前缀索引列不能超过191，可以通过innodb_large_prefix参数修改+修改行格式来变大</p>
+<h3 id="分布式式事务怎么实现"><a href="#分布式式事务怎么实现" class="headerlink" title="分布式式事务怎么实现?"></a>分布式式事务怎么实现?</h3><ul>
+<li>1.<strong>「本地消息表」</strong></li>
+<li>2.<strong>「消息事务」</strong></li>
+<li>3.<strong>「二阶段提交」</strong></li>
+<li>4.<strong>「三阶段提交」</strong></li>
+<li>5.<strong>「TCC」</strong></li>
+<li>6.<strong>「最大努力通知」</strong></li>
+<li>7.<strong>「Seata 框架」</strong></li>
+</ul>
+<p><a href="https://blog.csdn.net/qq_43513205/article/details/114265756">七种分布式事务的解决方案，一次讲给你听</a></p>
+<h3 id="Mysql-中有哪些锁"><a href="#Mysql-中有哪些锁" class="headerlink" title="Mysql 中有哪些锁?"></a>Mysql 中有哪些锁?</h3><p>以下并不全，主要理解下锁的意义即可</p>
+<ul>
+<li>基于锁的属性分类：共享锁、排他锁</li>
+<li>基于锁的粒度分类：表锁、行锁、记录锁、间隙锁、临键锁</li>
+<li>基于锁的状态分类：意向共享锁、意向排它锁、死锁</li>
+</ul>
+<h3 id="为什么不要使用长事务"><a href="#为什么不要使用长事务" class="headerlink" title="为什么不要使用长事务?"></a>为什么不要使用长事务?</h3><img src="https://img-blog.csdnimg.cn/img_convert/5cca8dadf562adaf140437cf95001d59.png" alt="5cca8dadf562adaf140437cf95001d59.png" style="zoom:67%;" />
+
+<ul>
+<li>1.并发情况下，数据库<strong>「连接池容易被撑爆」</strong></li>
+<li>2.<strong>「容易造成大量的阻塞和锁超时」</strong><ul>
+<li>长事务还占用锁资源，也可能拖垮整个库，</li>
+</ul>
+</li>
+<li>3.执行时间长，容易造成<strong>「主从延迟」</strong></li>
+<li>4.<strong>「回滚所需要的时间比较长」</strong><ul>
+<li>事务越长整个时间段内的事务也就越多</li>
+</ul>
+</li>
+<li>5.<strong>「undolog 日志越来越大」</strong><ul>
+<li>长事务意味着系统里面会存在很老的事务视图。由于这些事务随时可能访问数据库里面的任何数据，所以这个事务提交之前，数据库里面它可能用到的回滚记录都必须保留，这就会导致大量占用存储空间。</li>
+</ul>
+</li>
+</ul>
+<h3 id="buffer-pool-是做什么的"><a href="#buffer-pool-是做什么的" class="headerlink" title="buffer pool 是做什么的?"></a>buffer pool 是做什么的?</h3><p>buffer pool 是一块内存区域，为了<strong>「提高数据库的性能」</strong>，当数据库操作数据的时候，把硬盘上的数据加载到 buffer pool，不直接和硬盘打交道，操作的是 buffer pool 里面的数据，数据库的增删改查都是在 buffer pool 上进行</p>
+<p>buffer pool 里面缓存的数据内容也是一个个数据页</p>
+<p>其中<strong>「有三大双向链表」</strong>:</p>
+<ul>
+<li><strong>「free 链表」</strong><ul>
+<li>用于帮助我们找到空闲的缓存页</li>
+</ul>
+</li>
+<li><strong>「flush 链表」</strong><ul>
+<li>用于找到脏缓存页，也就是需要刷盘的缓存页</li>
+</ul>
+</li>
+<li><strong>「lru 链表」</strong><ul>
+<li>用来淘汰不常被访问的缓存页，分为热数据区和冷数据区，冷数据区主要存放那些不常被用到的数据</li>
+</ul>
+</li>
+</ul>
+<p>预读机制:</p>
+<ul>
+<li>Buffer Pool 有一项特技叫预读，存储引擎的接口在被 Server 层调用时，会在响应的同时进行预判，将下次可能用到的数据和索引加载到 Buffer Pool</li>
+</ul>
+<h3 id="说说你的-Sql-调优思路吧"><a href="#说说你的-Sql-调优思路吧" class="headerlink" title="说说你的 Sql 调优思路吧"></a>说说你的 Sql 调优思路吧</h3><img src="https://img-blog.csdnimg.cn/img_convert/e6d0dffc2b67df74c5ebc558dcb3e9ff.png" alt="e6d0dffc2b67df74c5ebc558dcb3e9ff.png" style="zoom:67%;" />
+
+<ul>
+<li>1.<strong>「表结构优化」</strong><ul>
+<li>1.1拆分字段</li>
+<li>1.2字段类型的选择</li>
+<li>1.3字段类型大小的限制</li>
+<li>1.4合理的增加冗余字段</li>
+<li>1.5新建字段一定要有默认值</li>
+</ul>
+</li>
+<li>2.<strong>「索引方面」</strong><ul>
+<li>2.1索引字段的选择</li>
+<li>2.2利用好mysql支持的索引下推，覆盖索引等功能</li>
+<li>2.3唯一索引和普通索引的选择</li>
+</ul>
+</li>
+<li>3.<strong>「查询语句方面」</strong><ul>
+<li>3.1避免索引失效</li>
+<li>3.2合理的书写where条件字段顺序</li>
+<li>3.3小表驱动大表</li>
+<li>3.4可以使用force index()防止优化器选错索引</li>
+</ul>
+</li>
+<li>4.<strong>「分库分表」</strong></li>
+</ul>
+]]></content>
+      <categories>
+        <category>八股文</category>
+      </categories>
+      <tags>
+        <tag>面试</tag>
+        <tag>mysql</tag>
       </tags>
   </entry>
 </search>
