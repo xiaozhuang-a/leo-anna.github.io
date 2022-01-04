@@ -21,28 +21,31 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"www.leoyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
-<meta name="description" content="包括数字转链表，翻转链表的几种方式（双链表，双指针）">
+<meta name="description" content="xtrabackup备份工具仅支持innodb和xtraDB两种存储引擎 包含xtrabackup和innbackupex两个工具">
 <meta property="og:type" content="article">
-<meta property="og:title" content="链表">
-<meta property="og:url" content="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/index.html">
+<meta property="og:title" content="xtrabackup备份工具 简单介绍">
+<meta property="og:url" content="http://www.leoyun.top/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/index.html">
 <meta property="og:site_name" content="勇往直前">
-<meta property="og:description" content="包括数字转链表，翻转链表的几种方式（双链表，双指针）">
+<meta property="og:description" content="xtrabackup备份工具仅支持innodb和xtraDB两种存储引擎 包含xtrabackup和innbackupex两个工具">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-12-26T14:49:35.000Z">
-<meta property="article:modified_time" content="2021-12-26T07:56:47.288Z">
+<meta property="og:image" content="https://images2018.cnblogs.com/blog/1349539/201807/1349539-20180727165438283-1118004015.png">
+<meta property="article:published_time" content="2022-01-04T15:33:43.000Z">
+<meta property="article:modified_time" content="2022-01-04T03:22:53.901Z">
 <meta property="article:author" content="小庄">
-<meta property="article:tag" content="链表">
+<meta property="article:tag" content="xtrabackup">
+<meta property="article:tag" content="备份">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images2018.cnblogs.com/blog/1349539/201807/1349539-20180727165438283-1118004015.png">
 
 
-<link rel="canonical" href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/">
+<link rel="canonical" href="http://www.leoyun.top/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/","path":"2021/12/26/链表/","title":"链表"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/","path":"2022/01/04/xtrabackup备份工具/","title":"xtrabackup备份工具 简单介绍"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>链表 | 勇往直前</title>
+<title>xtrabackup备份工具 简单介绍 | 勇往直前</title>
   
 
 
@@ -136,7 +139,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -149,6 +152,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">xtrabackup备份工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86%E5%92%8C%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">原理和执行过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%87%E4%BB%BD%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="nav-number">1.2.</span> <span class="nav-text">备份文件内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF"><span class="nav-number">1.3.</span> <span class="nav-text">使用姿势</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%A8%E9%87%8F%E5%A4%87%E4%BB%BD%E5%92%8C%E6%81%A2%E5%A4%8D"><span class="nav-number">1.3.1.</span> <span class="nav-text">全量备份和恢复</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%9E%E9%87%8F%E5%A4%87%E4%BB%BD%E5%92%8C%E6%81%A2%E5%A4%8D"><span class="nav-number">1.3.2.</span> <span class="nav-text">增量备份和恢复</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -213,7 +217,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/">
+    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/20211210231228.png">
@@ -226,7 +230,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          链表
+          xtrabackup备份工具 简单介绍
         </h1>
 
         <div class="post-meta-container">
@@ -238,7 +242,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-12-26 22:49:35 / 修改时间：15:56:47" itemprop="dateCreated datePublished" datetime="2021-12-26T22:49:35+08:00">2021-12-26</time>
+      <time title="创建时间：2022-01-04 23:33:43 / 修改时间：11:22:53" itemprop="dateCreated datePublished" datetime="2022-01-04T23:33:43+08:00">2022-01-04</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -246,7 +250,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构和算法</span></a>
+          <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
         </span>
     </span>
 
@@ -264,14 +268,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.2k</span>
+      <span>2.6k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
+      <span>2 分钟</span>
     </span>
 </div>
 
@@ -282,10 +286,45 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
+        <h2 id="xtrabackup备份工具"><a href="#xtrabackup备份工具" class="headerlink" title="xtrabackup备份工具"></a>xtrabackup备份工具</h2><p>仅支持innodb和xtraDB两种存储引擎</p>
+<p>包含xtrabackup和innbackupex两个工具</p>
 <span id="more"></span>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="原理和执行过程"><a href="#原理和执行过程" class="headerlink" title="原理和执行过程"></a>原理和执行过程</h3><img src="https://images2018.cnblogs.com/blog/1349539/201807/1349539-20180727165438283-1118004015.png" alt="img" style="zoom:67%;" />
+
+<p>（1）innobackupex启动后，会先fork一个进程，用于启动xtrabackup，然后等待xtrabackup备份ibd数据文件；</p>
+<p>（2）xtrabackup在备份innoDB数据是，有2种线程：redo拷贝线程和ibd数据拷贝线程。xtrabackup进程开始执行后，会启动一个redo拷贝的线程，用于从最新的checkpoint点开始顺序拷贝redo.log；再启动ibd数据拷贝线程，进行拷贝ibd数据。这里是先启动redo拷贝线程的。在此阶段，innobackupex进行处于等待状态（等待文件被创建）</p>
+<p>（4）xtrabackup拷贝完成ibd数据文件后，会通知innobackupex（通过创建文件），同时xtrabackup进入等待状态（redo线程依旧在拷贝redo.log）</p>
+<p>（5）innobackupex收到xtrabackup通知后哦，执行FLUSH TABLES WITH READ LOCK（FTWRL），取得一致性位点，然后开始备份非InnoDB文件（如frm、MYD、MYI、CSV、opt、par等格式的文件），在拷贝非InnoDB文件的过程当中，数据库处于全局只读状态。</p>
+<p>（6）当innobackup拷贝完所有的非InnoDB文件后，会通知xtrabackup，通知完成后，进入等待状态；</p>
+<p>（7）xtrabackup收到innobackupex备份完成的通知后，会停止redo拷贝线程，然后通知innobackupex，redo.log文件拷贝完成；</p>
+<p>（8）innobackupex收到redo.log备份完成后，就进行解锁操作，执行：UNLOCK TABLES；</p>
+<p>（9）最后innbackupex和xtrabackup进程各自释放资源，写备份元数据信息等，innobackupex等xtrabackup子进程结束后退出。</p>
+<p>总结：</p>
+<ul>
+<li>xtrabackup用于备份数据文件和redolog；innobackupex 主进程，备份非innodb文件，全局锁</li>
+<li>完成的备份文件包括数据文件的全量备份以及在备份数据文件期间产生的redolog日志</li>
+</ul>
+<h3 id="备份文件内容"><a href="#备份文件内容" class="headerlink" title="备份文件内容"></a>备份文件内容</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(1)xtrabackup_checkpoints -- 备份类型(如完全或增量)、备份状态(如是否已经为prepared状态)和LSN(日志序列号)</span><br><span class="line">(2)xtrabackup_binlog_info  --  mysql服务器当前正在使用的二进制日志文件及备份这一刻位置二进制日志时间的位置。</span><br><span class="line">(3)xtrabackup_binlog_pos_innodb  --  二进制日志文件及用于InnoDB或XtraDB表的二进制日志文件的当前position。</span><br><span class="line">(4)xtrabackup_binary  --  备份中用到的xtrabackup的可执行文件；</span><br><span class="line">(5)backup-my.cnf  --  备份命令用到的配置选项信息：</span><br></pre></td></tr></table></figure>
+
+<p>在使用innobackupex进行备份时，还可以使用–no-timestamp选项来阻止命令自动创建一个以时间命名的目录：如此一来，innobackupex命令将会创建一个BACKUP-DIR目录来存储备份数据</p>
+<h3 id="使用姿势"><a href="#使用姿势" class="headerlink" title="使用姿势"></a>使用姿势</h3><p>备份 要开启mysql</p>
+<p>恢复备份要关闭mysql</p>
+<h4 id="全量备份和恢复"><a href="#全量备份和恢复" class="headerlink" title="全量备份和恢复"></a>全量备份和恢复</h4><p>命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">备份：</span><br><span class="line">innobackupex --user=DBUSER --password=DBUSERPASS --defaults-file=/etc/my.cnf /path/to/BACKUP-DIR/</span><br><span class="line"><span class="meta">#</span><span class="bash">  innobackupex --user=root --password=123456 --host=127.0.0.1 /backups/</span>　 </span><br><span class="line"></span><br><span class="line">恢复：</span><br><span class="line">rm -rf /usr/local/mysql/data/ #删除新的数据库上面的所有data文件</span><br><span class="line">innobackupex --apply-log /backups/2018-07-30_11-04-55/  # 应用redolog文件到全量备份，保持数据一致性</span><br><span class="line">innobackupex --copy-back --defaults-file=/etc/my.cnf  /backups/2018-07-30_11-04-55/ #复制所有备份文件到新的数据库的DATADIR目录</span><br><span class="line"><span class="meta">#</span><span class="bash"> chown -R mysql.mysql /mydata/data/  <span class="comment">#判断是否需要为文件目录更改成mysql用户</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="增量备份和恢复"><a href="#增量备份和恢复" class="headerlink" title="增量备份和恢复"></a>增量备份和恢复</h4><p>xtrabackup_checkpoints中保存着LSN信息，记录日志的位置，每次增量备份都要保证lsn序号连续，也就是第一次增量备份要基于全量备份，之后的增量备份都要基于上一次的增量备份文件进行操作</p>
+<p>命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#备份</span></span><br><span class="line">innobackupex --user=root --password=123456 --host=127.0.0.1 /backups/  <span class="comment">#全量备份</span></span><br><span class="line">innobackupex --user=root --password=root  --host=127.0.0.1 --incremental /backups/ --incremental-basedir=/backups/2018-07-30_11-01-37 <span class="comment"># 基于全量备份进行增量备份</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#恢复</span></span><br><span class="line">rm -rf /usr/<span class="built_in">local</span>/mysql/data/ <span class="comment">#删除新的数据库上面的所有data文件</span></span><br><span class="line">innobackupex --apply-log --redo-only /backups/2018-07-30_11-01-37/ <span class="comment"># 对全量备份进行数据一致性操作</span></span><br><span class="line">innobackupex --apply-log --redo-only /backups/2018-07-30_11-01-37/ --incremental-dir=/backups/2018-07-30_13-51-47/ <span class="comment"># 同步增量进全量备份</span></span><br><span class="line">innobackupex --copy-back /backups/2018-07-30_11-01-37/ <span class="comment"># 复制备份文件到新数据库目录下</span></span><br><span class="line"><span class="comment"># chown -R mysql.mysql /mydata/data/  #判断是否需要为文件目录更改成mysql用户</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong></p>
+<ul>
+<li>innobackupex还有很多其他的参数，包括主从等很多可配置的参数，暂不说明</li>
+<li>增量备份恢复的时候要加上–redo-only</li>
+</ul>
+
     </div>
 
     
@@ -302,7 +341,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/" title="链表">http://www.leoyun.top/2021/12/26/链表/</a>
+      <a href="http://www.leoyun.top/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/" title="xtrabackup备份工具 简单介绍">http://www.leoyun.top/2022/01/04/xtrabackup备份工具/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -311,20 +350,21 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag"># 链表</a>
+              <a href="/tags/xtrabackup/" rel="tag"># xtrabackup</a>
+              <a href="/tags/%E5%A4%87%E4%BB%BD/" rel="tag"># 备份</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20linux%20%E7%AF%87/" rel="prev" title="面试八股文 linux 篇">
-                  <i class="fa fa-chevron-left"></i> 面试八股文 linux 篇
+                <a href="/2021/12/30/mvvc%E4%B8%8Eundolog/" rel="prev" title="mvvc与undolog">
+                  <i class="fa fa-chevron-left"></i> mvvc与undolog
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="next" title="二叉树">
-                  二叉树 <i class="fa fa-chevron-right"></i>
+                <a href="/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/" rel="next" title="mvvc与undolog">
+                  mvvc与undolog <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
