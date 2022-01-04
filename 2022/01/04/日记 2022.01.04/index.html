@@ -21,28 +21,30 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"www.leoyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
-<meta name="description" content="包括数字转链表，翻转链表的几种方式（双链表，双指针）">
+<meta name="description" content="日记 2022.01.04mysqlMHAMDL 每个语句都会隐式申请MDL锁  对数据的增删改查会申请 MDL读锁  对表结构变更DDL会申请MDL写锁  MDL写-读 互斥，写-写 互斥，读 -读 不互斥   申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁  在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞   DDL对备份的影响可能会存在主从延迟或者备份失败 全局锁">
 <meta property="og:type" content="article">
-<meta property="og:title" content="链表">
-<meta property="og:url" content="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/index.html">
+<meta property="og:title" content="mvvc与undolog">
+<meta property="og:url" content="http://www.leoyun.top/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/index.html">
 <meta property="og:site_name" content="勇往直前">
-<meta property="og:description" content="包括数字转链表，翻转链表的几种方式（双链表，双指针）">
+<meta property="og:description" content="日记 2022.01.04mysqlMHAMDL 每个语句都会隐式申请MDL锁  对数据的增删改查会申请 MDL读锁  对表结构变更DDL会申请MDL写锁  MDL写-读 互斥，写-写 互斥，读 -读 不互斥   申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁  在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞   DDL对备份的影响可能会存在主从延迟或者备份失败 全局锁">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-12-26T14:49:35.000Z">
-<meta property="article:modified_time" content="2021-12-26T07:56:47.288Z">
+<meta property="article:published_time" content="2022-01-04T15:33:43.000Z">
+<meta property="article:modified_time" content="2022-01-04T02:20:43.331Z">
 <meta property="article:author" content="小庄">
-<meta property="article:tag" content="链表">
+<meta property="article:tag" content="日记">
+<meta property="article:tag" content="FTWRL">
+<meta property="article:tag" content="MDL">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/">
+<link rel="canonical" href="http://www.leoyun.top/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/","path":"2021/12/26/链表/","title":"链表"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://www.leoyun.top/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/","path":"2022/01/04/日记 2022.01.04/","title":"mvvc与undolog"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>链表 | 勇往直前</title>
+<title>mvvc与undolog | 勇往直前</title>
   
 
 
@@ -136,7 +138,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -149,6 +151,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A5%E8%AE%B0-2022-01-04"><span class="nav-number">1.</span> <span class="nav-text">日记 2022.01.04</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql"><span class="nav-number">1.1.</span> <span class="nav-text">mysql</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MHA"><span class="nav-number">1.1.1.</span> <span class="nav-text">MHA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MDL"><span class="nav-number">1.1.2.</span> <span class="nav-text">MDL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DDL%E5%AF%B9%E5%A4%87%E4%BB%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">1.1.3.</span> <span class="nav-text">DDL对备份的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E9%94%81FTWRL"><span class="nav-number">1.1.4.</span> <span class="nav-text">全局锁FTWRL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#go"><span class="nav-number">1.2.</span> <span class="nav-text">go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#new%E5%92%8Cmake"><span class="nav-number">1.2.1.</span> <span class="nav-text">new和make</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%9F%E5%88%97"><span class="nav-number">1.2.2.</span> <span class="nav-text">队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#map%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.3.</span> <span class="nav-text">map原理</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -213,7 +216,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/">
+    <link itemprop="mainEntityOfPage" href="http://www.leoyun.top/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/20211210231228.png">
@@ -226,7 +229,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          链表
+          mvvc与undolog
         </h1>
 
         <div class="post-meta-container">
@@ -238,7 +241,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-12-26 22:49:35 / 修改时间：15:56:47" itemprop="dateCreated datePublished" datetime="2021-12-26T22:49:35+08:00">2021-12-26</time>
+      <time title="创建时间：2022-01-04 23:33:43 / 修改时间：10:20:43" itemprop="dateCreated datePublished" datetime="2022-01-04T23:33:43+08:00">2022-01-04</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -246,7 +249,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构和算法</span></a>
+          <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
         </span>
     </span>
 
@@ -264,7 +267,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.2k</span>
+      <span>530</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -282,10 +285,42 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
-<span id="more"></span>
+        <h1 id="日记-2022-01-04"><a href="#日记-2022-01-04" class="headerlink" title="日记 2022.01.04"></a>日记 2022.01.04</h1><h2 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h2><h3 id="MHA"><a href="#MHA" class="headerlink" title="MHA"></a>MHA</h3><h3 id="MDL"><a href="#MDL" class="headerlink" title="MDL"></a>MDL</h3><ul>
+<li><p>每个语句都会隐式申请MDL锁</p>
+</li>
+<li><p>对数据的增删改查会申请 MDL读锁</p>
+</li>
+<li><p>对表结构变更DDL会申请MDL写锁</p>
+</li>
+<li><p>MDL写-读 互斥，写-写 互斥，读 -读 不互斥 </p>
+</li>
+<li><p>申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁</p>
+</li>
+<li><p><strong>在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞</strong></p>
+</li>
+</ul>
+<h3 id="DDL对备份的影响"><a href="#DDL对备份的影响" class="headerlink" title="DDL对备份的影响"></a>DDL对备份的影响</h3><p>可能会存在主从延迟或者备份失败</p>
+<h3 id="全局锁FTWRL"><a href="#全局锁FTWRL" class="headerlink" title="全局锁FTWRL"></a>全局锁FTWRL</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 加锁</span><br><span class="line">Flush tables with read lock;</span><br><span class="line"># 解锁</span><br><span class="line">unlock tables</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使整库处于只读状态，主要用于备份时的获取一致性备份</li>
+<li>需要持有两把mdl锁，清理表缓存cache</li>
+</ul>
+<p>FTWRL过程：</p>
+<ol>
+<li>上全局读锁(lock_global_read_lock)；</li>
+<li>清理表缓存(close_cached_tables)；</li>
+<li>上全局COMMIT锁(make_global_read_lock_block_commit)。</li>
+</ol>
+<h2 id="go"><a href="#go" class="headerlink" title="go"></a>go</h2><h3 id="new和make"><a href="#new和make" class="headerlink" title="new和make"></a>new和make</h3><p><strong>所有的内存在 Go 中都是经过初始化的。</strong></p>
+<ul>
+<li>都是分配内存的内置函数</li>
+<li>new适用所有类型，分配内存，返回类型的零值的指针</li>
+<li>make只适用于slice、map、channel ，分配内存的同时会初始化</li>
+<li>new 分配的空间被清零， make 分配空间后，会进行初始化</li>
+</ul>
+<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><p>使用内置函数实现</p>
+<h3 id="map原理"><a href="#map原理" class="headerlink" title="map原理"></a>map原理</h3>
     </div>
 
     
@@ -302,7 +337,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="http://www.leoyun.top/2021/12/26/%E9%93%BE%E8%A1%A8/" title="链表">http://www.leoyun.top/2021/12/26/链表/</a>
+      <a href="http://www.leoyun.top/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/" title="mvvc与undolog">http://www.leoyun.top/2022/01/04/日记 2022.01.04/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -311,21 +346,20 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag"># 链表</a>
+              <a href="/tags/%E6%97%A5%E8%AE%B0/" rel="tag"># 日记</a>
+              <a href="/tags/FTWRL/" rel="tag"># FTWRL</a>
+              <a href="/tags/MDL/" rel="tag"># MDL</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2021/12/26/%E9%9D%A2%E8%AF%95%E5%85%AB%E8%82%A1%E6%96%87%20linux%20%E7%AF%87/" rel="prev" title="面试八股文 linux 篇">
-                  <i class="fa fa-chevron-left"></i> 面试八股文 linux 篇
+                <a href="/2021/12/30/mvvc%E4%B8%8Eundolog/" rel="prev" title="mvvc与undolog">
+                  <i class="fa fa-chevron-left"></i> mvvc与undolog
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" rel="next" title="两数之和">
-                  两数之和 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
