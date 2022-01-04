@@ -425,7 +425,7 @@
 <p>2、vim /etc/profile</p>
 <p>ulimit -SHn 64000</p>
 <p>** source /etc/profile //生效</p>
-</li>
+<span id="more"></span></li>
 <li><p>最大TCP连接数/etc/sysctl.conf的优化</p>
 <p>内核参数sysctl.conf的优化</p>
 <p>　　/etc/sysctl.conf 是用来控制linux网络的配置文件，对于依赖网络的程序（如web服务器和cache服务器）非常重要，</p>
