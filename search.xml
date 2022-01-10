@@ -21,7 +21,19 @@
 <li>持续学习mysql的知识</li>
 <li>参加了降本提效的项目，梳理数据库资源使用情况，缩容降配，小心操作！</li>
 </ol>
-<h3 id="收获"><a href="#收获" class="headerlink" title="收获"></a>收获</h3>]]></content>
+<h3 id="收获"><a href="#收获" class="headerlink" title="收获"></a>收获</h3><ul>
+<li>对数据库有了新的认识，从语法到使用规范、DDL规范再到数据层架构，从慢sql到存储引擎，从分析问题到各种监控参数的理解和分析，从业务需求到binlog分析，从死锁日志到死锁分析、锁类型学习，从全链路压测到影响rt的因素。</li>
+<li>系统运维，如rpm包制作，很不成熟，但是简单的可以做；接入层修改，如内部域名解析；</li>
+<li>对数据库中间件有了了解，如基于c/s的数据库连接管理中间件（分库分表，rt统计）等</li>
+<li>开发能力，负责了重构php系统，使用gin-vue-admin开发框架，从0到1的实现，从目录分布到main函数，从viper读取都是到gorm配置数据库连接，从梳理php模块到实现功能，从后端到前端vue，都有涉及，但是由于自己一个人在搞，几乎没有人指导，所以很多地方，写的不太好，开发进度总是很慢，这点需要反思，要记住，<strong>先实现，再优化</strong></li>
+</ul>
+<h3 id="经验总结"><a href="#经验总结" class="headerlink" title="经验总结"></a>经验总结</h3><ul>
+<li>开发项目的时候，<strong>先实现，再优化</strong>，既可以提高开发效率，还可以从更广的方位优化代码</li>
+<li>一定要有一个<strong>深入学习</strong>的方向，在探索其他技术的时候要持续学习这个，比如数据库mysql、mongodb</li>
+<li>一定要定期总结blog，比如一周一篇、一周两篇，在工作时确定好要总结的方向，结合平时总结以及深入了解写blog</li>
+<li>参与开源社区，经常逛github、juejin、公众号，看issue，尝试提pr</li>
+</ul>
+<h2 id="未来展望"><a href="#未来展望" class="headerlink" title="未来展望"></a>未来展望</h2>]]></content>
       <categories>
         <category>年终总结</category>
       </categories>
@@ -374,6 +386,8 @@
 <li>钻研mysql、redis等数据层，走架构师路线</li>
 <li>学习kubernetes，学开发，走SRE路线</li>
 </ul>
+<p>运维</p>
+<p>运维要拿到高薪不容易，途径就是往数据库、devops、linux、kubernetes等某一个方向钻研，就有一定的理解和经验，然后尝试不同的岗位，持续学习，拓展横向能力范围，同时为了提高开发能力，要参与开发项目，重写一些简单项目（github）</p>
 ]]></content>
       <categories>
         <category>职业发展</category>
