@@ -1,6 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>item2壁纸强烈推荐</title>
+    <url>/2022/01/20/iterm2%E5%A3%81%E7%BA%B8%E5%BC%BA%E7%83%88%E6%8E%A8%E8%8D%90/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>日记 2021.12.24</title>
+    <url>/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/</url>
+    <content><![CDATA[<h3 id="mysql-sql执行流程"><a href="#mysql-sql执行流程" class="headerlink" title="mysql sql执行流程"></a>mysql sql执行流程</h3><span id="more"></span>
+
+<img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" alt="img" style="zoom: 33%;" />
+
+<h3 id="redo-log和binlog"><a href="#redo-log和binlog" class="headerlink" title="redo log和binlog"></a>redo log和binlog</h3><p>二者的理解可以通过记账老板记账过程中使用的粉板和记账本</p>
+<p>二者日志都先是写到磁盘中，然后根据参数配置持久化磁盘中的（redolog 对应innodb_flush_log_at_trx_commit， binlog对应sync_binlog）</p>
+<img src="https://static001.geekbang.org/resource/image/2e/be/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png" alt="img" style="zoom:33%;" />
+
+<h4 id="redolog重做日志"><a href="#redolog重做日志" class="headerlink" title="redolog重做日志"></a>redolog重做日志</h4><ul>
+<li>内存更新后写入，提交时候时写入</li>
+<li>定期刷脏页，推进pos点，刷脏页的情况有redolog满了、正常关机、内存满了、空闲刷</li>
+<li>和binlog一起使用，两阶段提交，不能单独写完一个再去写另一个，原因是为了保证二者状态的逻辑一致性（一条sql在两个日志上的状态保持一致）<ul>
+<li>反证法解析<ul>
+<li>写完binlog，再去写redo log，写完第一个后crash，在binlog这边就意味着比redolog多了一个事务，redolog还没写，意味着还没落盘，如果存在主从同步，会产生数据不一致</li>
+<li>写完redo log，再去写binlog，写完redo log crash ，重启恢复数据根据redo log，成功恢复数据为最新的，但是binlog中没有这个事务，存在主从同步的话，也会存在产生数据不一致</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>innodb存储层实现</li>
+<li>循环写、顺序写，不能替代binlog</li>
+<li>实现了carsh-safe的能力</li>
+<li>物理日志，记录数据页上的实际变更操作</li>
+</ul>
+<h4 id="binlog归档日志"><a href="#binlog归档日志" class="headerlink" title="binlog归档日志"></a>binlog归档日志</h4><ul>
+<li>server层实现</li>
+<li>有三种格式statment 、rows、mixed，一般为rows</li>
+<li>逻辑日志，记录变更原始逻辑</li>
+</ul>
+<h3 id="唯一索引和普通索引"><a href="#唯一索引和普通索引" class="headerlink" title="唯一索引和普通索引"></a>唯一索引和普通索引</h3><ul>
+<li><p>唯一索引的查询效率是<strong>略高于</strong>普通索引的</p>
+</li>
+<li><p>从磁盘中读数据到内存中是按照数据页page来读取的</p>
+</li>
+</ul>
+<h4 id="change-buffer"><a href="#change-buffer" class="headerlink" title="change buffer"></a>change buffer</h4><ul>
+<li>普通索引会使用到change buffer 来优化更新语句，提高很高的性能，但是不适合写多读少的情况，尤其是写完数据再去读这条数据，会增加change buffer的维护成本</li>
+<li>唯一索引由于需要判断唯一性所以不能用change buffer，所以一般情况下建议使用普通索引，尤其是表量大的情况</li>
+<li>change buffer 是可以持久化的</li>
+<li>包括insert、update、delete操作</li>
+<li>更新后的select<ul>
+<li>如果是在内存中更新，则直接返回</li>
+<li>merge操作，如果是change buffer 中缓存，则从磁盘中读出数据，导入change buffer中的操作日志，生成一个数据版本，返回</li>
+</ul>
+</li>
+</ul>
+<h4 id="change-buffer和redolog"><a href="#change-buffer和redolog" class="headerlink" title="change buffer和redolog"></a>change buffer和redolog</h4><ul>
+<li>change buffer 节省的是随机读磁盘的io</li>
+<li>redlog 节省的是随机写磁盘的io，转换成顺序写</li>
+</ul>
+]]></content>
+      <categories>
+        <category>mysql</category>
+        <category>日记</category>
+      </categories>
+      <tags>
+        <tag>redolog和binlog</tag>
+        <tag>change buffer</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>2021年终总结-应届被“裁员” @蘑菇街</title>
     <url>/2022/01/09/2021%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93-%E5%BA%94%E5%B1%8A%E8%A2%AB%E2%80%9C%E8%A3%81%E5%91%98%E2%80%9D%20@%E8%98%91%E8%8F%87%E8%A1%97/</url>
     <content><![CDATA[<p><strong>工作时间：蘑菇街 202107~202112</strong></p>
@@ -113,9 +181,70 @@
       </tags>
   </entry>
   <entry>
-    <title>item2壁纸强烈推荐</title>
-    <url>/2022/01/20/iterm2%E5%A3%81%E7%BA%B8%E5%BC%BA%E7%83%88%E6%8E%A8%E8%8D%90/</url>
-    <content><![CDATA[]]></content>
+    <title>二叉树</title>
+    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
+    <content><![CDATA[<p>二叉树的三种遍历方式</p>
+<span id="more"></span>
+
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>二叉树</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>xtrabackup备份工具 简单介绍</title>
+    <url>/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/</url>
+    <content><![CDATA[<h2 id="xtrabackup备份工具"><a href="#xtrabackup备份工具" class="headerlink" title="xtrabackup备份工具"></a>xtrabackup备份工具</h2><p>仅支持innodb和xtraDB两种存储引擎</p>
+<p>包含xtrabackup和innbackupex两个工具</p>
+<span id="more"></span>
+
+<h3 id="原理和执行过程"><a href="#原理和执行过程" class="headerlink" title="原理和执行过程"></a>原理和执行过程</h3><img src="https://gitee.com/leo_anna/image/raw/master/img//20220104152425.png" alt="image-20220104152425516" style="zoom: 40%;" />
+
+<p>（1）innobackupex启动后，会先fork一个进程，用于启动xtrabackup，然后等待xtrabackup备份ibd数据文件；</p>
+<p>（2）xtrabackup在备份innoDB数据是，有2种线程：redo拷贝线程和ibd数据拷贝线程。xtrabackup进程开始执行后，会启动一个redo拷贝的线程，用于从最新的checkpoint点开始顺序拷贝redo.log；再启动ibd数据拷贝线程，进行拷贝ibd数据。这里是先启动redo拷贝线程的。在此阶段，innobackupex进行处于等待状态（等待文件被创建）</p>
+<p>（4）xtrabackup拷贝完成ibd数据文件后，会通知innobackupex（通过创建文件），同时xtrabackup进入等待状态（redo线程依旧在拷贝redo.log）</p>
+<p>（5）innobackupex收到xtrabackup通知后哦，执行FLUSH TABLES WITH READ LOCK（FTWRL），取得一致性位点，然后开始备份非InnoDB文件（如frm、MYD、MYI、CSV、opt、par等格式的文件），在拷贝非InnoDB文件的过程当中，数据库处于全局只读状态。</p>
+<p>（6）当innobackup拷贝完所有的非InnoDB文件后，会通知xtrabackup，通知完成后，进入等待状态；</p>
+<p>（7）xtrabackup收到innobackupex备份完成的通知后，会停止redo拷贝线程，然后通知innobackupex，redo.log文件拷贝完成；</p>
+<p>（8）innobackupex收到redo.log备份完成后，就进行解锁操作，执行：UNLOCK TABLES；</p>
+<p>（9）最后innbackupex和xtrabackup进程各自释放资源，写备份元数据信息等，innobackupex等xtrabackup子进程结束后退出。</p>
+<p>总结：</p>
+<ul>
+<li>xtrabackup用于备份数据文件和redolog；innobackupex 主进程，备份非innodb文件，全局锁</li>
+<li>完成的备份文件包括数据文件的全量备份以及在备份数据文件期间产生的redolog日志</li>
+</ul>
+<h3 id="备份文件内容"><a href="#备份文件内容" class="headerlink" title="备份文件内容"></a>备份文件内容</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">(1)xtrabackup_checkpoints -- 备份类型(如完全或增量)、备份状态(如是否已经为prepared状态)和LSN(日志序列号)</span><br><span class="line">(2)xtrabackup_binlog_info  --  mysql服务器当前正在使用的二进制日志文件及备份这一刻位置二进制日志时间的位置。</span><br><span class="line">(3)xtrabackup_binlog_pos_innodb  --  二进制日志文件及用于InnoDB或XtraDB表的二进制日志文件的当前position。</span><br><span class="line">(4)xtrabackup_binary  --  备份中用到的xtrabackup的可执行文件；</span><br><span class="line">(5)backup-my.cnf  --  备份命令用到的配置选项信息：</span><br></pre></td></tr></table></figure>
+
+<p>在使用innobackupex进行备份时，还可以使用–no-timestamp选项来阻止命令自动创建一个以时间命名的目录：如此一来，innobackupex命令将会创建一个BACKUP-DIR目录来存储备份数据</p>
+<h3 id="使用姿势"><a href="#使用姿势" class="headerlink" title="使用姿势"></a>使用姿势</h3><p>备份 要开启mysql</p>
+<p>恢复备份要关闭mysql</p>
+<h4 id="全量备份和恢复"><a href="#全量备份和恢复" class="headerlink" title="全量备份和恢复"></a>全量备份和恢复</h4><p>命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">备份：</span><br><span class="line">innobackupex --user=DBUSER --password=DBUSERPASS --defaults-file=/etc/my.cnf /path/to/BACKUP-DIR/</span><br><span class="line"><span class="meta">#</span><span class="bash">  innobackupex --user=root --password=123456 --host=127.0.0.1 /backups/</span>　 </span><br><span class="line"></span><br><span class="line">恢复：</span><br><span class="line">rm -rf /usr/local/mysql/data/ #删除新的数据库上面的所有data文件</span><br><span class="line">innobackupex --apply-log /backups/2018-07-30_11-04-55/  # 应用redolog文件到全量备份，保持数据一致性</span><br><span class="line">innobackupex --copy-back --defaults-file=/etc/my.cnf  /backups/2018-07-30_11-04-55/ #复制所有备份文件到新的数据库的DATADIR目录</span><br><span class="line"><span class="meta">#</span><span class="bash"> chown -R mysql.mysql /mydata/data/  <span class="comment">#判断是否需要为文件目录更改成mysql用户</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="增量备份和恢复"><a href="#增量备份和恢复" class="headerlink" title="增量备份和恢复"></a>增量备份和恢复</h4><p>xtrabackup_checkpoints中保存着LSN信息，记录日志的位置，每次增量备份都要保证lsn序号连续，也就是第一次增量备份要基于全量备份，之后的增量备份都要基于上一次的增量备份文件进行操作</p>
+<p>命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#备份</span></span><br><span class="line">innobackupex --user=root --password=123456 --host=127.0.0.1 /backups/  <span class="comment">#全量备份</span></span><br><span class="line">innobackupex --user=root --password=root  --host=127.0.0.1 --incremental /backups/ --incremental-basedir=/backups/2018-07-30_11-01-37 <span class="comment"># 基于全量备份进行增量备份</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#恢复</span></span><br><span class="line">rm -rf /usr/<span class="built_in">local</span>/mysql/data/ <span class="comment">#删除新的数据库上面的所有data文件</span></span><br><span class="line">innobackupex --apply-log --redo-only /backups/2018-07-30_11-01-37/ <span class="comment"># 对全量备份进行数据一致性操作</span></span><br><span class="line">innobackupex --apply-log --redo-only /backups/2018-07-30_11-01-37/ --incremental-dir=/backups/2018-07-30_13-51-47/ <span class="comment"># 同步增量进全量备份</span></span><br><span class="line">innobackupex --copy-back /backups/2018-07-30_11-01-37/ <span class="comment"># 复制备份文件到新数据库目录下</span></span><br><span class="line"><span class="comment"># chown -R mysql.mysql /mydata/data/  #判断是否需要为文件目录更改成mysql用户</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong></p>
+<ul>
+<li>innobackupex还有很多其他的参数，包括主从等很多可配置的参数，暂不说明</li>
+<li>增量备份恢复的时候要加上–redo-only</li>
+</ul>
+]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>xtrabackup</tag>
+        <tag>备份</tag>
+      </tags>
   </entry>
   <entry>
     <title>mvvc与undolog</title>
@@ -179,69 +308,6 @@
       <tags>
         <tag>mvcc</tag>
         <tag>undolog</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>日记 2021.12.24</title>
-    <url>/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/</url>
-    <content><![CDATA[<h3 id="mysql-sql执行流程"><a href="#mysql-sql执行流程" class="headerlink" title="mysql sql执行流程"></a>mysql sql执行流程</h3><span id="more"></span>
-
-<img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" alt="img" style="zoom: 33%;" />
-
-<h3 id="redo-log和binlog"><a href="#redo-log和binlog" class="headerlink" title="redo log和binlog"></a>redo log和binlog</h3><p>二者的理解可以通过记账老板记账过程中使用的粉板和记账本</p>
-<p>二者日志都先是写到磁盘中，然后根据参数配置持久化磁盘中的（redolog 对应innodb_flush_log_at_trx_commit， binlog对应sync_binlog）</p>
-<img src="https://static001.geekbang.org/resource/image/2e/be/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png" alt="img" style="zoom:33%;" />
-
-<h4 id="redolog重做日志"><a href="#redolog重做日志" class="headerlink" title="redolog重做日志"></a>redolog重做日志</h4><ul>
-<li>内存更新后写入，提交时候时写入</li>
-<li>定期刷脏页，推进pos点，刷脏页的情况有redolog满了、正常关机、内存满了、空闲刷</li>
-<li>和binlog一起使用，两阶段提交，不能单独写完一个再去写另一个，原因是为了保证二者状态的逻辑一致性（一条sql在两个日志上的状态保持一致）<ul>
-<li>反证法解析<ul>
-<li>写完binlog，再去写redo log，写完第一个后crash，在binlog这边就意味着比redolog多了一个事务，redolog还没写，意味着还没落盘，如果存在主从同步，会产生数据不一致</li>
-<li>写完redo log，再去写binlog，写完redo log crash ，重启恢复数据根据redo log，成功恢复数据为最新的，但是binlog中没有这个事务，存在主从同步的话，也会存在产生数据不一致</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>innodb存储层实现</li>
-<li>循环写、顺序写，不能替代binlog</li>
-<li>实现了carsh-safe的能力</li>
-<li>物理日志，记录数据页上的实际变更操作</li>
-</ul>
-<h4 id="binlog归档日志"><a href="#binlog归档日志" class="headerlink" title="binlog归档日志"></a>binlog归档日志</h4><ul>
-<li>server层实现</li>
-<li>有三种格式statment 、rows、mixed，一般为rows</li>
-<li>逻辑日志，记录变更原始逻辑</li>
-</ul>
-<h3 id="唯一索引和普通索引"><a href="#唯一索引和普通索引" class="headerlink" title="唯一索引和普通索引"></a>唯一索引和普通索引</h3><ul>
-<li><p>唯一索引的查询效率是<strong>略高于</strong>普通索引的</p>
-</li>
-<li><p>从磁盘中读数据到内存中是按照数据页page来读取的</p>
-</li>
-</ul>
-<h4 id="change-buffer"><a href="#change-buffer" class="headerlink" title="change buffer"></a>change buffer</h4><ul>
-<li>普通索引会使用到change buffer 来优化更新语句，提高很高的性能，但是不适合写多读少的情况，尤其是写完数据再去读这条数据，会增加change buffer的维护成本</li>
-<li>唯一索引由于需要判断唯一性所以不能用change buffer，所以一般情况下建议使用普通索引，尤其是表量大的情况</li>
-<li>change buffer 是可以持久化的</li>
-<li>包括insert、update、delete操作</li>
-<li>更新后的select<ul>
-<li>如果是在内存中更新，则直接返回</li>
-<li>merge操作，如果是change buffer 中缓存，则从磁盘中读出数据，导入change buffer中的操作日志，生成一个数据版本，返回</li>
-</ul>
-</li>
-</ul>
-<h4 id="change-buffer和redolog"><a href="#change-buffer和redolog" class="headerlink" title="change buffer和redolog"></a>change buffer和redolog</h4><ul>
-<li>change buffer 节省的是随机读磁盘的io</li>
-<li>redlog 节省的是随机写磁盘的io，转换成顺序写</li>
-</ul>
-]]></content>
-      <categories>
-        <category>mysql</category>
-        <category>日记</category>
-      </categories>
-      <tags>
-        <tag>redolog和binlog</tag>
-        <tag>change buffer</tag>
       </tags>
   </entry>
   <entry>
@@ -320,90 +386,6 @@
       </tags>
   </entry>
   <entry>
-    <title>二叉树</title>
-    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
-    <content><![CDATA[<p>二叉树的三种遍历方式</p>
-<span id="more"></span>
-
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>二叉树</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>两数之和</title>
-    <url>/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</url>
-    <content><![CDATA[<p>两数之和</p>
-<span id="more"></span>
-<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211226154748.png" alt="image-20211226154748243"></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * </span></span><br><span class="line"><span class="comment">  * @param numbers int整型一维数组 </span></span><br><span class="line"><span class="comment">  * @param target int整型 </span></span><br><span class="line"><span class="comment">  * @return int整型一维数组</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoSum</span><span class="params">( numbers []<span class="keyword">int</span> ,  target <span class="keyword">int</span> )</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">	key := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">var</span> res []<span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> index,value := <span class="keyword">range</span> numbers&#123;</span><br><span class="line">			ret1,ok := key[target-value]</span><br><span class="line">			<span class="keyword">if</span> !ok&#123;</span><br><span class="line">				key[value] = index</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				res = <span class="built_in">append</span>(res,ret1+<span class="number">1</span>,index+<span class="number">1</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p>解释：a+b=c,则a、b必然存在列表中，所以遍历一遍列表，并判重字典就可以了</p>
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>两数之和</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>xtrabackup备份工具 简单介绍</title>
-    <url>/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/</url>
-    <content><![CDATA[<h2 id="xtrabackup备份工具"><a href="#xtrabackup备份工具" class="headerlink" title="xtrabackup备份工具"></a>xtrabackup备份工具</h2><p>仅支持innodb和xtraDB两种存储引擎</p>
-<p>包含xtrabackup和innbackupex两个工具</p>
-<span id="more"></span>
-
-<h3 id="原理和执行过程"><a href="#原理和执行过程" class="headerlink" title="原理和执行过程"></a>原理和执行过程</h3><img src="https://gitee.com/leo_anna/image/raw/master/img//20220104152425.png" alt="image-20220104152425516" style="zoom: 40%;" />
-
-<p>（1）innobackupex启动后，会先fork一个进程，用于启动xtrabackup，然后等待xtrabackup备份ibd数据文件；</p>
-<p>（2）xtrabackup在备份innoDB数据是，有2种线程：redo拷贝线程和ibd数据拷贝线程。xtrabackup进程开始执行后，会启动一个redo拷贝的线程，用于从最新的checkpoint点开始顺序拷贝redo.log；再启动ibd数据拷贝线程，进行拷贝ibd数据。这里是先启动redo拷贝线程的。在此阶段，innobackupex进行处于等待状态（等待文件被创建）</p>
-<p>（4）xtrabackup拷贝完成ibd数据文件后，会通知innobackupex（通过创建文件），同时xtrabackup进入等待状态（redo线程依旧在拷贝redo.log）</p>
-<p>（5）innobackupex收到xtrabackup通知后哦，执行FLUSH TABLES WITH READ LOCK（FTWRL），取得一致性位点，然后开始备份非InnoDB文件（如frm、MYD、MYI、CSV、opt、par等格式的文件），在拷贝非InnoDB文件的过程当中，数据库处于全局只读状态。</p>
-<p>（6）当innobackup拷贝完所有的非InnoDB文件后，会通知xtrabackup，通知完成后，进入等待状态；</p>
-<p>（7）xtrabackup收到innobackupex备份完成的通知后，会停止redo拷贝线程，然后通知innobackupex，redo.log文件拷贝完成；</p>
-<p>（8）innobackupex收到redo.log备份完成后，就进行解锁操作，执行：UNLOCK TABLES；</p>
-<p>（9）最后innbackupex和xtrabackup进程各自释放资源，写备份元数据信息等，innobackupex等xtrabackup子进程结束后退出。</p>
-<p>总结：</p>
-<ul>
-<li>xtrabackup用于备份数据文件和redolog；innobackupex 主进程，备份非innodb文件，全局锁</li>
-<li>完成的备份文件包括数据文件的全量备份以及在备份数据文件期间产生的redolog日志</li>
-</ul>
-<h3 id="备份文件内容"><a href="#备份文件内容" class="headerlink" title="备份文件内容"></a>备份文件内容</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">(1)xtrabackup_checkpoints -- 备份类型(如完全或增量)、备份状态(如是否已经为prepared状态)和LSN(日志序列号)</span><br><span class="line">(2)xtrabackup_binlog_info  --  mysql服务器当前正在使用的二进制日志文件及备份这一刻位置二进制日志时间的位置。</span><br><span class="line">(3)xtrabackup_binlog_pos_innodb  --  二进制日志文件及用于InnoDB或XtraDB表的二进制日志文件的当前position。</span><br><span class="line">(4)xtrabackup_binary  --  备份中用到的xtrabackup的可执行文件；</span><br><span class="line">(5)backup-my.cnf  --  备份命令用到的配置选项信息：</span><br></pre></td></tr></table></figure>
-
-<p>在使用innobackupex进行备份时，还可以使用–no-timestamp选项来阻止命令自动创建一个以时间命名的目录：如此一来，innobackupex命令将会创建一个BACKUP-DIR目录来存储备份数据</p>
-<h3 id="使用姿势"><a href="#使用姿势" class="headerlink" title="使用姿势"></a>使用姿势</h3><p>备份 要开启mysql</p>
-<p>恢复备份要关闭mysql</p>
-<h4 id="全量备份和恢复"><a href="#全量备份和恢复" class="headerlink" title="全量备份和恢复"></a>全量备份和恢复</h4><p>命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">备份：</span><br><span class="line">innobackupex --user=DBUSER --password=DBUSERPASS --defaults-file=/etc/my.cnf /path/to/BACKUP-DIR/</span><br><span class="line"><span class="meta">#</span><span class="bash">  innobackupex --user=root --password=123456 --host=127.0.0.1 /backups/</span>　 </span><br><span class="line"></span><br><span class="line">恢复：</span><br><span class="line">rm -rf /usr/local/mysql/data/ #删除新的数据库上面的所有data文件</span><br><span class="line">innobackupex --apply-log /backups/2018-07-30_11-04-55/  # 应用redolog文件到全量备份，保持数据一致性</span><br><span class="line">innobackupex --copy-back --defaults-file=/etc/my.cnf  /backups/2018-07-30_11-04-55/ #复制所有备份文件到新的数据库的DATADIR目录</span><br><span class="line"><span class="meta">#</span><span class="bash"> chown -R mysql.mysql /mydata/data/  <span class="comment">#判断是否需要为文件目录更改成mysql用户</span></span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="增量备份和恢复"><a href="#增量备份和恢复" class="headerlink" title="增量备份和恢复"></a>增量备份和恢复</h4><p>xtrabackup_checkpoints中保存着LSN信息，记录日志的位置，每次增量备份都要保证lsn序号连续，也就是第一次增量备份要基于全量备份，之后的增量备份都要基于上一次的增量备份文件进行操作</p>
-<p>命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#备份</span></span><br><span class="line">innobackupex --user=root --password=123456 --host=127.0.0.1 /backups/  <span class="comment">#全量备份</span></span><br><span class="line">innobackupex --user=root --password=root  --host=127.0.0.1 --incremental /backups/ --incremental-basedir=/backups/2018-07-30_11-01-37 <span class="comment"># 基于全量备份进行增量备份</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#恢复</span></span><br><span class="line">rm -rf /usr/<span class="built_in">local</span>/mysql/data/ <span class="comment">#删除新的数据库上面的所有data文件</span></span><br><span class="line">innobackupex --apply-log --redo-only /backups/2018-07-30_11-01-37/ <span class="comment"># 对全量备份进行数据一致性操作</span></span><br><span class="line">innobackupex --apply-log --redo-only /backups/2018-07-30_11-01-37/ --incremental-dir=/backups/2018-07-30_13-51-47/ <span class="comment"># 同步增量进全量备份</span></span><br><span class="line">innobackupex --copy-back /backups/2018-07-30_11-01-37/ <span class="comment"># 复制备份文件到新数据库目录下</span></span><br><span class="line"><span class="comment"># chown -R mysql.mysql /mydata/data/  #判断是否需要为文件目录更改成mysql用户</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>注意：</strong></p>
-<ul>
-<li>innobackupex还有很多其他的参数，包括主从等很多可配置的参数，暂不说明</li>
-<li>增量备份恢复的时候要加上–redo-only</li>
-</ul>
-]]></content>
-      <categories>
-        <category>mysql</category>
-      </categories>
-      <tags>
-        <tag>xtrabackup</tag>
-        <tag>备份</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>用两个栈实现队列</title>
     <url>/2021/12/27/%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</url>
     <content><![CDATA[<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227210926.gif" alt="fig1"></p>
@@ -433,6 +415,35 @@
       <categories>
         <category>职业发展</category>
       </categories>
+  </entry>
+  <entry>
+    <title>青蛙跳台问题</title>
+    <url>/2021/12/27/%E9%9D%92%E8%9B%99%E8%B7%B3%E5%8F%B0%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<p>可以转换成斐波那契数列问题</p>
+<p>解题思路：</p>
+<blockquote>
+<p>此类求 <em>多少种可能性</em> 的题目一般都有 <strong>递推性质</strong> ，即 f(n)<em>f</em>(<em>n</em>) 和 f(n-1)<em>f</em>(<em>n</em>−1)…f(1)<em>f</em>(1) 之间是有联系的。</p>
+</blockquote>
+<span id="more"></span>
+<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227222058.png" alt="image-20211227222058701">方法：</p>
+<ul>
+<li>递归法</li>
+<li>记忆递归法，需要额外申请一个空间存放历史数据</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    a:= <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">    <span class="keyword">return</span> Jump(n,a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Jump</span><span class="params">(n <span class="keyword">int</span>,a <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> n == <span class="number">0</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> n &lt;= <span class="number">2</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> n</span><br><span class="line">	&#125;</span><br><span class="line">	sum,ok:= a[n]</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		<span class="keyword">return</span> sum</span><br><span class="line">	&#125;<span class="keyword">else</span>  &#123;</span><br><span class="line">		a[n] = Jump(n<span class="number">-1</span>,a)+Jump(n<span class="number">-2</span>,a)</span><br><span class="line">		<span class="keyword">return</span> a[n]%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>动态规划 最佳</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	pre,now := <span class="number">1</span>,<span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;n;i++&#123;</span><br><span class="line">		pre,now= now,(pre+now)%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pre</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>菲波那切数列</tag>
+      </tags>
   </entry>
   <entry>
     <title>链表</title>
@@ -622,32 +633,21 @@
       </tags>
   </entry>
   <entry>
-    <title>青蛙跳台问题</title>
-    <url>/2021/12/27/%E9%9D%92%E8%9B%99%E8%B7%B3%E5%8F%B0%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<p>可以转换成斐波那契数列问题</p>
-<p>解题思路：</p>
-<blockquote>
-<p>此类求 <em>多少种可能性</em> 的题目一般都有 <strong>递推性质</strong> ，即 f(n)<em>f</em>(<em>n</em>) 和 f(n-1)<em>f</em>(<em>n</em>−1)…f(1)<em>f</em>(1) 之间是有联系的。</p>
-</blockquote>
+    <title>两数之和</title>
+    <url>/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</url>
+    <content><![CDATA[<p>两数之和</p>
 <span id="more"></span>
-<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227222058.png" alt="image-20211227222058701">方法：</p>
-<ul>
-<li>递归法</li>
-<li>记忆递归法，需要额外申请一个空间存放历史数据</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    a:= <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">    <span class="keyword">return</span> Jump(n,a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Jump</span><span class="params">(n <span class="keyword">int</span>,a <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> n == <span class="number">0</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> n &lt;= <span class="number">2</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> n</span><br><span class="line">	&#125;</span><br><span class="line">	sum,ok:= a[n]</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		<span class="keyword">return</span> sum</span><br><span class="line">	&#125;<span class="keyword">else</span>  &#123;</span><br><span class="line">		a[n] = Jump(n<span class="number">-1</span>,a)+Jump(n<span class="number">-2</span>,a)</span><br><span class="line">		<span class="keyword">return</span> a[n]%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211226154748.png" alt="image-20211226154748243"></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * </span></span><br><span class="line"><span class="comment">  * @param numbers int整型一维数组 </span></span><br><span class="line"><span class="comment">  * @param target int整型 </span></span><br><span class="line"><span class="comment">  * @return int整型一维数组</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoSum</span><span class="params">( numbers []<span class="keyword">int</span> ,  target <span class="keyword">int</span> )</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">	key := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">var</span> res []<span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> index,value := <span class="keyword">range</span> numbers&#123;</span><br><span class="line">			ret1,ok := key[target-value]</span><br><span class="line">			<span class="keyword">if</span> !ok&#123;</span><br><span class="line">				key[value] = index</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				res = <span class="built_in">append</span>(res,ret1+<span class="number">1</span>,index+<span class="number">1</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>动态规划 最佳</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	pre,now := <span class="number">1</span>,<span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;n;i++&#123;</span><br><span class="line">		pre,now= now,(pre+now)%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pre</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>解释：a+b=c,则a、b必然存在列表中，所以遍历一遍列表，并判重字典就可以了</p>
 ]]></content>
       <categories>
         <category>数据结构和算法</category>
       </categories>
       <tags>
-        <tag>菲波那切数列</tag>
+        <tag>两数之和</tag>
       </tags>
   </entry>
   <entry>
@@ -682,7 +682,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#x67;&#105;&#x74;&#64;&#49;&#x39;&#50;&#46;&#49;&#x36;&#x38;&#x2e;&#49;&#x2e;&#x31;&#x31;&#57;">&#x67;&#105;&#x74;&#64;&#49;&#x39;&#50;&#46;&#49;&#x36;&#x38;&#x2e;&#49;&#x2e;&#x31;&#x31;&#57;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#103;&#x69;&#x74;&#64;&#x31;&#x39;&#x32;&#46;&#49;&#54;&#56;&#46;&#49;&#x2e;&#49;&#49;&#x39;">&#103;&#x69;&#x74;&#64;&#x31;&#x39;&#x32;&#46;&#49;&#54;&#56;&#46;&#49;&#x2e;&#49;&#49;&#x39;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
