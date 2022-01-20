@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>iterm2背景强烈推荐</title>
-    <url>/2022/01/20/iterm2%E5%A3%81%E7%BA%B8%E5%BC%BA%E7%83%88%E6%8E%A8%E8%8D%90/</url>
-    <content><![CDATA[<p>iterm2作为一个很好用的终端工具，在使用过程中，经常会使用到分屏操作，这样，原来的背景就很容易错乱。<br>下面推荐的这个壁纸，首先是暗色系，不影响使用，<strong>另外就是分屏后，几乎看不出来分屏</strong>，这就是最大优势！！！！<br>请看图：</p>
-<span id="more"></span>
-<p><img src="https://gitee.com/leo_anna/image/raw/master/img//202201201954552.png" alt="image-20220120195415515"></p>
-]]></content>
-  </entry>
-  <entry>
     <title>2021年终总结-应届被“裁员” @蘑菇街</title>
     <url>/2022/01/09/2021%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93-%E5%BA%94%E5%B1%8A%E8%A2%AB%E2%80%9C%E8%A3%81%E5%91%98%E2%80%9D%20@%E8%98%91%E8%8F%87%E8%A1%97/</url>
     <content><![CDATA[<p><strong>工作时间：蘑菇街 202107~202112</strong></p>
@@ -48,6 +40,78 @@
       <tags>
         <tag>蘑菇街</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>mvvc与undolog</title>
+    <url>/2021/12/30/mvvc%E4%B8%8Eundolog/</url>
+    <content><![CDATA[<ul>
+<li><p>Mvcc使用一致性视图和undolog实现，数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。</p>
+</li>
+<li><p>用begin开始事务，并不会第一时间创建一致性视图，而且等第一个sql语句执行才会创建（可以用start transaction with consistent snapshot）</p>
+</li>
+<li><p>不同隔离等级下（mvcc只支持RR、RC），创建视图的时间不一样</p>
+<ul>
+<li>可重复度RR下，是事务开始的时候创建一致性视图</li>
+<li>读提交RC下，是每个sql语句执行前都会重新创建一致性视图</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="一致性视图"><a href="#一致性视图" class="headerlink" title="一致性视图"></a>一致性视图</h2><p>InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正在“活跃”的所有事务 ID。“活跃”指的就是，启动了但还没提交。</p>
+<p>根据数据的row trx_id 和一致性视图判断是否可见，低水位为一致性视图中最小的id，高水位为最大的id+1</p>
+<img src="https://static001.geekbang.org/resource/image/88/5e/882114aaf55861832b4270d44507695e.png" alt="img" style="zoom: 50%;" />
+
+<p>数据行的row trx_id</p>
+<ul>
+<li>如果落在绿色部分，表示这个版本是已提交的事务或者是当前事务自己生成的，这个数据是可见的；</li>
+<li>如果落在红色部分，表示这个版本是由将来启动的事务生成的，是肯定不可见的；</li>
+<li>如果落在黄色部分，那就包括两种情况<ul>
+<li>a.  若 row trx_id 在数组中，表示这个版本是由还没提交的事务生成的，不可见；</li>
+<li>b.  若 row trx_id 不在数组中，表示这个版本是已经提交了的事务生成的，可见。</li>
+</ul>
+</li>
+</ul>
+<h2 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h2><p>三个虚线箭头，就是 undo log；</p>
+<p>而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
+<p>具体的执行过程，是根据当前一致性视图去查undolog，回滚日志到当前事务id可见的版本</p>
+<img src="https://static001.geekbang.org/resource/image/68/ed/68d08d277a6f7926a41cc5541d3dfced.png" alt="img" style="zoom:50%;" />
+
+
+
+<h2 id="当前读"><a href="#当前读" class="headerlink" title="当前读"></a>当前读</h2><p>更新语句执行都是先读后写，而且这个读是读当前数据的最新值，被称作“当前度”</p>
+<p>当前读可以会引起一些不可预料的结果</p>
+<h2 id="Mvcc分析过程示例"><a href="#Mvcc分析过程示例" class="headerlink" title="Mvcc分析过程示例"></a>Mvcc分析过程示例</h2><p>下面是三个事务执行时间和内容</p>
+<img src="https://gitee.com/leo_anna/image/raw/master/img//20220102154700.png" alt="img" style="zoom: 67%;" />
+
+<p>下面是利用mvcc分析执行过程</p>
+<p>[]中的是是一致性视图，()中的是当前事务id，最右边的是undolog</p>
+<img src="https://static001.geekbang.org/resource/image/94/49/9416c310e406519b7460437cb0c5c149.png" alt="img" style="zoom:50%;" />
+
+<h2 id="无法修改数据的场景（mvcc）"><a href="#无法修改数据的场景（mvcc）" class="headerlink" title="无法修改数据的场景（mvcc）"></a>无法修改数据的场景（mvcc）</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 表结构和数据</span><br><span class="line">mysql&gt; CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `c` int(11) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB;</span><br><span class="line">insert into t(id, c) values(1,1),(2,2),(3,3),(4,4);</span><br></pre></td></tr></table></figure>
+
+
+
+<img src="https://static001.geekbang.org/resource/image/be/ae/be7a4d8af04cdf93aaa11108933559ae.png" alt="img" style="zoom:80%;" />
+
+<p>无法修改的原因：“当前读”引起</p>
+<p>解决办法：重试或者根据主键id去修改</p>
+]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>mvcc</tag>
+        <tag>undolog</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>iterm2背景强烈推荐</title>
+    <url>/2022/01/20/iterm2%E5%A3%81%E7%BA%B8%E5%BC%BA%E7%83%88%E6%8E%A8%E8%8D%90/</url>
+    <content><![CDATA[<p>iterm2作为一个很好用的终端工具，在使用过程中，经常会使用到分屏操作，这样，原来的背景就很容易错乱。<br>下面推荐的这个壁纸，首先是暗色系，不影响使用，<strong>另外就是分屏后，几乎看不出来分屏</strong>，这就是最大优势！！！！<br>请看图：</p>
+<span id="more"></span>
+<p><img src="https://gitee.com/leo_anna/image/raw/master/img//202201201954552.png" alt="image-20220120195415515"></p>
+]]></content>
   </entry>
   <entry>
     <title>日记 2021.12.24</title>
@@ -184,70 +248,6 @@
       </tags>
   </entry>
   <entry>
-    <title>mvvc与undolog</title>
-    <url>/2021/12/30/mvvc%E4%B8%8Eundolog/</url>
-    <content><![CDATA[<ul>
-<li><p>Mvcc使用一致性视图和undolog实现，数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。</p>
-</li>
-<li><p>用begin开始事务，并不会第一时间创建一致性视图，而且等第一个sql语句执行才会创建（可以用start transaction with consistent snapshot）</p>
-</li>
-<li><p>不同隔离等级下（mvcc只支持RR、RC），创建视图的时间不一样</p>
-<ul>
-<li>可重复度RR下，是事务开始的时候创建一致性视图</li>
-<li>读提交RC下，是每个sql语句执行前都会重新创建一致性视图</li>
-</ul>
-</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="一致性视图"><a href="#一致性视图" class="headerlink" title="一致性视图"></a>一致性视图</h2><p>InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正在“活跃”的所有事务 ID。“活跃”指的就是，启动了但还没提交。</p>
-<p>根据数据的row trx_id 和一致性视图判断是否可见，低水位为一致性视图中最小的id，高水位为最大的id+1</p>
-<img src="https://static001.geekbang.org/resource/image/88/5e/882114aaf55861832b4270d44507695e.png" alt="img" style="zoom: 50%;" />
-
-<p>数据行的row trx_id</p>
-<ul>
-<li>如果落在绿色部分，表示这个版本是已提交的事务或者是当前事务自己生成的，这个数据是可见的；</li>
-<li>如果落在红色部分，表示这个版本是由将来启动的事务生成的，是肯定不可见的；</li>
-<li>如果落在黄色部分，那就包括两种情况<ul>
-<li>a.  若 row trx_id 在数组中，表示这个版本是由还没提交的事务生成的，不可见；</li>
-<li>b.  若 row trx_id 不在数组中，表示这个版本是已经提交了的事务生成的，可见。</li>
-</ul>
-</li>
-</ul>
-<h2 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h2><p>三个虚线箭头，就是 undo log；</p>
-<p>而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
-<p>具体的执行过程，是根据当前一致性视图去查undolog，回滚日志到当前事务id可见的版本</p>
-<img src="https://static001.geekbang.org/resource/image/68/ed/68d08d277a6f7926a41cc5541d3dfced.png" alt="img" style="zoom:50%;" />
-
-
-
-<h2 id="当前读"><a href="#当前读" class="headerlink" title="当前读"></a>当前读</h2><p>更新语句执行都是先读后写，而且这个读是读当前数据的最新值，被称作“当前度”</p>
-<p>当前读可以会引起一些不可预料的结果</p>
-<h2 id="Mvcc分析过程示例"><a href="#Mvcc分析过程示例" class="headerlink" title="Mvcc分析过程示例"></a>Mvcc分析过程示例</h2><p>下面是三个事务执行时间和内容</p>
-<img src="https://gitee.com/leo_anna/image/raw/master/img//20220102154700.png" alt="img" style="zoom: 67%;" />
-
-<p>下面是利用mvcc分析执行过程</p>
-<p>[]中的是是一致性视图，()中的是当前事务id，最右边的是undolog</p>
-<img src="https://static001.geekbang.org/resource/image/94/49/9416c310e406519b7460437cb0c5c149.png" alt="img" style="zoom:50%;" />
-
-<h2 id="无法修改数据的场景（mvcc）"><a href="#无法修改数据的场景（mvcc）" class="headerlink" title="无法修改数据的场景（mvcc）"></a>无法修改数据的场景（mvcc）</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 表结构和数据</span><br><span class="line">mysql&gt; CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `c` int(11) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB;</span><br><span class="line">insert into t(id, c) values(1,1),(2,2),(3,3),(4,4);</span><br></pre></td></tr></table></figure>
-
-
-
-<img src="https://static001.geekbang.org/resource/image/be/ae/be7a4d8af04cdf93aaa11108933559ae.png" alt="img" style="zoom:80%;" />
-
-<p>无法修改的原因：“当前读”引起</p>
-<p>解决办法：重试或者根据主键id去修改</p>
-]]></content>
-      <categories>
-        <category>mysql</category>
-      </categories>
-      <tags>
-        <tag>mvcc</tag>
-        <tag>undolog</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>xtrabackup备份工具 简单介绍</title>
     <url>/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/</url>
     <content><![CDATA[<h2 id="xtrabackup备份工具"><a href="#xtrabackup备份工具" class="headerlink" title="xtrabackup备份工具"></a>xtrabackup备份工具</h2><p>仅支持innodb和xtraDB两种存储引擎</p>
@@ -332,17 +332,78 @@
       </tags>
   </entry>
   <entry>
-    <title>链表</title>
-    <url>/2021/12/26/%E9%93%BE%E8%A1%A8/</url>
-    <content><![CDATA[<p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
-<span id="more"></span>
+    <title>mvvc与undolog</title>
+    <url>/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/</url>
+    <content><![CDATA[<h1 id="日记-2022-01-04"><a href="#日记-2022-01-04" class="headerlink" title="日记 2022.01.04"></a>日记 2022.01.04</h1><h2 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h2><h3 id="MHA"><a href="#MHA" class="headerlink" title="MHA"></a>MHA</h3><h3 id="MDL"><a href="#MDL" class="headerlink" title="MDL"></a>MDL</h3><ul>
+<li><p>每个语句都会隐式申请MDL锁</p>
+</li>
+<li><p>对数据的增删改查会申请 MDL读锁</p>
+</li>
+<li><p>对表结构变更DDL会申请MDL写锁</p>
+</li>
+<li><p>MDL写-读 互斥，写-写 互斥，读 -读 不互斥 </p>
+</li>
+<li><p>申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁</p>
+</li>
+<li><p><strong>在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞</strong></p>
+<span id="more"></span></li>
+</ul>
+<h3 id="DDL对备份的影响"><a href="#DDL对备份的影响" class="headerlink" title="DDL对备份的影响"></a>DDL对备份的影响</h3><p>可能会存在主从延迟或者备份失败</p>
+<h3 id="全局锁FTWRL"><a href="#全局锁FTWRL" class="headerlink" title="全局锁FTWRL"></a>全局锁FTWRL</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 加锁</span><br><span class="line">Flush tables with read lock;</span><br><span class="line"># 解锁</span><br><span class="line">unlock tables</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+<ul>
+<li>使整库处于只读状态，主要用于备份时的获取一致性备份</li>
+<li>需要持有两把mdl锁，清理表缓存cache</li>
+</ul>
+<p>FTWRL过程：</p>
+<ol>
+<li>上全局读锁(lock_global_read_lock)；</li>
+<li>清理表缓存(close_cached_tables)；</li>
+<li>上全局COMMIT锁(make_global_read_lock_block_commit)。</li>
+</ol>
+<h2 id="go"><a href="#go" class="headerlink" title="go"></a>go</h2><h3 id="new和make"><a href="#new和make" class="headerlink" title="new和make"></a>new和make</h3><p><strong>所有的内存在 Go 中都是经过初始化的。</strong></p>
+<ul>
+<li>都是分配内存的内置函数</li>
+<li>new适用所有类型，分配内存，返回类型的零值的指针</li>
+<li>make只适用于slice、map、channel ，分配内存的同时会初始化</li>
+<li>new 分配的空间被清零， make 分配空间后，会进行初始化</li>
+</ul>
+<h3 id="队列和链表"><a href="#队列和链表" class="headerlink" title="队列和链表"></a>队列和链表</h3><p>使用内置函数实现 List.list</p>
+<ul>
+<li>本质是个循环队列</li>
+</ul>
+<p>实例代码：</p>
+<figure class="highlight golang"><table><tr><td class="code"><pre><span class="line">a:= list.List&#123;&#125;		</span><br><span class="line">a.Remove(a.Back())</span><br><span class="line">a.PushBack(<span class="number">1</span>)</span><br><span class="line">a.Len()</span><br><span class="line">a.Remove(a.Front())</span><br><span class="line">fmt.Println(a.Back())</span><br><span class="line">fmt.Println(a.Front())</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="map原理"><a href="#map原理" class="headerlink" title="map原理"></a>map原理</h3><img src="https://gitee.com/leo_anna/image/raw/master/img//20220104164308.png" alt="image-20220104164308489" style="zoom: 45%;" />
+
+<ul>
+<li>k、v表示key和value</li>
+<li>map底层使用数组实现</li>
+<li>使用桶bucket的概念，通过数组实现</li>
+</ul>
+<h4 id="Map执行过程"><a href="#Map执行过程" class="headerlink" title="Map执行过程"></a>Map执行过程</h4><ol>
+<li>通过k以及hash函数计算hash值，值分低8位和高8位</li>
+<li>低8位和bucket数组长度取余计算，定位到在哪个桶</li>
+<li>高8位用来判断是否key是否存在</li>
+<li>key和value的具体值则通过指针运算存储</li>
+<li>当桶满了，通过overflow指针链接到下一个桶</li>
+</ol>
+<h2 id="数据结构和算法"><a href="#数据结构和算法" class="headerlink" title="数据结构和算法"></a>数据结构和算法</h2><h3 id="查找算法"><a href="#查找算法" class="headerlink" title="查找算法"></a>查找算法</h3><p>优先想到二分法，以下都可以使用二分法解决</p>
+<img src="https://gitee.com/leo_anna/image/raw/master/img//20220104163925.png" alt="image-20220104163925568" style="zoom:50%;" />
+
+]]></content>
       <categories>
-        <category>数据结构和算法</category>
+        <category>mysql</category>
+        <category>go</category>
+        <category>日记</category>
       </categories>
       <tags>
-        <tag>链表</tag>
+        <tag>FTWRL</tag>
+        <tag>MDL</tag>
+        <tag>查找算法</tag>
       </tags>
   </entry>
   <entry>
@@ -562,78 +623,17 @@
       </tags>
   </entry>
   <entry>
-    <title>mvvc与undolog</title>
-    <url>/2022/01/04/%E6%97%A5%E8%AE%B0%202022.01.04/</url>
-    <content><![CDATA[<h1 id="日记-2022-01-04"><a href="#日记-2022-01-04" class="headerlink" title="日记 2022.01.04"></a>日记 2022.01.04</h1><h2 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h2><h3 id="MHA"><a href="#MHA" class="headerlink" title="MHA"></a>MHA</h3><h3 id="MDL"><a href="#MDL" class="headerlink" title="MDL"></a>MDL</h3><ul>
-<li><p>每个语句都会隐式申请MDL锁</p>
-</li>
-<li><p>对数据的增删改查会申请 MDL读锁</p>
-</li>
-<li><p>对表结构变更DDL会申请MDL写锁</p>
-</li>
-<li><p>MDL写-读 互斥，写-写 互斥，读 -读 不互斥 </p>
-</li>
-<li><p>申请MDL锁的操作会形成一个队列，队列中写锁获取优先级高于读锁</p>
-</li>
-<li><p><strong>在有长事务的表中执行DDL可能会引起后面增删查改语句的堵塞</strong></p>
-<span id="more"></span></li>
-</ul>
-<h3 id="DDL对备份的影响"><a href="#DDL对备份的影响" class="headerlink" title="DDL对备份的影响"></a>DDL对备份的影响</h3><p>可能会存在主从延迟或者备份失败</p>
-<h3 id="全局锁FTWRL"><a href="#全局锁FTWRL" class="headerlink" title="全局锁FTWRL"></a>全局锁FTWRL</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 加锁</span><br><span class="line">Flush tables with read lock;</span><br><span class="line"># 解锁</span><br><span class="line">unlock tables</span><br></pre></td></tr></table></figure>
+    <title>链表</title>
+    <url>/2021/12/26/%E9%93%BE%E8%A1%A8/</url>
+    <content><![CDATA[<p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
+<span id="more"></span>
 
-<ul>
-<li>使整库处于只读状态，主要用于备份时的获取一致性备份</li>
-<li>需要持有两把mdl锁，清理表缓存cache</li>
-</ul>
-<p>FTWRL过程：</p>
-<ol>
-<li>上全局读锁(lock_global_read_lock)；</li>
-<li>清理表缓存(close_cached_tables)；</li>
-<li>上全局COMMIT锁(make_global_read_lock_block_commit)。</li>
-</ol>
-<h2 id="go"><a href="#go" class="headerlink" title="go"></a>go</h2><h3 id="new和make"><a href="#new和make" class="headerlink" title="new和make"></a>new和make</h3><p><strong>所有的内存在 Go 中都是经过初始化的。</strong></p>
-<ul>
-<li>都是分配内存的内置函数</li>
-<li>new适用所有类型，分配内存，返回类型的零值的指针</li>
-<li>make只适用于slice、map、channel ，分配内存的同时会初始化</li>
-<li>new 分配的空间被清零， make 分配空间后，会进行初始化</li>
-</ul>
-<h3 id="队列和链表"><a href="#队列和链表" class="headerlink" title="队列和链表"></a>队列和链表</h3><p>使用内置函数实现 List.list</p>
-<ul>
-<li>本质是个循环队列</li>
-</ul>
-<p>实例代码：</p>
-<figure class="highlight golang"><table><tr><td class="code"><pre><span class="line">a:= list.List&#123;&#125;		</span><br><span class="line">a.Remove(a.Back())</span><br><span class="line">a.PushBack(<span class="number">1</span>)</span><br><span class="line">a.Len()</span><br><span class="line">a.Remove(a.Front())</span><br><span class="line">fmt.Println(a.Back())</span><br><span class="line">fmt.Println(a.Front())</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="map原理"><a href="#map原理" class="headerlink" title="map原理"></a>map原理</h3><img src="https://gitee.com/leo_anna/image/raw/master/img//20220104164308.png" alt="image-20220104164308489" style="zoom: 45%;" />
-
-<ul>
-<li>k、v表示key和value</li>
-<li>map底层使用数组实现</li>
-<li>使用桶bucket的概念，通过数组实现</li>
-</ul>
-<h4 id="Map执行过程"><a href="#Map执行过程" class="headerlink" title="Map执行过程"></a>Map执行过程</h4><ol>
-<li>通过k以及hash函数计算hash值，值分低8位和高8位</li>
-<li>低8位和bucket数组长度取余计算，定位到在哪个桶</li>
-<li>高8位用来判断是否key是否存在</li>
-<li>key和value的具体值则通过指针运算存储</li>
-<li>当桶满了，通过overflow指针链接到下一个桶</li>
-</ol>
-<h2 id="数据结构和算法"><a href="#数据结构和算法" class="headerlink" title="数据结构和算法"></a>数据结构和算法</h2><h3 id="查找算法"><a href="#查找算法" class="headerlink" title="查找算法"></a>查找算法</h3><p>优先想到二分法，以下都可以使用二分法解决</p>
-<img src="https://gitee.com/leo_anna/image/raw/master/img//20220104163925.png" alt="image-20220104163925568" style="zoom:50%;" />
-
-]]></content>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
-        <category>mysql</category>
-        <category>go</category>
-        <category>日记</category>
+        <category>数据结构和算法</category>
       </categories>
       <tags>
-        <tag>FTWRL</tag>
-        <tag>MDL</tag>
-        <tag>查找算法</tag>
+        <tag>链表</tag>
       </tags>
   </entry>
   <entry>
@@ -685,7 +685,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#103;&#105;&#116;&#64;&#49;&#57;&#x32;&#46;&#49;&#54;&#x38;&#46;&#49;&#x2e;&#49;&#49;&#x39;">&#103;&#105;&#116;&#64;&#49;&#57;&#x32;&#46;&#49;&#54;&#x38;&#46;&#49;&#x2e;&#49;&#49;&#x39;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#x67;&#x69;&#116;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#x36;&#56;&#x2e;&#x31;&#x2e;&#x31;&#49;&#x39;">&#x67;&#x69;&#116;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#x36;&#56;&#x2e;&#x31;&#x2e;&#x31;&#49;&#x39;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
