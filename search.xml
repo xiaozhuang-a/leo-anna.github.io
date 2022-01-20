@@ -42,6 +42,96 @@
       </tags>
   </entry>
   <entry>
+    <title>iterm2背景强烈推荐</title>
+    <url>/2022/01/20/iterm2%E5%A3%81%E7%BA%B8%E5%BC%BA%E7%83%88%E6%8E%A8%E8%8D%90/</url>
+    <content><![CDATA[<p>iterm2作为一个很好用的终端工具，在使用过程中，经常会使用到分屏操作，这样，原来的背景就很容易错乱。<br>下面推荐的这个壁纸，首先是暗色系，不影响使用，<strong>另外就是分屏后，几乎看不出来分屏</strong>，这就是最大优势！！！！<br>请看图：</p>
+<span id="more"></span>
+<p><img src="https://gitee.com/leo_anna/image/raw/master/img//202201201954552.png" alt="image-20220120195415515"></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>mvvc与undolog</title>
+    <url>/2021/12/30/mvvc%E4%B8%8Eundolog/</url>
+    <content><![CDATA[<ul>
+<li><p>Mvcc使用一致性视图和undolog实现，数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。</p>
+</li>
+<li><p>用begin开始事务，并不会第一时间创建一致性视图，而且等第一个sql语句执行才会创建（可以用start transaction with consistent snapshot）</p>
+</li>
+<li><p>不同隔离等级下（mvcc只支持RR、RC），创建视图的时间不一样</p>
+<ul>
+<li>可重复度RR下，是事务开始的时候创建一致性视图</li>
+<li>读提交RC下，是每个sql语句执行前都会重新创建一致性视图</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="一致性视图"><a href="#一致性视图" class="headerlink" title="一致性视图"></a>一致性视图</h2><p>InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正在“活跃”的所有事务 ID。“活跃”指的就是，启动了但还没提交。</p>
+<p>根据数据的row trx_id 和一致性视图判断是否可见，低水位为一致性视图中最小的id，高水位为最大的id+1</p>
+<img src="https://static001.geekbang.org/resource/image/88/5e/882114aaf55861832b4270d44507695e.png" alt="img" style="zoom: 50%;" />
+
+<p>数据行的row trx_id</p>
+<ul>
+<li>如果落在绿色部分，表示这个版本是已提交的事务或者是当前事务自己生成的，这个数据是可见的；</li>
+<li>如果落在红色部分，表示这个版本是由将来启动的事务生成的，是肯定不可见的；</li>
+<li>如果落在黄色部分，那就包括两种情况<ul>
+<li>a.  若 row trx_id 在数组中，表示这个版本是由还没提交的事务生成的，不可见；</li>
+<li>b.  若 row trx_id 不在数组中，表示这个版本是已经提交了的事务生成的，可见。</li>
+</ul>
+</li>
+</ul>
+<h2 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h2><p>三个虚线箭头，就是 undo log；</p>
+<p>而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
+<p>具体的执行过程，是根据当前一致性视图去查undolog，回滚日志到当前事务id可见的版本</p>
+<img src="https://static001.geekbang.org/resource/image/68/ed/68d08d277a6f7926a41cc5541d3dfced.png" alt="img" style="zoom:50%;" />
+
+
+
+<h2 id="当前读"><a href="#当前读" class="headerlink" title="当前读"></a>当前读</h2><p>更新语句执行都是先读后写，而且这个读是读当前数据的最新值，被称作“当前度”</p>
+<p>当前读可以会引起一些不可预料的结果</p>
+<h2 id="Mvcc分析过程示例"><a href="#Mvcc分析过程示例" class="headerlink" title="Mvcc分析过程示例"></a>Mvcc分析过程示例</h2><p>下面是三个事务执行时间和内容</p>
+<img src="https://gitee.com/leo_anna/image/raw/master/img//20220102154700.png" alt="img" style="zoom: 67%;" />
+
+<p>下面是利用mvcc分析执行过程</p>
+<p>[]中的是是一致性视图，()中的是当前事务id，最右边的是undolog</p>
+<img src="https://static001.geekbang.org/resource/image/94/49/9416c310e406519b7460437cb0c5c149.png" alt="img" style="zoom:50%;" />
+
+<h2 id="无法修改数据的场景（mvcc）"><a href="#无法修改数据的场景（mvcc）" class="headerlink" title="无法修改数据的场景（mvcc）"></a>无法修改数据的场景（mvcc）</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 表结构和数据</span><br><span class="line">mysql&gt; CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `c` int(11) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB;</span><br><span class="line">insert into t(id, c) values(1,1),(2,2),(3,3),(4,4);</span><br></pre></td></tr></table></figure>
+
+
+
+<img src="https://static001.geekbang.org/resource/image/be/ae/be7a4d8af04cdf93aaa11108933559ae.png" alt="img" style="zoom:80%;" />
+
+<p>无法修改的原因：“当前读”引起</p>
+<p>解决办法：重试或者根据主键id去修改</p>
+]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>mvcc</tag>
+        <tag>undolog</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>两数之和</title>
+    <url>/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</url>
+    <content><![CDATA[<p>两数之和</p>
+<span id="more"></span>
+<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211226154748.png" alt="image-20211226154748243"></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * </span></span><br><span class="line"><span class="comment">  * @param numbers int整型一维数组 </span></span><br><span class="line"><span class="comment">  * @param target int整型 </span></span><br><span class="line"><span class="comment">  * @return int整型一维数组</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoSum</span><span class="params">( numbers []<span class="keyword">int</span> ,  target <span class="keyword">int</span> )</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">	key := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">var</span> res []<span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> index,value := <span class="keyword">range</span> numbers&#123;</span><br><span class="line">			ret1,ok := key[target-value]</span><br><span class="line">			<span class="keyword">if</span> !ok&#123;</span><br><span class="line">				key[value] = index</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				res = <span class="built_in">append</span>(res,ret1+<span class="number">1</span>,index+<span class="number">1</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>解释：a+b=c,则a、b必然存在列表中，所以遍历一遍列表，并判重字典就可以了</p>
+]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>两数之和</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>日记 2021.12.24</title>
     <url>/2021/12/24/mysql-%E6%97%A5%E8%AE%B0-2021.12.24/</url>
     <content><![CDATA[<h3 id="mysql-sql执行流程"><a href="#mysql-sql执行流程" class="headerlink" title="mysql sql执行流程"></a>mysql sql执行流程</h3><span id="more"></span>
@@ -103,14 +193,6 @@
         <tag>redolog和binlog</tag>
         <tag>change buffer</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>iterm2背景强烈推荐</title>
-    <url>/2022/01/20/iterm2%E5%A3%81%E7%BA%B8%E5%BC%BA%E7%83%88%E6%8E%A8%E8%8D%90/</url>
-    <content><![CDATA[<p>iterm2作为一个很好用的终端工具，在使用过程中，经常会使用到分屏操作，这样，原来的背景就很容易错乱。<br>下面推荐的这个壁纸，首先是暗色系，不影响使用，<strong>另外就是分屏后，几乎看不出来分屏</strong>，这就是最大优势！！！！<br>请看图：</p>
-<span id="more"></span>
-<p><img src="https://gitee.com/leo_anna/image/raw/master/img//202201201954552.png" alt="image-20220120195415515"></p>
-]]></content>
   </entry>
   <entry>
     <title>redolog和binlog 刷盘参数</title>
@@ -181,6 +263,22 @@
         <tag>redolog和binlog</tag>
         <tag>刷盘</tag>
         <tag>io瓶颈</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二叉树</title>
+    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
+    <content><![CDATA[<p>二叉树的三种遍历方式</p>
+<span id="more"></span>
+
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>二叉树</tag>
       </tags>
   </entry>
   <entry>
@@ -259,6 +357,20 @@
       </tags>
   </entry>
   <entry>
+    <title>用两个栈实现队列</title>
+    <url>/2021/12/27/%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</url>
+    <content><![CDATA[<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227210926.gif" alt="fig1"></p>
+<span id="more"></span>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">   <span class="string">&quot;container/list&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> CQueue <span class="keyword">struct</span> &#123;</span><br><span class="line">   stack1,stack2 *list.List</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> <span class="title">CQueue</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> CQueue&#123;</span><br><span class="line">      stack1: list.New(),</span><br><span class="line">      stack2: list.New(),</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">AppendTail</span><span class="params">(value <span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">   this.stack1.PushBack(value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">DeleteHead</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len()==<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">for</span> this.stack1.Len()!=<span class="number">0</span> &#123;</span><br><span class="line">         this.stack2.PushBack(this.stack1.Remove(this.stack1.Back()))</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//删除栈底元素</span></span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len() !=<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> this.stack2.Remove(this.stack2.Back()).(<span class="keyword">int</span>)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your CQueue object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * obj := Constructor();</span></span><br><span class="line"><span class="comment"> * obj.AppendTail(value);</span></span><br><span class="line"><span class="comment"> * param_2 := obj.DeleteHead();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>链表</tag>
+        <tag>栈</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>xtrabackup备份工具 简单介绍</title>
     <url>/2022/01/04/xtrabackup%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/</url>
     <content><![CDATA[<h2 id="xtrabackup备份工具"><a href="#xtrabackup备份工具" class="headerlink" title="xtrabackup备份工具"></a>xtrabackup备份工具</h2><p>仅支持innodb和xtraDB两种存储引擎</p>
@@ -309,114 +421,6 @@
       </tags>
   </entry>
   <entry>
-    <title>二叉树</title>
-    <url>/2021/12/26/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
-    <content><![CDATA[<p>二叉树的三种遍历方式</p>
-<span id="more"></span>
-
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> TreeNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	Val <span class="keyword">int</span></span><br><span class="line">	Left *TreeNode</span><br><span class="line">	Right *TreeNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	a:= []<span class="keyword">int</span>&#123;<span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> aTree *TreeNode</span><br><span class="line">	<span class="keyword">for</span> _,i :=<span class="keyword">range</span> a&#123;</span><br><span class="line">		aTree= insert(aTree,i)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(aTree)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	res := threeOrders(aTree)</span><br><span class="line">	fmt.Println(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">(t *TreeNode,value <span class="keyword">int</span>)</span> *<span class="title">TreeNode</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t ==<span class="literal">nil</span>&#123;</span><br><span class="line">		t = <span class="built_in">new</span>(TreeNode)</span><br><span class="line">		t.Val = value</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> value &gt; t.Val &#123;</span><br><span class="line">			t.Right = insert(t.Right,value)</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			t.Left =insert(t.Left,value)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种遍历方式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">threeOrders</span><span class="params">( root *TreeNode )</span> [][]<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="comment">// write code here</span></span><br><span class="line">	<span class="keyword">var</span> res [][]<span class="keyword">int</span></span><br><span class="line">	res  = <span class="built_in">make</span>([][]<span class="keyword">int</span>,<span class="number">3</span>)</span><br><span class="line">	PreOrder(root,&amp;res[<span class="number">0</span>])</span><br><span class="line">	MinOrder(root,&amp;res[<span class="number">1</span>])</span><br><span class="line">	PostOrder(root,&amp;res[<span class="number">2</span>])</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span>  <span class="title">PreOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	PreOrder(t.Left,res)</span><br><span class="line">	PreOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MinOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	MinOrder(t.Left,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line">	MinOrder(t.Right,res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PostOrder</span><span class="params">(t  *TreeNode,res *[]<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	PostOrder(t.Left,res)</span><br><span class="line">	PostOrder(t.Right,res)</span><br><span class="line">	*res = <span class="built_in">append</span>(*res,t.Val)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>二叉树</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>用两个栈实现队列</title>
-    <url>/2021/12/27/%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</url>
-    <content><![CDATA[<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227210926.gif" alt="fig1"></p>
-<span id="more"></span>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">   <span class="string">&quot;container/list&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> CQueue <span class="keyword">struct</span> &#123;</span><br><span class="line">   stack1,stack2 *list.List</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> <span class="title">CQueue</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> CQueue&#123;</span><br><span class="line">      stack1: list.New(),</span><br><span class="line">      stack2: list.New(),</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">AppendTail</span><span class="params">(value <span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">   this.stack1.PushBack(value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *CQueue)</span> <span class="title">DeleteHead</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len()==<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">for</span> this.stack1.Len()!=<span class="number">0</span> &#123;</span><br><span class="line">         this.stack2.PushBack(this.stack1.Remove(this.stack1.Back()))</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//删除栈底元素</span></span><br><span class="line">   <span class="keyword">if</span> this.stack2.Len() !=<span class="number">0</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> this.stack2.Remove(this.stack2.Back()).(<span class="keyword">int</span>)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your CQueue object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * obj := Constructor();</span></span><br><span class="line"><span class="comment"> * obj.AppendTail(value);</span></span><br><span class="line"><span class="comment"> * param_2 := obj.DeleteHead();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>链表</tag>
-        <tag>栈</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>链表</title>
-    <url>/2021/12/26/%E9%93%BE%E8%A1%A8/</url>
-    <content><![CDATA[<p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
-<span id="more"></span>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>链表</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mvvc与undolog</title>
-    <url>/2021/12/30/mvvc%E4%B8%8Eundolog/</url>
-    <content><![CDATA[<ul>
-<li><p>Mvcc使用一致性视图和undolog实现，数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。</p>
-</li>
-<li><p>用begin开始事务，并不会第一时间创建一致性视图，而且等第一个sql语句执行才会创建（可以用start transaction with consistent snapshot）</p>
-</li>
-<li><p>不同隔离等级下（mvcc只支持RR、RC），创建视图的时间不一样</p>
-<ul>
-<li>可重复度RR下，是事务开始的时候创建一致性视图</li>
-<li>读提交RC下，是每个sql语句执行前都会重新创建一致性视图</li>
-</ul>
-</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="一致性视图"><a href="#一致性视图" class="headerlink" title="一致性视图"></a>一致性视图</h2><p>InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正在“活跃”的所有事务 ID。“活跃”指的就是，启动了但还没提交。</p>
-<p>根据数据的row trx_id 和一致性视图判断是否可见，低水位为一致性视图中最小的id，高水位为最大的id+1</p>
-<img src="https://static001.geekbang.org/resource/image/88/5e/882114aaf55861832b4270d44507695e.png" alt="img" style="zoom: 50%;" />
-
-<p>数据行的row trx_id</p>
-<ul>
-<li>如果落在绿色部分，表示这个版本是已提交的事务或者是当前事务自己生成的，这个数据是可见的；</li>
-<li>如果落在红色部分，表示这个版本是由将来启动的事务生成的，是肯定不可见的；</li>
-<li>如果落在黄色部分，那就包括两种情况<ul>
-<li>a.  若 row trx_id 在数组中，表示这个版本是由还没提交的事务生成的，不可见；</li>
-<li>b.  若 row trx_id 不在数组中，表示这个版本是已经提交了的事务生成的，可见。</li>
-</ul>
-</li>
-</ul>
-<h2 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h2><p>三个虚线箭头，就是 undo log；</p>
-<p>而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
-<p>具体的执行过程，是根据当前一致性视图去查undolog，回滚日志到当前事务id可见的版本</p>
-<img src="https://static001.geekbang.org/resource/image/68/ed/68d08d277a6f7926a41cc5541d3dfced.png" alt="img" style="zoom:50%;" />
-
-
-
-<h2 id="当前读"><a href="#当前读" class="headerlink" title="当前读"></a>当前读</h2><p>更新语句执行都是先读后写，而且这个读是读当前数据的最新值，被称作“当前度”</p>
-<p>当前读可以会引起一些不可预料的结果</p>
-<h2 id="Mvcc分析过程示例"><a href="#Mvcc分析过程示例" class="headerlink" title="Mvcc分析过程示例"></a>Mvcc分析过程示例</h2><p>下面是三个事务执行时间和内容</p>
-<img src="https://gitee.com/leo_anna/image/raw/master/img//20220102154700.png" alt="img" style="zoom: 67%;" />
-
-<p>下面是利用mvcc分析执行过程</p>
-<p>[]中的是是一致性视图，()中的是当前事务id，最右边的是undolog</p>
-<img src="https://static001.geekbang.org/resource/image/94/49/9416c310e406519b7460437cb0c5c149.png" alt="img" style="zoom:50%;" />
-
-<h2 id="无法修改数据的场景（mvcc）"><a href="#无法修改数据的场景（mvcc）" class="headerlink" title="无法修改数据的场景（mvcc）"></a>无法修改数据的场景（mvcc）</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 表结构和数据</span><br><span class="line">mysql&gt; CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `c` int(11) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB;</span><br><span class="line">insert into t(id, c) values(1,1),(2,2),(3,3),(4,4);</span><br></pre></td></tr></table></figure>
-
-
-
-<img src="https://static001.geekbang.org/resource/image/be/ae/be7a4d8af04cdf93aaa11108933559ae.png" alt="img" style="zoom:80%;" />
-
-<p>无法修改的原因：“当前读”引起</p>
-<p>解决办法：重试或者根据主键id去修改</p>
-]]></content>
-      <categories>
-        <category>mysql</category>
-      </categories>
-      <tags>
-        <tag>mvcc</tag>
-        <tag>undolog</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>职业规划</title>
     <url>/2022/01/09/%E8%81%8C%E4%B8%9A%E8%A7%84%E5%88%92/</url>
     <content><![CDATA[<p><strong>前期职业必须快速试错，不论职业还是行业，虽然会走一些弯路，但是将是珍贵的人生经历，为以后的能够走适合自己的道路提供经验。</strong></p>
@@ -434,21 +438,46 @@
       </categories>
   </entry>
   <entry>
-    <title>两数之和</title>
-    <url>/2021/12/26/%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</url>
-    <content><![CDATA[<p>两数之和</p>
+    <title>链表</title>
+    <url>/2021/12/26/%E9%93%BE%E8%A1%A8/</url>
+    <content><![CDATA[<p>包括数字转链表，翻转链表的几种方式（双链表，双指针）</p>
 <span id="more"></span>
-<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211226154748.png" alt="image-20211226154748243"></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * </span></span><br><span class="line"><span class="comment">  * @param numbers int整型一维数组 </span></span><br><span class="line"><span class="comment">  * @param target int整型 </span></span><br><span class="line"><span class="comment">  * @return int整型一维数组</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">twoSum</span><span class="params">( numbers []<span class="keyword">int</span> ,  target <span class="keyword">int</span> )</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">	key := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">var</span> res []<span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> index,value := <span class="keyword">range</span> numbers&#123;</span><br><span class="line">			ret1,ok := key[target-value]</span><br><span class="line">			<span class="keyword">if</span> !ok&#123;</span><br><span class="line">				key[value] = index</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				res = <span class="built_in">append</span>(res,ret1+<span class="number">1</span>,index+<span class="number">1</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package services</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">   &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type ListNode struct &#123;</span><br><span class="line">   Val int</span><br><span class="line">   Next *ListNode</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func ListPrint(a *ListNode)  &#123;</span><br><span class="line">   nowList := a</span><br><span class="line">   for&#123;</span><br><span class="line">      if nowList ==nil&#123;</span><br><span class="line">         fmt.Println(&quot;输出完成&quot;)</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Println(nowList.Val)</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">func SliceToList(s []int) *ListNode &#123;</span><br><span class="line">   // 数组转链表</span><br><span class="line">   nowList := new(ListNode)</span><br><span class="line">   head := nowList</span><br><span class="line">   for _,i := range s&#123;</span><br><span class="line">      temp := &amp;ListNode&#123;</span><br><span class="line">         Val:  i,</span><br><span class="line">         Next: nil,</span><br><span class="line">      &#125;</span><br><span class="line">      nowList.Next = temp</span><br><span class="line">      nowList = nowList.Next</span><br><span class="line">      head.Val ++</span><br><span class="line">   &#125;</span><br><span class="line">   return head.Next</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双指针</span><br><span class="line"></span><br><span class="line">func ReverseList1( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   var pre *ListNode</span><br><span class="line">   pre = nil</span><br><span class="line">   cur := pHead</span><br><span class="line">   for &#123;</span><br><span class="line">      if cur == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      temp := cur.Next</span><br><span class="line">      cur.Next = pre</span><br><span class="line">      pre = cur</span><br><span class="line">      cur = temp</span><br><span class="line">   &#125;</span><br><span class="line">   return pre</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param pHead ListNode类</span><br><span class="line"> * @return ListNode类</span><br><span class="line"> */</span><br><span class="line">// 链表翻转 双链表</span><br><span class="line"></span><br><span class="line">func ReverseList2( pHead *ListNode ) *ListNode &#123;</span><br><span class="line">   // write code here</span><br><span class="line">   newlist := new(ListNode)</span><br><span class="line">   newlist = nil</span><br><span class="line">   for&#123;</span><br><span class="line">      if pHead == nil&#123;</span><br><span class="line">         break</span><br><span class="line">      &#125;</span><br><span class="line">      head := &amp;ListNode&#123;</span><br><span class="line">         Val: pHead.Val,</span><br><span class="line">         Next:  newlist,</span><br><span class="line">      &#125;</span><br><span class="line">      newlist = head</span><br><span class="line">      pHead = pHead.Next</span><br><span class="line">   &#125;</span><br><span class="line">   return newlist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>数据结构和算法</category>
+      </categories>
+      <tags>
+        <tag>链表</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>青蛙跳台问题</title>
+    <url>/2021/12/27/%E9%9D%92%E8%9B%99%E8%B7%B3%E5%8F%B0%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<p>可以转换成斐波那契数列问题</p>
+<p>解题思路：</p>
+<blockquote>
+<p>此类求 <em>多少种可能性</em> 的题目一般都有 <strong>递推性质</strong> ，即 f(n)<em>f</em>(<em>n</em>) 和 f(n-1)<em>f</em>(<em>n</em>−1)…f(1)<em>f</em>(1) 之间是有联系的。</p>
+</blockquote>
+<span id="more"></span>
+<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227222058.png" alt="image-20211227222058701">方法：</p>
+<ul>
+<li>递归法</li>
+<li>记忆递归法，需要额外申请一个空间存放历史数据</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    a:= <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">    <span class="keyword">return</span> Jump(n,a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Jump</span><span class="params">(n <span class="keyword">int</span>,a <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> n == <span class="number">0</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> n &lt;= <span class="number">2</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> n</span><br><span class="line">	&#125;</span><br><span class="line">	sum,ok:= a[n]</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		<span class="keyword">return</span> sum</span><br><span class="line">	&#125;<span class="keyword">else</span>  &#123;</span><br><span class="line">		a[n] = Jump(n<span class="number">-1</span>,a)+Jump(n<span class="number">-2</span>,a)</span><br><span class="line">		<span class="keyword">return</span> a[n]%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>解释：a+b=c,则a、b必然存在列表中，所以遍历一遍列表，并判重字典就可以了</p>
+<ul>
+<li>动态规划 最佳</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	pre,now := <span class="number">1</span>,<span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;n;i++&#123;</span><br><span class="line">		pre,now= now,(pre+now)%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pre</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>数据结构和算法</category>
       </categories>
       <tags>
-        <tag>两数之和</tag>
+        <tag>菲波那切数列</tag>
       </tags>
   </entry>
   <entry>
@@ -625,35 +654,6 @@
       </tags>
   </entry>
   <entry>
-    <title>青蛙跳台问题</title>
-    <url>/2021/12/27/%E9%9D%92%E8%9B%99%E8%B7%B3%E5%8F%B0%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<p>可以转换成斐波那契数列问题</p>
-<p>解题思路：</p>
-<blockquote>
-<p>此类求 <em>多少种可能性</em> 的题目一般都有 <strong>递推性质</strong> ，即 f(n)<em>f</em>(<em>n</em>) 和 f(n-1)<em>f</em>(<em>n</em>−1)…f(1)<em>f</em>(1) 之间是有联系的。</p>
-</blockquote>
-<span id="more"></span>
-<p><img src="https://gitee.com/leo_anna/image/raw/master/img//20211227222058.png" alt="image-20211227222058701">方法：</p>
-<ul>
-<li>递归法</li>
-<li>记忆递归法，需要额外申请一个空间存放历史数据</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    a:= <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">    <span class="keyword">return</span> Jump(n,a)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Jump</span><span class="params">(n <span class="keyword">int</span>,a <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> n == <span class="number">0</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> n &lt;= <span class="number">2</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> n</span><br><span class="line">	&#125;</span><br><span class="line">	sum,ok:= a[n]</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		<span class="keyword">return</span> sum</span><br><span class="line">	&#125;<span class="keyword">else</span>  &#123;</span><br><span class="line">		a[n] = Jump(n<span class="number">-1</span>,a)+Jump(n<span class="number">-2</span>,a)</span><br><span class="line">		<span class="keyword">return</span> a[n]%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>动态规划 最佳</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">numWays</span><span class="params">(n <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	pre,now := <span class="number">1</span>,<span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;n;i++&#123;</span><br><span class="line">		pre,now= now,(pre+now)%<span class="number">1000000007</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pre</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>数据结构和算法</category>
-      </categories>
-      <tags>
-        <tag>菲波那切数列</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>go基础</title>
     <url>/2021/12/11/go%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<blockquote>
@@ -685,7 +685,7 @@
 <li>git commit 提交 </li>
 <li>git branch -a 查看所有的分支</li>
 <li>git commit -am “init” 提交并且加注释 </li>
-<li>git remote add origin <a href="mailto:&#103;&#x69;&#116;&#64;&#x31;&#57;&#x32;&#x2e;&#49;&#54;&#56;&#46;&#49;&#x2e;&#49;&#49;&#x39;">&#103;&#x69;&#116;&#64;&#x31;&#57;&#x32;&#x2e;&#49;&#54;&#56;&#46;&#49;&#x2e;&#49;&#49;&#x39;</a>:ndshow</li>
+<li>git remote add origin <a href="mailto:&#x67;&#105;&#x74;&#x40;&#49;&#x39;&#50;&#46;&#x31;&#x36;&#56;&#x2e;&#x31;&#46;&#49;&#x31;&#57;">&#x67;&#105;&#x74;&#x40;&#49;&#x39;&#50;&#46;&#x31;&#x36;&#56;&#x2e;&#x31;&#46;&#49;&#x31;&#57;</a>:ndshow</li>
 <li>git push origin master 将文件给推到服务器上 </li>
 <li>git remote show origin 显示远程库origin里的资源 </li>
 <li>git checkout dev 切换到本地dev分支</li>
