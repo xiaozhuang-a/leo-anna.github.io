@@ -1903,4 +1903,231 @@
         <tag>mysql</tag>
       </tags>
   </entry>
+  <entry>
+    <title>GTID 生命周期和使用</title>
+    <url>/2022/03/11/GTID%20%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%92%8C%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="GTID-生命周期和使用"><a href="#GTID-生命周期和使用" class="headerlink" title="GTID 生命周期和使用"></a>GTID 生命周期和使用</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>GTID即全局事务ID (global transaction identifier), 其保证为每一个在主上提交的事务在复制集群中可以生成一个唯一的ID，主要用于主从复制。</p>
+<span id="more"></span>
+
+<h2 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h2><p>GTID = source_id:transaction_id</p>
+<ul>
+<li><p>source_id为服务器的uuid</p>
+</li>
+<li><p>transaction_id为在源服务器上执行事务的系列号</p>
+</li>
+<li><p>GTID可以是集合的形式，如</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">2174B383-5441-11E8-B90A-C80AA9429562:1-3:5-10, 24DA167-0C0C-11E8-8442-00059A3C7B00:1-19</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>gtid的生成方式通过参数gtid_next决定</p>
+</li>
+<li><ul>
+<li>gtid_next=AUTOMATIC，自动分配gtid_next，是gtid_next的默认值</li>
+<li>gtid_next=’’，手动指定gtid值。</li>
+</ul>
+</li>
+</ul>
+<p>需要注意，如果在原服务器上提交的事务生成的gitd集合不连续，<strong>那设置成****AUTOMATIC后，会自动补全，如：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#原状态</span></span><br><span class="line">show master status;</span><br><span class="line">&gt;</span><br><span class="line">Executed_Gtid_Set: 7232f285-783e-11ec-856c-00163e1bc22d:1-3</span><br><span class="line"><span class="comment">#手动指定gtid_next</span></span><br><span class="line">SET @@SESSION.GTID_NEXT= <span class="string">&#x27;7232f285-783e-11ec-856c-00163e1bc22d:10&#x27;</span></span><br><span class="line"><span class="comment">#执行一个事务</span></span><br><span class="line">insert into test01.user (name,age) values (<span class="string">&quot;ttt&quot;</span>,2);</span><br><span class="line"><span class="comment">#查看状态</span></span><br><span class="line">show master status;</span><br><span class="line">&gt;</span><br><span class="line">Executed_Gtid_Set: 7232f285-783e-11ec-856c-00163e1bc22d:1-3:10</span><br><span class="line"></span><br><span class="line"><span class="comment">#改成gtid_next=AUTOMATIC</span></span><br><span class="line"><span class="comment">#执行一个事务</span></span><br><span class="line">insert into test01.user (name,age) values (<span class="string">&quot;ttt&quot;</span>,2);</span><br><span class="line"><span class="comment">#查看状态</span></span><br><span class="line">show master status;</span><br><span class="line">&gt;</span><br><span class="line">Executed_Gtid_Set: 7232f285-783e-11ec-856c-00163e1bc22d:1-4:10</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="涉及mysql变量"><a href="#涉及mysql变量" class="headerlink" title="涉及mysql变量"></a>涉及mysql变量</h2><p><img src="https://gitee.com/leo_anna/image/raw/master/img//202201281442487.png" alt="img"></p>
+<ul>
+<li>查看变量，select @@global.gtid_executed\G;</li>
+<li>gtid_purged，包括在服务器上提交了的事务但是日记文件已经不再服务器上的GTID集合，通常用于主从同步的从库初始状态更新。</li>
+</ul>
+<h2 id="主从中gtid的工作流程"><a href="#主从中gtid的工作流程" class="headerlink" title="主从中gtid的工作流程"></a>主从中gtid的工作流程</h2><p>简而言之，GTID的工作流程为：</p>
+<ul>
+<li><p>master更新数据时，会在事务前产生GTID，一同记录到binlog日志中（SET @@SESSION.GTID_NEXT=）。</p>
+</li>
+<li><p>slave端的i/o 线程将变更的binlog，写入到本地的relay log中。</p>
+</li>
+<li><p>sql线程从relay log中获取GTID，然后对比slave端的binlog是否有记录。</p>
+</li>
+<li><p>如果有记录，说明该GTID的事务已经执行，slave会忽略。</p>
+</li>
+<li><p>如果没有记录，slave就会从relay log中执行该GTID的事务，并记录到binlog。</p>
+</li>
+</ul>
+<h2 id="gtid的生命周期"><a href="#gtid的生命周期" class="headerlink" title="gtid的生命周期"></a>gtid的生命周期</h2><ol>
+<li><p>事务在原服务器执行提交后，会分配一个GTID，该GTID由uuid和尚未使用过的<strong>最小非零事务系列号组成</strong>。</p>
+</li>
+<li><p> 每当二进制日志轮换或服务器关闭时，服务器都会将写入先前二进制日志文件的所有事务的 GTID 写入 mysql.gtid_executed表中。</p>
+</li>
+<li><p>如果为事务分配了 GTID，则通过将 GTID 添加到gtid_executed系统变量@@GLOBAL.gtid_executed( 此 GTID 集包含所有已提交 GTID 事务集的表示， <strong>gtid_executed系统变量中的 GTID 集是应用事务的完整记录，但 mysql.gtid_executed表不是</strong>。</p>
+</li>
+<li><p>在二进制日志数据传输到副本并存储在副本的中继日志中，副本读取 GTID 并设置其 <a href="https://dev.mysql.com/doc/refman/5.7/en/replication-options-gtids.html#sysvar_gtid_next">gtid_next</a>系统的值变量作为此 GTID。这告诉副本必须使用此 GTID 记录下一个事务。重要的是要注意副本集gtid_next在会话上下文中。</p>
+</li>
+<li><p>系统gtid_owned 变量 (@@GLOBAL.gtid_owned) 的副本显示当前正在使用的每个 GTID 以及拥有它的线程的 ID。如果 GTID 已被使用，则不会引发错误，并使用自动跳过功能忽略事务。</p>
+</li>
+<li><p>如果尚未使用 GTID，则副本应用复制的事务。因为 gtid_next设置为源已经分配的 GTID，所以副本<strong>不会尝试为此事务生成新的 GTID</strong>，而是使用存储在gtid_next的值.</p>
+</li>
+<li><p>如果在副本上启用了二进制日志记录，则 GTID 在提交时通过在事务开始时将其写入二进制日志。</p>
+</li>
+<li><p>如果在副本上禁用了二进制日志记录，则 GTID 通过将其直接写入 mysql.gtid_executed表中以原子方式持久化。MySQL 将一条语句附加到事务以将 GTID 插入表中。<strong>在这种情况下，该 mysql.gtid_executed表是副本上应用的事务的完整记录</strong>。</p>
+</li>
+</ol>
+<p>注意：在 MySQL 5.7 中，将 GTID 插入表中的操作对于 DML 语句是原子的，但对于 DDL 语句不是，因此如果服务器在涉及 DDL 语句的事务后意外退出，则 GTID 状态可能会变得不一致。从 MySQL 8.0 开始，DDL 语句和 DML 语句的操作都是原子的。</p>
+<ol>
+<li>gtid_executed在副本上提交复制事务后不久，通过将 GTID 添加到副本的系统变量 ( @@GLOBAL.gtid_executed) 中 的 GTID 集合中，GTID 被非原子地外部化 。至于源，这个 GTID 集包含所有已提交 GTID 事务集的表示。<strong>如果在副本上禁用二进制日志记录，则该 mysql.gtid_executed表也是副本上应用的事务的完整记录。如果在副本上启用了二进制日志记录，这意味着某些 GTID 仅记录在二进制日志中，则gtid_executed系统变量中的 GTID 集是唯一完整的记录</strong>。</li>
+</ol>
+<h2 id="mysql-gtid-executed表和global-gtid-executed变量"><a href="#mysql-gtid-executed表和global-gtid-executed变量" class="headerlink" title="mysql.gtid_executed表和global.gtid_executed变量"></a>mysql.gtid_executed表和global.gtid_executed变量</h2><ul>
+<li><p>在master实例上，gtid_executed系统变量中的 GTID 集是应用事务的完整记录，但 mysql.gtid_executed表不是。</p>
+</li>
+<li><p>在slave实例上</p>
+</li>
+<li><ul>
+<li>禁用了binlog，则两者都是应用事务的完整记录</li>
+<li>开启binlog，只有gtid_executed变量才是事务完整的记录</li>
+</ul>
+</li>
+<li><p>reset master 会重置gtid_executed表和变量，以及清空日志</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>GTID</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mysql监控核心指标 附带：promql、完善的grafana表盘模板</title>
+    <url>/2022/03/11/Mysql%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6%E6%A0%B8%E5%BF%83%E6%8C%87%E6%A0%87-%E9%99%84%E5%B8%A6-promql/</url>
+    <content><![CDATA[<blockquote>
+<p>监控告警是诊断数据库最直接、最有效的方式，而监控指标的正确配置和使用对诊断过程和结果的精准性有很大影响</p>
+</blockquote>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>介绍了mysql在保证稳定性和诊断数据库问题过程中用到的绝大多数核心指标，不包括主机的指标，同时附带了计算指标的公式和promql，方便大家在grafana中图形化使用。<br>mysql的核心指标大部分自数据库的全局状态，可以通过show global status;</p>
+<span id="more"></span>
+<h1 id="监控核心指标"><a href="#监控核心指标" class="headerlink" title="监控核心指标"></a>监控核心指标</h1><h2 id="tps-qps"><a href="#tps-qps" class="headerlink" title="tps/qps"></a><strong>tps/qps</strong></h2><p>tps: Transactions Per Second，每秒提交的事务数；</p>
+<p>qps: Queries Per Second每秒请求数；</p>
+<p>通常有两种方法计算tps/qps：</p>
+<p><strong>方法1：</strong></p>
+<p>基于 com_commit、com_rollback 计算tps，基于 questions 计算qps。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">TPS = Com_commit/s + Com_rollback/s</span><br></pre></td></tr></table></figure>
+
+<p>其中，</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Com_commit /s= mysqladmin extended-status --relative --sleep=1|grep -w Com_commit</span><br><span class="line">Com_rollback/s = mysqladmin extended-status --relative --sleep=1|grep -w Com_rollback</span><br><span class="line">QPS 是指MySQL Server 每秒执行的Query总量，通过Questions (客户的查询数目)状态值每秒内的变化量来近似表示，所以有：</span><br><span class="line">QPS = mysqladmin extended-status --relative --sleep=1|grep -w Questions</span><br></pre></td></tr></table></figure>
+
+<p>仿照上面的方法还可以得到，mysql每秒select、insert、update、delete的次数等，如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Com_select/s = mysqladmin extended-status --relative --sleep=1|grep -w Com_select</span><br><span class="line">Com_select/s：平均每秒select语句执行次数</span><br><span class="line">Com_insert/s：平均每秒insert语句执行次数</span><br><span class="line">Com_update/s：平均每秒update语句执行次数</span><br><span class="line">Com_delete/s：平均每秒delete语句执行次数</span><br></pre></td></tr></table></figure>
+
+<p><strong>方法2:</strong></p>
+<p>基于com_%计算tps ,qps</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tps= Com_insert/s + Com_update/s + Com_delete/s</span><br><span class="line">qps=Com_select/s + Com_insert/s + Com_update/s + Com_delete/s</span><br></pre></td></tr></table></figure>
+
+<p>Promql</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#qps</span></span><br><span class="line">rate(mysql_global_status_queries&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_queries&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"><span class="comment">#tps</span></span><br><span class="line">rate(mysql_global_status_handlers_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>, handler=~<span class="string">&quot;commit|rollback|savepoint.*|prepare&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_handlers_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>, handler=~<span class="string">&quot;commit|rollback|savepoint.*|prepare&quot;</span>&#125;[5m])</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a><strong>线程状态</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">* threads_running：</span><br><span class="line">当前正处于激活状态的线程个数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">max_over_time(mysql_global_status_threads_running&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or</span><br><span class="line">max_over_time(mysql_global_status_threads_running&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">* threads_connected：</span><br><span class="line">当前连接的线程的个数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">max(max_over_time(mysql_global_status_threads_connected&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>])  or mysql_global_status_threads_connected&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125; )</span><br><span class="line"></span><br><span class="line"><span class="comment">### 流量状态</span></span><br><span class="line">* Bytes_received/s：</span><br><span class="line">平均每秒从所有客户端接收到的字节数，单位KB</span><br><span class="line"></span><br><span class="line">* Bytes_sent/s：</span><br><span class="line">平均每秒发送给所有客户端的字节数，单位KB</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="innodb文件读写次数"><a href="#innodb文件读写次数" class="headerlink" title="innodb文件读写次数"></a><strong>innodb文件读写次数</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">* innodb_data_reads：</span><br><span class="line">innodb平均每秒从文件中读取的次数</span><br><span class="line">rate(mysql_global_status_innodb_data_reads&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_data_reads&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">* innodb_data_writes：</span><br><span class="line">innodb平均每秒从文件中写入的次数</span><br><span class="line">rate(mysql_global_status_innodb_data_writes&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_data_writes&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">* innodb_data_fsyncs：</span><br><span class="line">innodb平均每秒进行fsync()操作的次数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_data_fsyncs&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_data_fsyncs&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="innodb读写量"><a href="#innodb读写量" class="headerlink" title="innodb读写量"></a><strong>innodb读写量</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">* innodb_data_read：</span><br><span class="line">innodb平均每秒钟读取的数据量，单位为KB</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_data_read&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_data_read&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">* innodb_data_written：</span><br><span class="line">innodb平均每秒钟写入的数据量，单位为KB</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_data_written&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_data_written&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br></pre></td></tr></table></figure>
+
+<h2 id="innodb缓冲池状态"><a href="#innodb缓冲池状态" class="headerlink" title="innodb缓冲池状态"></a><strong>innodb缓冲池状态</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">* innodb_buffer_pool_reads: </span><br><span class="line">平均每秒从物理磁盘读取页的次数 </span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_buffer_pool_reads&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_buffer_pool_reads&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">* innodb_buffer_pool_read_requests: </span><br><span class="line">平均每秒从innodb缓冲池的读次数（逻辑读请求数）</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_buffer_pool_read_requests&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_buffer_pool_read_requests&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">* innodb_buffer_pool_write_requests: </span><br><span class="line">平均每秒向innodb缓冲池的写次数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_buffer_pool_write_requests&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_buffer_pool_write_requests&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">* innodb_buffer_pool_pages_dirty: </span><br><span class="line">平均每秒innodb缓存池中脏页的数目</span><br><span class="line"><span class="comment">#promql 脏页比例</span></span><br><span class="line">mysql_global_status_buffer_pool_dirty_pages&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125; / sum(mysql_global_status_buffer_pool_pages&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;) without(state)</span><br><span class="line"></span><br><span class="line">* innodb_buffer_pool_pages_flushed: </span><br><span class="line">buffer pool刷新页面的次数</span><br><span class="line"></span><br><span class="line">* innodb_buffer_read_hit_ratio = ( 1 - Innodb_buffer_pool_reads/Innodb_buffer_pool_read_requests) * 100</span><br><span class="line">innodb缓冲池的读命中率</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">(1 - mysql_global_status_innodb_buffer_pool_reads&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125; / mysql_global_status_innodb_buffer_pool_read_requests&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125; ) * 100</span><br><span class="line"></span><br><span class="line">* Innodb_buffer_usage =  ( 1 - Innodb_buffer_pool_pages_free / Innodb_buffer_pool_pages_total) * 100</span><br><span class="line">Innodb缓冲池的利用率</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">100- (100*avg(mysql_global_status_buffer_pool_pages&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,state=~<span class="string">&quot;free&quot;</span>&#125;) by (mysql_host) / sum(mysql_global_status_buffer_pool_pages&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;) by (mysql_host) )</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="innodb日志"><a href="#innodb日志" class="headerlink" title="innodb日志"></a><strong>innodb日志</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">innodb_os_log_fsyncs: </span><br><span class="line">平均每秒向日志文件完成的fsync()写数量</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_os_log_fsyncs&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_os_log_fsyncs&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_os_log_written: </span><br><span class="line">平均每秒写入日志文件的字节数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_os_log_written&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_os_log_written&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_log_writes: </span><br><span class="line">平均每秒向日志文件的物理写次数</span><br><span class="line"><span class="comment">#promql </span></span><br><span class="line">rate(mysql_global_status_innodb_log_writes&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_log_writes&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_log_write_requests: </span><br><span class="line">平均每秒日志写请求数</span><br><span class="line"><span class="comment">#promql 逻辑写</span></span><br><span class="line">rate(mysql_global_status_innodb_log_write_requests&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_log_write_requests&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br></pre></td></tr></table></figure>
+
+<h2 id="innodb行"><a href="#innodb行" class="headerlink" title="innodb行"></a><strong>innodb行</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">innodb_rows_deleted: </span><br><span class="line">平均每秒从innodb表删除的行数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;deleted&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;deleted&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_rows_inserted: </span><br><span class="line">平均每秒从innodb表插入的行数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;insert&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;insert&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_rows_read: </span><br><span class="line">平均每秒从innodb表读取的行数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;select&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;select&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_rows_updated: </span><br><span class="line">平均每秒从innodb表更新的行数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;update&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>,operation=<span class="string">&quot;update&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_row_lock_waits:  </span><br><span class="line">启动到现在，对InnoDB 表的操作必须等待行锁的总次数。</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_row_lock_waits&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_row_lock_waits&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_row_lock_time: </span><br><span class="line">启动到现在表获取行锁所花费的总时间 InnoDB，以毫秒为单位。</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_innodb_row_lock_time&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_row_lock_time&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">innodb_row_lock_time_avg: </span><br><span class="line">平均每次锁定的实践，单位毫秒</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">mysql_global_status_innodb_row_lock_time_avg&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">innodb_row_lock_current_waits</span><br><span class="line">等待锁的数量</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">mysql_global_status_innodb_row_lock_current_waits&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>promql ops，包括平均每秒从innodb表insert、select、update、select行数</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_innodb_row_ops_total&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="MyISAM读写次数"><a href="#MyISAM读写次数" class="headerlink" title="MyISAM读写次数"></a><strong>MyISAM读写次数</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">key_read_requests: </span><br><span class="line">MyISAM平均每秒钟从缓冲池中的读取次数</span><br><span class="line"></span><br><span class="line">Key_write_requests: </span><br><span class="line">MyISAM平均每秒钟从缓冲池中的写入次数</span><br><span class="line"></span><br><span class="line">key_reads : </span><br><span class="line">MyISAM平均每秒钟从硬盘上读取的次数</span><br><span class="line"></span><br><span class="line">key_writes : </span><br><span class="line">MyISAM平均每秒钟从硬盘上写入的次数</span><br></pre></td></tr></table></figure>
+
+<h2 id="MyISAM缓冲池"><a href="#MyISAM缓冲池" class="headerlink" title="MyISAM缓冲池"></a><strong>MyISAM缓冲池</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">MyISAM平均每秒key buffer利用率</span><br><span class="line">Key_usage_ratio =Key_blocks_used/(Key_blocks_used+Key_blocks_unused)*100</span><br><span class="line"></span><br><span class="line">MyISAM平均每秒key buffer读命中率</span><br><span class="line">Key_read_hit_ratio=(1-Key_reads/Key_read_requests)*100</span><br><span class="line"></span><br><span class="line">MyISAM平均每秒key buffer写命中率</span><br><span class="line">Key_write_hit_ratio =(1-Key_writes/Key_write_requests)*100</span><br></pre></td></tr></table></figure>
+
+<h2 id="临时表"><a href="#临时表" class="headerlink" title="临时表"></a><strong>临时表</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Created_tmp_disk_tables: </span><br><span class="line">服务器执行语句时在硬盘上自动创建的临时表的数量</span><br><span class="line"></span><br><span class="line">Created_tmp_tables: </span><br><span class="line">服务器执行语句时自动创建的内存中的临时表的数量</span><br><span class="line"></span><br><span class="line">Created_tmp_disk_tables/Created_tmp_tables比值最好不要超过10%，如果Created_tmp_tables值比较大，可能是排序句子过多或者连接句子不够优化</span><br></pre></td></tr></table></figure>
+
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a><strong>其他</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">slow_queries: </span><br><span class="line">慢sql，执行时间超过long_query_time秒的查询的个数（重要）</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">increase(mysql_global_status_slow_queries&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[30m])</span><br><span class="line"></span><br><span class="line">sort_rows: </span><br><span class="line">已经排序的行数</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">rate(mysql_global_status_sort_rows&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[<span class="variable">$interval</span>]) or irate(mysql_global_status_sort_rows&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[5m])</span><br><span class="line"></span><br><span class="line">open_files: </span><br><span class="line">打开的文件的数目</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">mysql_global_status_open_files&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">open_tables: </span><br><span class="line">当前打开的表的数量</span><br><span class="line"><span class="comment">#promql</span></span><br><span class="line">mysql_global_status_open_tables&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">select_scan: </span><br><span class="line">对第一个表进行完全扫描的联接的数量</span><br><span class="line"><span class="comment">#promql</span></span><br></pre></td></tr></table></figure>
+
+<p>此外，还有一些性能指标不能通过mysqladmin extended-status或show global status直接得到，但是十分重要。</p>
+<h2 id="response-time-响应时间"><a href="#response-time-响应时间" class="headerlink" title="response time: 响应时间"></a><strong>response time: 响应时间</strong></h2><p>Percona提供了tcprstat工具统计响应时间，此功能默认是关闭的，可以通过设置参数query_response_time_stats=1打开这个功能。</p>
+<p>有两种方法查看响应时间：</p>
+<p>（1）通过命令SHOW QUERY_RESPONSE_TIME查看响应时间统计；</p>
+<p>（2）通过INFORMATION_SCHEMA里面的表QUERY_RESPONSE_TIME来查看。</p>
+<h2 id="主从"><a href="#主从" class="headerlink" title="主从"></a>主从</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#server id 变化</span></span><br><span class="line">rate(mysql_slave_status_master_server_id&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;[3m])</span><br><span class="line"></span><br><span class="line"><span class="comment">#主从延时</span></span><br><span class="line">max(mysql_slave_status_seconds_behind_master&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;) by (mysql_host,master_host) - max(mysql_slave_status_sql_delay&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;) by (mysql_host,master_host)</span><br><span class="line"></span><br><span class="line"><span class="comment">#复制线程状态</span></span><br><span class="line"><span class="comment">#slave thread</span></span><br><span class="line">mysql_slave_status_slave_io_running&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;</span><br><span class="line"><span class="comment">#io thread</span></span><br><span class="line">mysql_slave_status_slave_sql_running&#123;mysql_host=<span class="string">&quot;<span class="variable">$host</span>&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="告警核心指标"><a href="#告警核心指标" class="headerlink" title="告警核心指标"></a>告警核心指标</h1><p>mysql状态</p>
+<table>
+<thead>
+<tr>
+<th>MySQL down</th>
+<th>参考<a href="https://awesome-prometheus-alerts.grep.to/rules.html#mysql">https://awesome-prometheus-alerts.grep.to/rules.html#mysql</a> 和grafana表盘</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MySQL too many connections (&gt; 80%)</td>
+<td></td>
+</tr>
+<tr>
+<td>MySQL high threads running</td>
+<td></td>
+</tr>
+<tr>
+<td>slave status Slave IO thread</td>
+<td></td>
+</tr>
+<tr>
+<td>slave status Slave sql thread</td>
+<td></td>
+</tr>
+<tr>
+<td>MySQL Slave replication lag</td>
+<td></td>
+</tr>
+<tr>
+<td>5分钟内 MySQL slow queries</td>
+<td></td>
+</tr>
+<tr>
+<td>MySQL restarted</td>
+<td></td>
+</tr>
+<tr>
+<td>每秒锁等待次数</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>主机状态</p>
+<table>
+<thead>
+<tr>
+<th>cpu使用率 &gt; 70</th>
+<th>参考grafana表盘</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>磁盘使用率（datadir挂载）&gt; 90</td>
+<td></td>
+</tr>
+<tr>
+<td>host up存活</td>
+<td></td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>mysql</category>
+      </categories>
+      <tags>
+        <tag>监控</tag>
+        <tag>promsql</tag>
+      </tags>
+  </entry>
 </search>
