@@ -2130,4 +2130,86 @@
         <tag>go</tag>
       </tags>
   </entry>
+  <entry>
+    <title>openvpn部署和使用-详解</title>
+    <url>/2022/03/22/openvpn%E9%83%A8%E7%BD%B2%E5%92%8C%E4%BD%BF%E7%94%A8-%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<h1 id="openvpn部署和使用-详解"><a href="#openvpn部署和使用-详解" class="headerlink" title="openvpn部署和使用-详解"></a>openvpn部署和使用-详解</h1><p>openvpn 使用账号密码登录一共有大概三种方式：</p>
+<ul>
+<li>openvpn证书+账号密码+文件</li>
+<li>openvpn证书+账号密码+mysql</li>
+<li>openvpn证书+账号密码+LADP</li>
+</ul>
+<p>以下案例配置为：openvpn证书+账号密码+文件</p>
+<span id="more"></span>
+
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>安装和部署过程</p>
+<p>系统初始化：</p>
+<ul>
+<li>selinux关闭</li>
+<li>iptables，yum -y install iptables iptables-services</li>
+<li>本地路由转发开启，echo “net.ipv4.ip_forward = 1” &gt;&gt; /etc/sysctl.conf，sysctl -p</li>
+</ul>
+<p>openvpn安装</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y update</span><br><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install openvpn easy-rsa</span><br><span class="line">cp -r /usr/share/easy-rsa/ /etc/openvpn/easy-rsa</span><br><span class="line"><span class="built_in">cd</span> /etc/openvpn/easy-rsa/</span><br><span class="line">rm -f 3 3.0</span><br><span class="line">find / -<span class="built_in">type</span> f -name <span class="string">&quot;vars.example&quot;</span> | xargs -i cp &#123;&#125; . &amp;&amp; mv vars.example vars</span><br></pre></td></tr></table></figure>
+
+<p>安装完成</p>
+<p>配置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">创建一个新的 PKI 和 CA根证书</span><br><span class="line"><span class="built_in">cd</span> /etc/openvpn/easyrsa</span><br><span class="line">./easyrsa cleal-all</span><br><span class="line">./easyrsa build-ca <span class="comment">#提示后输入密码或者加上nopass无密码</span></span><br><span class="line"></span><br><span class="line">创建服务端证书</span><br><span class="line">./easyrsa gen-req server nopass <span class="comment">#提示后回车 + 输入ca跟证书密码（如果上面设置密码）</span></span><br><span class="line">签约服务端证书</span><br><span class="line">./easyrsa sign server server <span class="comment">#同上</span></span><br><span class="line">创建 Diffie-Hellman</span><br><span class="line">./easyrsa gen-dh</span><br><span class="line">生成加密文件</span><br><span class="line">openvpn --genkey --secret /etc/openvpn/ta.key</span><br><span class="line"></span><br><span class="line">创建客户端证书（无证书模式可以忽略）</span><br><span class="line"></span><br><span class="line">./easyrsa gen-req weshop_client nopass</span><br><span class="line">./easyrsa sign client weshop_client</span><br></pre></td></tr></table></figure>
+
+<p>整理服务端和客户端证书</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">服务端</span><br><span class="line"><span class="built_in">cd</span> /etc/openvpn</span><br><span class="line">cp easy-rsa/3.0.8/pki/dh.pem .</span><br><span class="line">cp easy-rsa/3.0.8/pki/ca.crt .</span><br><span class="line">cp easy-rsa/3.0.8/pki/issued/server.crt .</span><br><span class="line">cp easy-rsa/3.0.8/pki/private/server.key .</span><br><span class="line"></span><br><span class="line">客户端 用于客户端文件打包</span><br><span class="line">mkdir /etc/openvpn/client</span><br><span class="line"><span class="built_in">cd</span> /etc/openvpn/client</span><br><span class="line">cp /etc/openvpn/easy-rsa/3.0.8/pki/issued/weshop_client.crt .</span><br><span class="line">cp /etc/openvpn/easy-rsa/3.0.8/pki/private/weshop_client.key .</span><br><span class="line">cp /etc/openvpn/ca.crt .</span><br><span class="line">cp /etc/openvpn/ta.key .</span><br></pre></td></tr></table></figure>
+
+<p>ipatbles配置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT</span><br><span class="line">iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT</span><br><span class="line">iptables -A INPUT -p tcp --sport 1094 -j ACCEPT （注意修改openvpn端口和tcp）</span><br><span class="line">iptables -t nat -A POSTROUTING -s 192.168.16.0/20 -j SNAT --to-source 0.0.0.0 或者</span><br><span class="line">iptables -t nat -A POSTROUTING -s 192.168.16.0/20 -j MASQUERADE <span class="comment">#内网可以访问 0.0.0.0  是openvpn机器的内网IP地址 MASQUERADE可以配制成动态选择内网ip，192.168.16.0/20 是服务端分配给客户端的虚拟ip网段</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="服务端和客户端配置"><a href="#服务端和客户端配置" class="headerlink" title="服务端和客户端配置"></a>服务端和客户端配置</h2><p>服务端配置文件和客户端安装和配置</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><p>编辑账号密码认证脚本</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim checkpsw.sh</span><br><span class="line"></span><br><span class="line"><span class="comment">#!/bin/sh</span></span><br><span class="line"><span class="comment">###########################################################</span></span><br><span class="line"><span class="comment"># checkpsw.sh (C) 2004 Mathias Sundman &lt;mathias@openvpn.se&gt;</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># This script will authenticate OpenVPN users against</span></span><br><span class="line"><span class="comment"># a plain text file. The passfile should simply contain</span></span><br><span class="line"><span class="comment"># one row per user with the username first followed by</span></span><br><span class="line"><span class="comment"># one or more space(s) or tab(s) and then the password.</span></span><br><span class="line"></span><br><span class="line">PASSFILE=<span class="string">&quot;/etc/openvpn/weshop_psw_file&quot;</span></span><br><span class="line">LOG_FILE=<span class="string">&quot;/etc/openvpn/log/openvpn-password.log&quot;</span></span><br><span class="line">TIME_STAMP=`date <span class="string">&quot;+%Y-%m-%d %T&quot;</span>`</span><br><span class="line">SALT_FILE=<span class="string">&#x27;/etc/openvpn/.env/salt&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">###########################################################</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ ! -r <span class="string">&quot;<span class="variable">$&#123;PASSFILE&#125;</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$&#123;TIME_STAMP&#125;</span>: Could not open password file \&quot;<span class="variable">$&#123;PASSFILE&#125;</span>\&quot; for reading.&quot;</span> &gt;&gt; <span class="variable">$&#123;LOG_FILE&#125;</span></span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">CORRECT_PASSWORD=`awk <span class="string">&#x27;!/^;/&amp;&amp;!/^#/&amp;&amp;$1==&quot;&#x27;</span><span class="variable">$&#123;username&#125;</span><span class="string">&#x27;&quot;&#123;print $2;exit&#125;&#x27;</span> <span class="variable">$&#123;PASSFILE&#125;</span>`</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$&#123;CORRECT_PASSWORD&#125;</span>&quot;</span> = <span class="string">&quot;&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$&#123;TIME_STAMP&#125;</span>: User does not exist: username=\&quot;<span class="variable">$&#123;username&#125;</span>\&quot;, password=\&quot;<span class="variable">$&#123;password&#125;</span>\&quot;.&quot;</span> &gt;&gt; <span class="variable">$&#123;LOG_FILE&#125;</span></span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">md5_pass=`<span class="built_in">echo</span> -n <span class="variable">$&#123;password&#125;</span>$(&lt;<span class="variable">$SALT_FILE</span>)| openssl md5 | cut -d <span class="string">&#x27; &#x27;</span> -f 2`;</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$&#123;TIME_STAMP&#125;</span>: User used pass <span class="variable">$&#123;md5_pass&#125;</span>&quot;</span> &gt;&gt; <span class="variable">$&#123;LOG_FILE&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$&#123;md5_pass&#125;</span>&quot;</span> = <span class="string">&quot;<span class="variable">$&#123;CORRECT_PASSWORD&#125;</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$&#123;TIME_STAMP&#125;</span>: Successful authentication: username=\&quot;<span class="variable">$&#123;username&#125;</span>\&quot;.&quot;</span> &gt;&gt; <span class="variable">$&#123;LOG_FILE&#125;</span></span><br><span class="line">  <span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$&#123;TIME_STAMP&#125;</span>: Incorrect password: username=\&quot;<span class="variable">$&#123;username&#125;</span>\&quot;, password=\&quot;<span class="variable">$&#123;password&#125;</span>\&quot;.&quot;</span> &gt;&gt; <span class="variable">$&#123;LOG_FILE&#125;</span></span><br><span class="line"><span class="built_in">exit</span> 1</span><br></pre></td></tr></table></figure>
+
+
+
+<p>创建密码文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/openvpn/psw-file</span><br><span class="line">chmod 400 /etc/openvpn/psw-file</span><br><span class="line">密码格式：<span class="built_in">test</span> <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>服务端配置文件server.conf</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">port 1099</span><br><span class="line">proto tcp <span class="comment">#指定采用的传输协议，可以选择tcp或udp </span></span><br><span class="line">dev tun <span class="comment">#指定创建的通信隧道类型，可选tun或tap</span></span><br><span class="line">ca /etc/openvpn/ca.crt  <span class="comment">#指定根证书CA证书的文件路径</span></span><br><span class="line">cert /etc/openvpn/server.crt  <span class="comment">#指定服务器端的证书文件路径 </span></span><br><span class="line">key /etc/openvpn/server.key <span class="comment">#指定服务器端的私钥文件路径 </span></span><br><span class="line">dh /etc/openvpn/dh.pem <span class="comment">#指定迪菲赫尔曼参数的文件路径</span></span><br><span class="line">ifconfig-pool-persist /etc/openvpn/ipp.txt  <span class="comment">#服务器自动给客户端分配IP后，客户端下次连接时，仍然采用上次的IP地址(第一次分配的IP保存在ipp.txt中，下一次分配其中保存的IP)</span></span><br><span class="line">server 162.168.16.0 255.255.240.0 <span class="comment">#指定虚拟局域网占用的IP地址段和子网掩码，此处配置的服务器自身占用.1的ip地址</span></span><br><span class="line">push <span class="string">&quot;route 10.2.0.0 255.255.0.0&quot;</span> </span><br><span class="line"><span class="comment">#push &quot;redirect-gateway def1 bypass-dhcp&quot; # 把openvpn当成网关 #自动推送客户端上的网关及DHCP</span></span><br><span class="line">push <span class="string">&quot;dhcp-option DNS 8.8.8.8&quot;</span></span><br><span class="line">push <span class="string">&quot;dhcp-option DNS 162.168.16.1&quot;</span></span><br><span class="line">tls-auth /etc/openvpn/ta.key 0 <span class="comment">#开启TLS-auth，使用ta.key防御攻击。服务器端的第二个参数值为0，客户端的为1。</span></span><br><span class="line"><span class="comment">#cipher AES-256-CBC #加密认证算法</span></span><br><span class="line">client-to-client <span class="comment">#允许客户端与客户端相连接，默认情况下客户端只能与服务器相连接</span></span><br><span class="line">keepalive 20 120 <span class="comment">#每2 0秒ping一次，连接超时时间设为120秒</span></span><br><span class="line">comp-lzo <span class="comment">#使用lzo压缩的通讯,服务端和客户端都必须配置</span></span><br><span class="line">user root</span><br><span class="line">group root</span><br><span class="line">persist-key <span class="comment">#重启时仍保留一些状态</span></span><br><span class="line">cipher AES-256-CBC <span class="comment">#加密认证算法</span></span><br><span class="line">persist-tun <span class="comment">#重启时仍保留一些状态</span></span><br><span class="line">status <span class="built_in">log</span>/openvpn-status.log</span><br><span class="line">log-append <span class="built_in">log</span>/openvpn.log</span><br><span class="line">verb 1 <span class="comment">#指定日志文件的记录详细级别，可选0-9，等级越高日志内容越详细</span></span><br><span class="line">mute 20 <span class="comment">#相同信息的数量，如果连续出现 20 条相同的信息，将不记录到日志中</span></span><br><span class="line">duplicate-cn <span class="comment">#允许多个客户端使用相同的证书同时登录</span></span><br><span class="line">script-security 3 <span class="comment">#脚本安全等级</span></span><br><span class="line">auth-user-pass-verify /etc/openvpn/checkpsw.sh via-env <span class="comment">#将使用 auth-pam.pl  perl 脚本来验证连接客户端的用户名/密码。</span></span><br><span class="line">username-as-common-name <span class="comment">#将告诉服务器将用户名用于账号密码认证</span></span><br><span class="line"><span class="comment">#plugin /usr/lib64/openvpn/</span></span><br><span class="line">auth-nocache   <span class="comment">#新加此句，auth-nocache可以在断线后防止内存中保存用户名和密码来提高安全性，闲麻烦可不加，不然每次断开重新连接都会要求需要输入用户名和密码。</span></span><br><span class="line"><span class="comment">#plugins/openvpn-plugin-auth-pam.so login</span></span><br><span class="line"><span class="comment">#client-cert-not-required #可以禁用客户端证书的使用，并仅强制用户名/密码身份验  #说明使用的插件，openvpn为插件的参数，使用pam的servicesname，而openvpn-auth-pam.so默认是没有的，需要进入openvpn的源码目录：plugin/auth-pam下面执行一下make命令，才会产生此文件.</span></span><br></pre></td></tr></table></figure>
+
+<p>服务端配置文件参数：路由控制</p>
+<p>路由控制需要由三个参数进行定义：</p>
+<ul>
+<li>route-nopull</li>
+</ul>
+<p>如果在客户端配置文件中配route-nopull，openvpn连接后将不会在电脑上添加任何路由，所有流量都将本地转发。</p>
+<ul>
+<li>vpn_gateway</li>
+</ul>
+<p>如果在客户端配置文件中配vpn_getaway，默认访问网络不走vpn隧道，如果可以通过添加该参数，下发路由，访问目的网络匹配到会自动进入VPN隧道。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">route 10.0.0.0 255.255.255.0  vpn_gateway</span><br><span class="line">route 172.16.0.0 255.255.255.0  vpn_gateway</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>net_gateway</li>
+</ul>
+<p>这个参数和 vpn_gateway 相反,表示在默认出去的访问全部走 openvpn 时,强行指定部分IP地址段访问不通过 Openvpn 出去。</p>
+<p><strong>max-routes</strong> 参数表示可以添加路由的条数,默认只允许添加100条路由,如果少于100条路由可不加这个参数。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">max-routes 1000</span><br><span class="line">route 10.100.0.0 255.255.255.0 net_gateway</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="客户端配置"><a href="#客户端配置" class="headerlink" title="客户端配置"></a>客户端配置</h3><p>文件打包：weshop_client.crt weshop_client.key ca.crt ta.key  weshop_client.ovpn</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">client</span><br><span class="line">remote 0.0.0.0 1094 <span class="comment">#设置Server的IP地址和端口，这个地方需要严格和Server端保持一致。</span></span><br><span class="line"><span class="comment">#remote-random #随机选择一个Server连接，否则按照顺序从上到下依次连接。该选项默认不启用。</span></span><br><span class="line"><span class="comment">#resolv-retry infinite #始终重新解析Server的IP地址（如果remote后面跟的是域名），保证Server IP地址是动态的使用DDNS动态更新DNS后，Client在自动重新连接时重新解析Server的IP地址。这样无需人为重新启动，即可重新接入VPN。</span></span><br><span class="line"><span class="comment">#nobind #定义在本机不邦定任何端口监听incoming数据。</span></span><br><span class="line">proto tcp</span><br><span class="line">dev tun</span><br><span class="line">comp-lzo <span class="comment">#启用允许数据压缩，这个地方需要严格和Server端保持一致。</span></span><br><span class="line">ca ca.crt</span><br><span class="line">cert weshop_client.crt</span><br><span class="line">key weshop_client.key</span><br><span class="line">tls-auth ta.key 1 </span><br><span class="line">route-method exe</span><br><span class="line">route-delay 2</span><br><span class="line">verb 1 <span class="comment">#日志等级</span></span><br><span class="line">auth-nocache  <span class="comment">#新加此句，auth-nocache可以在断线后防止内存中保存用户名和密码来提高安全性，闲麻烦可不加，不然每次断开重新连接都会要求需要输入用户名和密码。</span></span><br><span class="line">auth-user-pass <span class="comment">#使用账号密码验证</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>vpn</tag>
+      </tags>
+  </entry>
 </search>
